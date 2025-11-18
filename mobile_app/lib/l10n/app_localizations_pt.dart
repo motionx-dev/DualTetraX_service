@@ -1,0 +1,327 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for Portuguese (`pt`).
+class AppLocalizationsPt extends AppLocalizations {
+  AppLocalizationsPt([String locale = 'pt']) : super(locale);
+
+  @override
+  String get appTitle => 'DualTetraX';
+
+  @override
+  String get home => 'Início';
+
+  @override
+  String get statistics => 'Estatísticas';
+
+  @override
+  String get settings => 'Configurações';
+
+  @override
+  String get guide => 'Guia';
+
+  @override
+  String get connectDevice => 'Conectar Dispositivo';
+
+  @override
+  String connectionFailed(String message) {
+    return 'Falha na Conexão: $message';
+  }
+
+  @override
+  String get retry => 'Tentar Novamente';
+
+  @override
+  String get quickMenu => 'Menu Rápido';
+
+  @override
+  String get usageHistory => 'Histórico de Uso';
+
+  @override
+  String get usageGuide => 'Guia de Uso';
+
+  @override
+  String get connected => 'Conectado';
+
+  @override
+  String get connecting => 'Conectando...';
+
+  @override
+  String get disconnected => 'Desconectado';
+
+  @override
+  String get connectedToDevice => 'Conectado ao DualTetraX';
+
+  @override
+  String get searchingDevice => 'Procurando dispositivo...';
+
+  @override
+  String get tapToConnect =>
+      'Toque no botão conectar para conectar ao dispositivo';
+
+  @override
+  String get shotType => 'Tipo de Shot';
+
+  @override
+  String get mode => 'Modo';
+
+  @override
+  String get level => 'Nível';
+
+  @override
+  String get battery => 'Bateria';
+
+  @override
+  String get todayUsage => 'Uso de Hoje';
+
+  @override
+  String get totalUsageTime => 'Tempo Total de Uso';
+
+  @override
+  String get mostUsedMode => 'Modo Mais Usado';
+
+  @override
+  String get noUsageData => 'Sem dados de uso';
+
+  @override
+  String cannotLoadData(String message) {
+    return 'Não foi possível carregar os dados: $message';
+  }
+
+  @override
+  String get daily => 'Diário';
+
+  @override
+  String get weekly => 'Semanal';
+
+  @override
+  String get monthly => 'Mensal';
+
+  @override
+  String get dailyUsageTime => 'Tempo de Uso Diário';
+
+  @override
+  String get usageByType => 'Uso por Tipo de Shot';
+
+  @override
+  String get minutes => 'min';
+
+  @override
+  String get weeklyStatsComingSoon => 'Estatísticas semanais (Em breve)';
+
+  @override
+  String get monthlyStatsComingSoon => 'Estatísticas mensais (Em breve)';
+
+  @override
+  String error(String message) {
+    return 'Erro: $message';
+  }
+
+  @override
+  String get appearance => 'Aparência';
+
+  @override
+  String get theme => 'Tema';
+
+  @override
+  String get lightMode => 'Modo Claro';
+
+  @override
+  String get darkMode => 'Modo Escuro';
+
+  @override
+  String get systemMode => 'Sistema';
+
+  @override
+  String get selectTheme => 'Selecionar Tema';
+
+  @override
+  String get device => 'Dispositivo';
+
+  @override
+  String get connectedDevice => 'Dispositivo Conectado';
+
+  @override
+  String get disconnectDevice => 'Desconectar Dispositivo';
+
+  @override
+  String get data => 'Dados';
+
+  @override
+  String get deleteAllData => 'Excluir Todos os Dados';
+
+  @override
+  String get information => 'Informações';
+
+  @override
+  String get appVersion => 'Versão do App';
+
+  @override
+  String get termsOfService => 'Termos de Serviço';
+
+  @override
+  String get privacyPolicy => 'Política de Privacidade';
+
+  @override
+  String get deleteDataTitle => 'Excluir Dados';
+
+  @override
+  String get deleteDataMessage =>
+      'Todo o histórico de uso será excluído.\\nEsta ação não pode ser desfeita.\\nDeseja continuar?';
+
+  @override
+  String get cancel => 'Cancelar';
+
+  @override
+  String get delete => 'Excluir';
+
+  @override
+  String get allDataDeleted => 'Todos os dados foram excluídos';
+
+  @override
+  String get language => 'Idioma';
+
+  @override
+  String get selectLanguage => 'Selecionar Idioma';
+
+  @override
+  String get shotTypeUnknown => 'Desconhecido';
+
+  @override
+  String get shotTypeUShot => 'U-Shot';
+
+  @override
+  String get shotTypeEShot => 'E-Shot';
+
+  @override
+  String get shotTypeLedCare => 'LED Care';
+
+  @override
+  String get modeUnknown => 'Desconhecido';
+
+  @override
+  String get modeGlow => 'Glow';
+
+  @override
+  String get modeTuning => 'Tuning';
+
+  @override
+  String get modeRenewal => 'Renewal';
+
+  @override
+  String get modeVolume => 'Volume';
+
+  @override
+  String get modeCleansing => 'Cleansing';
+
+  @override
+  String get modeFirming => 'Firming';
+
+  @override
+  String get modeLifting => 'Lifting';
+
+  @override
+  String get modeLF => 'LF';
+
+  @override
+  String get modeLED => 'Modo LED';
+
+  @override
+  String get levelUnknown => 'Desconhecido';
+
+  @override
+  String get level1 => 'Nível 1';
+
+  @override
+  String get level2 => 'Nível 2';
+
+  @override
+  String get level3 => 'Nível 3';
+
+  @override
+  String get guideStep1Title => 'Passo 1: Carregar e Ligar';
+
+  @override
+  String get guideStep1Item1 => 'Carregue o dispositivo usando um cabo USB-C';
+
+  @override
+  String get guideStep1Item2 =>
+      'Pressione e segure o botão liga/desliga por 3 segundos para ligar';
+
+  @override
+  String get guideStep1Item3 => 'O dispositivo está ligado quando o LED acende';
+
+  @override
+  String get guideStep2Title => 'Passo 2: Alternar Tipo de Shot';
+
+  @override
+  String get guideStep2Item1 =>
+      'Pressione o botão Shot para alternar entre U-Shot, E-Shot e LED Care';
+
+  @override
+  String get guideStep2Item2 =>
+      'Você pode verificar o tipo de Shot atual pela cor do LED';
+
+  @override
+  String get guideStep3Title => 'Passo 3: Alterar Modo e Nível';
+
+  @override
+  String get guideStep3Item1 =>
+      'Pressione o botão de modo para selecionar o modo desejado';
+
+  @override
+  String get guideStep3Item2 =>
+      'Pressione o botão de nível para ajustar a intensidade (níveis 1-3)';
+
+  @override
+  String get guideStep4Title => 'Passo 4: Precauções Durante o Uso';
+
+  @override
+  String get guideStep4Item1 =>
+      'Se ocorrer um aviso de temperatura, pare de usar e deixe o dispositivo esfriar';
+
+  @override
+  String get guideStep4Item2 =>
+      'Se ocorrer um aviso de bateria fraca, é necessário carregar';
+
+  @override
+  String get guideStep4Item3 => 'O uso excessivo pode irritar a pele';
+
+  @override
+  String get guideStep5Title => 'Passo 5: Desligar e Guardar';
+
+  @override
+  String get guideStep5Item1 =>
+      'Pressione e segure o botão liga/desliga por 3 segundos para desligar';
+
+  @override
+  String get guideStep5Item2 =>
+      'Limpe o dispositivo com um pano limpo antes de guardar';
+
+  @override
+  String get korean => '한국어';
+
+  @override
+  String get english => 'English';
+
+  @override
+  String get chinese => '中文';
+
+  @override
+  String get japanese => '日本語';
+
+  @override
+  String get portuguese => 'Português';
+
+  @override
+  String get spanish => 'Español';
+
+  @override
+  String get vietnamese => 'Tiếng Việt';
+
+  @override
+  String get thai => 'ไทย';
+}

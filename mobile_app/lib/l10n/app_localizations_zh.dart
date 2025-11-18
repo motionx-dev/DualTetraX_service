@@ -1,0 +1,316 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for Chinese (`zh`).
+class AppLocalizationsZh extends AppLocalizations {
+  AppLocalizationsZh([String locale = 'zh']) : super(locale);
+
+  @override
+  String get appTitle => 'DualTetraX';
+
+  @override
+  String get home => '主页';
+
+  @override
+  String get statistics => '统计';
+
+  @override
+  String get settings => '设置';
+
+  @override
+  String get guide => '指南';
+
+  @override
+  String get connectDevice => '连接设备';
+
+  @override
+  String connectionFailed(String message) {
+    return '连接失败: $message';
+  }
+
+  @override
+  String get retry => '重试';
+
+  @override
+  String get quickMenu => '快捷菜单';
+
+  @override
+  String get usageHistory => '使用记录';
+
+  @override
+  String get usageGuide => '使用指南';
+
+  @override
+  String get connected => '已连接';
+
+  @override
+  String get connecting => '连接中...';
+
+  @override
+  String get disconnected => '未连接';
+
+  @override
+  String get connectedToDevice => '已连接到 DualTetraX';
+
+  @override
+  String get searchingDevice => '正在搜索设备...';
+
+  @override
+  String get tapToConnect => '点击连接按钮以连接设备';
+
+  @override
+  String get shotType => 'Shot 类型';
+
+  @override
+  String get mode => '模式';
+
+  @override
+  String get level => '级别';
+
+  @override
+  String get battery => '电池';
+
+  @override
+  String get todayUsage => '今日使用';
+
+  @override
+  String get totalUsageTime => '总使用时间';
+
+  @override
+  String get mostUsedMode => '最常用模式';
+
+  @override
+  String get noUsageData => '没有使用数据';
+
+  @override
+  String cannotLoadData(String message) {
+    return '无法加载数据: $message';
+  }
+
+  @override
+  String get daily => '日';
+
+  @override
+  String get weekly => '周';
+
+  @override
+  String get monthly => '月';
+
+  @override
+  String get dailyUsageTime => '每日使用时间';
+
+  @override
+  String get usageByType => '按 Shot 类型统计使用时间';
+
+  @override
+  String get minutes => '分钟';
+
+  @override
+  String get weeklyStatsComingSoon => '每周统计（即将推出）';
+
+  @override
+  String get monthlyStatsComingSoon => '每月统计（即将推出）';
+
+  @override
+  String error(String message) {
+    return '错误: $message';
+  }
+
+  @override
+  String get appearance => '外观';
+
+  @override
+  String get theme => '主题';
+
+  @override
+  String get lightMode => '浅色模式';
+
+  @override
+  String get darkMode => '深色模式';
+
+  @override
+  String get systemMode => '系统设置';
+
+  @override
+  String get selectTheme => '选择主题';
+
+  @override
+  String get device => '设备';
+
+  @override
+  String get connectedDevice => '已连接的设备';
+
+  @override
+  String get disconnectDevice => '断开设备连接';
+
+  @override
+  String get data => '数据';
+
+  @override
+  String get deleteAllData => '删除所有数据';
+
+  @override
+  String get information => '信息';
+
+  @override
+  String get appVersion => '应用版本';
+
+  @override
+  String get termsOfService => '服务条款';
+
+  @override
+  String get privacyPolicy => '隐私政策';
+
+  @override
+  String get deleteDataTitle => '删除数据';
+
+  @override
+  String get deleteDataMessage => '所有使用记录将被删除。\\n此操作无法撤销。\\n是否继续？';
+
+  @override
+  String get cancel => '取消';
+
+  @override
+  String get delete => '删除';
+
+  @override
+  String get allDataDeleted => '所有数据已删除';
+
+  @override
+  String get language => '语言';
+
+  @override
+  String get selectLanguage => '选择语言';
+
+  @override
+  String get shotTypeUnknown => '未知';
+
+  @override
+  String get shotTypeUShot => 'U-Shot';
+
+  @override
+  String get shotTypeEShot => 'E-Shot';
+
+  @override
+  String get shotTypeLedCare => 'LED Care';
+
+  @override
+  String get modeUnknown => '未知';
+
+  @override
+  String get modeGlow => 'Glow';
+
+  @override
+  String get modeTuning => 'Tuning';
+
+  @override
+  String get modeRenewal => 'Renewal';
+
+  @override
+  String get modeVolume => 'Volume';
+
+  @override
+  String get modeCleansing => 'Cleansing';
+
+  @override
+  String get modeFirming => 'Firming';
+
+  @override
+  String get modeLifting => 'Lifting';
+
+  @override
+  String get modeLF => 'LF';
+
+  @override
+  String get modeLED => 'LED 模式';
+
+  @override
+  String get levelUnknown => '未知';
+
+  @override
+  String get level1 => '级别 1';
+
+  @override
+  String get level2 => '级别 2';
+
+  @override
+  String get level3 => '级别 3';
+
+  @override
+  String get guideStep1Title => '步骤 1：充电并开机';
+
+  @override
+  String get guideStep1Item1 => '使用 USB-C 线缆为设备充电';
+
+  @override
+  String get guideStep1Item2 => '按住电源按钮 3 秒以上以开机';
+
+  @override
+  String get guideStep1Item3 => 'LED 亮起时表示设备已开机';
+
+  @override
+  String get guideStep2Title => '步骤 2：切换 Shot 类型';
+
+  @override
+  String get guideStep2Item1 => '按 Shot 按钮在 U-Shot、E-Shot 和 LED Care 之间切换';
+
+  @override
+  String get guideStep2Item2 => '可以通过 LED 颜色查看当前 Shot 类型';
+
+  @override
+  String get guideStep3Title => '步骤 3：更改模式和级别';
+
+  @override
+  String get guideStep3Item1 => '按模式按钮选择所需模式';
+
+  @override
+  String get guideStep3Item2 => '按级别按钮调整强度（1-3 级）';
+
+  @override
+  String get guideStep4Title => '步骤 4：使用注意事项';
+
+  @override
+  String get guideStep4Item1 => '如果出现温度警告，请停止使用并让设备冷却';
+
+  @override
+  String get guideStep4Item2 => '如果出现低电量警告，需要充电';
+
+  @override
+  String get guideStep4Item3 => '过度使用可能会刺激皮肤';
+
+  @override
+  String get guideStep5Title => '步骤 5：关机和存储';
+
+  @override
+  String get guideStep5Item1 => '按住电源按钮 3 秒以上以关机';
+
+  @override
+  String get guideStep5Item2 => '用干净的布擦拭设备后存放';
+
+  @override
+  String get korean => '한국어';
+
+  @override
+  String get english => 'English';
+
+  @override
+  String get chinese => '中文';
+
+  @override
+  String get japanese => '日本語';
+
+  @override
+  String get portuguese => 'Português';
+
+  @override
+  String get spanish => 'Español';
+
+  @override
+  String get vietnamese => 'Tiếng Việt';
+
+  @override
+  String get thai => 'ไทย';
+}

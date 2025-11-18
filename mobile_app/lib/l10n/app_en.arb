@@ -1,0 +1,144 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "DualTetraX",
+  "@appTitle": {
+    "description": "Application title"
+  },
+
+  "home": "Home",
+  "statistics": "Statistics",
+  "settings": "Settings",
+  "guide": "Guide",
+
+  "connectDevice": "Connect Device",
+  "connectionFailed": "Connection Failed: {message}",
+  "@connectionFailed": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "retry": "Retry",
+  "quickMenu": "Quick Menu",
+  "usageHistory": "Usage History",
+  "usageGuide": "Usage Guide",
+
+  "connected": "Connected",
+  "connecting": "Connecting...",
+  "disconnected": "Disconnected",
+  "connectedToDevice": "Connected to DualTetraX",
+  "searchingDevice": "Searching for device...",
+  "tapToConnect": "Tap the connect button to connect to device",
+
+  "shotType": "Shot Type",
+  "mode": "Mode",
+  "level": "Level",
+  "battery": "Battery",
+
+  "todayUsage": "Today's Usage",
+  "totalUsageTime": "Total Usage Time",
+  "mostUsedMode": "Most Used Mode",
+  "noUsageData": "No usage data",
+  "cannotLoadData": "Cannot load data: {message}",
+  "@cannotLoadData": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+
+  "daily": "Daily",
+  "weekly": "Weekly",
+  "monthly": "Monthly",
+  "dailyUsageTime": "Daily Usage Time",
+  "usageByType": "Usage by Shot Type",
+  "minutes": "min",
+  "weeklyStatsComingSoon": "Weekly statistics (Coming soon)",
+  "monthlyStatsComingSoon": "Monthly statistics (Coming soon)",
+  "error": "Error: {message}",
+  "@error": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+
+  "appearance": "Appearance",
+  "theme": "Theme",
+  "lightMode": "Light Mode",
+  "darkMode": "Dark Mode",
+  "systemMode": "System",
+  "selectTheme": "Select Theme",
+  "device": "Device",
+  "connectedDevice": "Connected Device",
+  "disconnectDevice": "Disconnect Device",
+  "data": "Data",
+  "deleteAllData": "Delete All Data",
+  "information": "Information",
+  "appVersion": "App Version",
+  "termsOfService": "Terms of Service",
+  "privacyPolicy": "Privacy Policy",
+  "deleteDataTitle": "Delete Data",
+  "deleteDataMessage": "All usage history will be deleted.\\nThis action cannot be undone.\\nDo you want to continue?",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "allDataDeleted": "All data has been deleted",
+  "language": "Language",
+  "selectLanguage": "Select Language",
+
+  "shotTypeUnknown": "Unknown",
+  "shotTypeUShot": "U-Shot",
+  "shotTypeEShot": "E-Shot",
+  "shotTypeLedCare": "LED Care",
+
+  "modeUnknown": "Unknown",
+  "modeGlow": "Glow",
+  "modeTuning": "Tuning",
+  "modeRenewal": "Renewal",
+  "modeVolume": "Volume",
+  "modeCleansing": "Cleansing",
+  "modeFirming": "Firming",
+  "modeLifting": "Lifting",
+  "modeLF": "LF",
+  "modeLED": "LED Mode",
+
+  "levelUnknown": "Unknown",
+  "level1": "Level 1",
+  "level2": "Level 2",
+  "level3": "Level 3",
+
+  "guideStep1Title": "Step 1: Charge and Power On",
+  "guideStep1Item1": "Charge the device using a USB-C cable",
+  "guideStep1Item2": "Press and hold the power button for 3 seconds to turn on",
+  "guideStep1Item3": "The device is on when the LED lights up",
+
+  "guideStep2Title": "Step 2: Switch Shot Type",
+  "guideStep2Item1": "Press the Shot button to switch between U-Shot, E-Shot, and LED Care",
+  "guideStep2Item2": "You can check the current Shot type by LED color",
+
+  "guideStep3Title": "Step 3: Change Mode and Level",
+  "guideStep3Item1": "Press the mode button to select the desired mode",
+  "guideStep3Item2": "Press the level button to adjust intensity (1-3 levels)",
+
+  "guideStep4Title": "Step 4: Precautions During Use",
+  "guideStep4Item1": "If a temperature warning occurs, stop using and cool the device",
+  "guideStep4Item2": "If a low battery warning occurs, charging is required",
+  "guideStep4Item3": "Excessive use may irritate the skin",
+
+  "guideStep5Title": "Step 5: Power Off and Storage",
+  "guideStep5Item1": "Press and hold the power button for 3 seconds to turn off",
+  "guideStep5Item2": "Wipe the device with a clean cloth before storing",
+
+  "korean": "한국어",
+  "english": "English",
+  "chinese": "中文",
+  "japanese": "日本語",
+  "portuguese": "Português",
+  "spanish": "Español",
+  "vietnamese": "Tiếng Việt",
+  "thai": "ไทย"
+}
