@@ -39,7 +39,8 @@ class _StatisticsPageState extends State<StatisticsPage>
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.usageHistory),
+        title: Text(l10n.statistics),
+        automaticallyImplyLeading: false,
         bottom: TabBar(
           controller: _tabController,
           onTap: (index) {

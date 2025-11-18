@@ -74,6 +74,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get battery => '电池';
 
   @override
+  String get shakeDevice => 'Please shake the device';
+
+  @override
   String get todayUsage => '今日使用';
 
   @override

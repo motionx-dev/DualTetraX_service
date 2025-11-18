@@ -11,6 +11,7 @@ class GuidePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.usageGuide),
+        automaticallyImplyLeading: false,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),

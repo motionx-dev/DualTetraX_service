@@ -16,6 +16,13 @@ class DeviceStatus extends Equatable {
   final bool isCharging;
   final DateTime timestamp;
 
+  // 동작 시간 관련 (초 단위)
+  final int? currentWorkingTime; // 현재 진행된 시간 (초)
+  final int? totalWorkingTime;   // 전체 동작 시간 (초)
+
+  // 모션 인식 상태 (U-Shot에서 사용)
+  final bool isMotionDetected;
+
   const DeviceStatus({
     required this.shotType,
     required this.mode,
@@ -25,6 +32,9 @@ class DeviceStatus extends Equatable {
     required this.warningStatus,
     required this.isCharging,
     required this.timestamp,
+    this.currentWorkingTime,
+    this.totalWorkingTime,
+    this.isMotionDetected = true, // 기본값: 모션 감지됨
   });
 
   DeviceStatus copyWith({
@@ -36,6 +46,9 @@ class DeviceStatus extends Equatable {
     WarningStatus? warningStatus,
     bool? isCharging,
     DateTime? timestamp,
+    int? currentWorkingTime,
+    int? totalWorkingTime,
+    bool? isMotionDetected,
   }) {
     return DeviceStatus(
       shotType: shotType ?? this.shotType,
@@ -46,6 +59,9 @@ class DeviceStatus extends Equatable {
       warningStatus: warningStatus ?? this.warningStatus,
       isCharging: isCharging ?? this.isCharging,
       timestamp: timestamp ?? this.timestamp,
+      currentWorkingTime: currentWorkingTime ?? this.currentWorkingTime,
+      totalWorkingTime: totalWorkingTime ?? this.totalWorkingTime,
+      isMotionDetected: isMotionDetected ?? this.isMotionDetected,
     );
   }
 
@@ -59,5 +75,8 @@ class DeviceStatus extends Equatable {
         warningStatus,
         isCharging,
         timestamp,
+        currentWorkingTime,
+        totalWorkingTime,
+        isMotionDetected,
       ];
 }

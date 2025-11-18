@@ -25,6 +25,7 @@
   "mode": "모드",
   "level": "레벨",
   "battery": "배터리",
+  "shakeDevice": "장치를 흔들어주세요",
 
   "todayUsage": "오늘의 사용",
   "totalUsageTime": "총 사용 시간",

@@ -75,6 +75,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get battery => 'Batería';
 
   @override
+  String get shakeDevice => 'Please shake the device';
+
+  @override
   String get todayUsage => 'Uso de Hoy';
 
   @override

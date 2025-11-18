@@ -74,6 +74,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get battery => '배터리';
 
   @override
+  String get shakeDevice => '장치를 흔들어주세요';
+
+  @override
   String get todayUsage => '오늘의 사용';
 
   @override

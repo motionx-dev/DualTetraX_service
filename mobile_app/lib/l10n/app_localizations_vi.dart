@@ -74,6 +74,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get battery => 'Pin';
 
   @override
+  String get shakeDevice => 'Please shake the device';
+
+  @override
   String get todayUsage => 'Sử dụng Hôm nay';
 
   @override

@@ -36,6 +36,7 @@
   "mode": "Mode",
   "level": "Level",
   "battery": "Battery",
+  "shakeDevice": "Please shake the device",
 
   "todayUsage": "Today's Usage",
   "totalUsageTime": "Total Usage Time",

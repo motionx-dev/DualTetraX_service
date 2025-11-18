@@ -236,6 +236,12 @@ abstract class AppLocalizations {
   /// **'Battery'**
   String get battery;
 
+  /// No description provided for @shakeDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Please shake the device'**
+  String get shakeDevice;
+
   /// No description provided for @todayUsage.
   ///
   /// In en, this message translates to:

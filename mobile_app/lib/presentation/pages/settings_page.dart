@@ -17,6 +17,7 @@ class SettingsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.settings),
+        automaticallyImplyLeading: false,
       ),
       body: ListView(
         children: [
@@ -45,7 +46,9 @@ class SettingsPage extends StatelessWidget {
             title: Text(l10n.disconnectDevice),
             onTap: () {
               context.read<DeviceConnectionBloc>().add(DisconnectRequested());
-              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(l10n.disconnected)),
+              );
             },
           ),
           const Divider(),
