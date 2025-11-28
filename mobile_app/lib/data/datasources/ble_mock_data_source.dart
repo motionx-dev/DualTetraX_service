@@ -88,6 +88,14 @@ class BleMockDataSource implements BleRemoteDataSource {
     return _currentStatus;
   }
 
+  @override
+  Future<void> refreshStatus() async {
+    // In mock mode, just re-send the current status
+    if (_isConnected) {
+      _deviceStatusController.add(_currentStatus);
+    }
+  }
+
   void _startStatusSimulation() {
     // Update status every 5 seconds to simulate device state changes
     _statusUpdateTimer = Timer.periodic(const Duration(seconds: 5), (timer) {

@@ -11,6 +11,14 @@ import '../../domain/entities/battery_status.dart';
 import '../../domain/entities/warning_status.dart';
 import '../models/device_info_model.dart';
 
+// Helper class to buffer notifications during initialization
+class _BufferedNotification {
+  final Guid characteristicUuid;
+  final List<int> value;
+
+  _BufferedNotification(this.characteristicUuid, this.value);
+}
+
 abstract class BleRemoteDataSource {
   Stream<BleConnectionState> get connectionStateStream;
   Stream<DeviceStatus> get deviceStatusStream;
@@ -20,6 +28,7 @@ abstract class BleRemoteDataSource {
   Future<void> disconnect();
   Future<DeviceInfo> getDeviceInfo();
   Future<DeviceStatus> getCurrentStatus();
+  Future<void> refreshStatus();  // Re-read all characteristic values
 }
 
 class BleRemoteDataSourceImpl implements BleRemoteDataSource {
@@ -38,6 +47,7 @@ class BleRemoteDataSourceImpl implements BleRemoteDataSource {
   static final Guid workingStateUuid = Guid('12340004-1234-1234-1234-123456789abc');
   static final Guid batteryStatusUuid = Guid('12340005-1234-1234-1234-123456789abc');
   static final Guid warningStatusUuid = Guid('12340006-1234-1234-1234-123456789abc');
+  static final Guid elapsedTimeUuid = Guid('12340007-1234-1234-1234-123456789abc');
 
   BluetoothDevice? _connectedDevice;
   final StreamController<BleConnectionState> _connectionStateController =
@@ -47,6 +57,12 @@ class BleRemoteDataSourceImpl implements BleRemoteDataSource {
 
   DeviceStatus? _currentStatus;
   List<StreamSubscription> _characteristicSubscriptions = [];
+
+  // Flag to prevent emission during initial value reading
+  bool _isInitializing = false;
+
+  // Buffer for notifications received during initialization
+  final List<_BufferedNotification> _notificationBuffer = [];
 
   @override
   Stream<BleConnectionState> get connectionStateStream =>
@@ -133,6 +149,10 @@ class BleRemoteDataSourceImpl implements BleRemoteDataSource {
 
   Future<void> _subscribeToCharacteristics(
       List<BluetoothService> services) async {
+    // Prevent notifications from emitting during initialization
+    _isInitializing = true;
+    _notificationBuffer.clear();
+
     for (final service in services) {
       if (service.uuid == realtimeStatusServiceUuid) {
         for (final characteristic in service.characteristics) {
@@ -141,7 +161,13 @@ class BleRemoteDataSourceImpl implements BleRemoteDataSource {
             await characteristic.setNotifyValue(true);
             final subscription =
                 characteristic.lastValueStream.listen((value) {
-              _handleCharacteristicUpdate(characteristic.uuid, value);
+              if (_isInitializing) {
+                // Buffer notifications during initialization
+                _notificationBuffer.add(_BufferedNotification(characteristic.uuid, value));
+              } else {
+                // Normal operation - emit immediately
+                _handleCharacteristicUpdate(characteristic.uuid, value, emit: true);
+              }
             });
             _characteristicSubscriptions.add(subscription);
           }
@@ -149,16 +175,73 @@ class BleRemoteDataSourceImpl implements BleRemoteDataSource {
       }
     }
 
-    // Read initial values
-    await _readInitialValues(services);
+    // Read initial values - emit once after all values are read
+    await _readInitialValues(services, emitAfterAll: true);
+
+    // Process any buffered notifications (update state but don't emit - we already emitted)
+    for (final notification in _notificationBuffer) {
+      _handleCharacteristicUpdate(notification.characteristicUuid, notification.value, emit: false);
+    }
+    _notificationBuffer.clear();
+
+    // Allow notifications to emit after initialization is complete
+    _isInitializing = false;
   }
 
-  Future<void> _readInitialValues(List<BluetoothService> services) async {
-    // Read current status values
-    // TODO: Implement reading initial characteristic values
+  Future<void> _readInitialValues(List<BluetoothService> services, {bool emitAfterAll = false}) async {
+    for (final service in services) {
+      if (service.uuid == realtimeStatusServiceUuid) {
+        for (final characteristic in service.characteristics) {
+          if (characteristic.properties.read) {
+            try {
+              final value = await characteristic.read();
+              if (value.isNotEmpty) {
+                _handleCharacteristicUpdate(characteristic.uuid, value, emit: !emitAfterAll);
+              }
+            } catch (e) {
+              // Ignore read errors
+            }
+          }
+        }
+      }
+    }
+
+    // Emit once after all values are read
+    if (emitAfterAll && _currentStatus != null) {
+      _deviceStatusController.add(_currentStatus!);
+    }
   }
 
-  void _handleCharacteristicUpdate(Guid characteristicUuid, List<int> value) {
+  @override
+  Future<void> refreshStatus() async {
+    if (_connectedDevice == null) {
+      return;
+    }
+
+    try {
+      // Prevent notifications from emitting during refresh
+      _isInitializing = true;
+      _notificationBuffer.clear();
+
+      final services = await _connectedDevice!.discoverServices();
+      // Read all values then emit once at the end
+      await _readInitialValues(services, emitAfterAll: true);
+
+      // Process any buffered notifications (update state but don't emit)
+      for (final notification in _notificationBuffer) {
+        _handleCharacteristicUpdate(notification.characteristicUuid, notification.value, emit: false);
+      }
+      _notificationBuffer.clear();
+
+      _isInitializing = false;
+    } catch (e) {
+      _notificationBuffer.clear();
+      _isInitializing = false;
+      // Ignore refresh errors
+    }
+  }
+
+  void _handleCharacteristicUpdate(Guid characteristicUuid, List<int> value, {bool emit = true}) {
     if (_currentStatus == null) {
       _currentStatus = DeviceStatus(
         shotType: ShotType.unknown,
@@ -208,9 +291,18 @@ class BleRemoteDataSourceImpl implements BleRemoteDataSource {
         warningStatus: WarningStatus.fromByte(value[0]),
         timestamp: DateTime.now(),
       );
+    } else if (characteristicUuid == elapsedTimeUuid && value.length >= 2) {
+      // Elapsed time is sent as 2 bytes (little-endian uint16_t in seconds)
+      final elapsedSeconds = value[0] | (value[1] << 8);
+      _currentStatus = _currentStatus!.copyWith(
+        currentWorkingTime: elapsedSeconds,
+        timestamp: DateTime.now(),
+      );
     }
 
-    _deviceStatusController.add(_currentStatus!);
+    if (emit) {
+      _deviceStatusController.add(_currentStatus!);
+    }
   }
 
   @override
@@ -229,6 +321,8 @@ class BleRemoteDataSourceImpl implements BleRemoteDataSource {
     _characteristicSubscriptions.clear();
     _connectedDevice = null;
     _currentStatus = null;
+    _isInitializing = false;
+    _notificationBuffer.clear();
   }
 
   @override

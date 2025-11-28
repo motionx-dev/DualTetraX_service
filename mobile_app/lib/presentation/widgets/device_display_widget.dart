@@ -143,11 +143,19 @@ class _DeviceDisplayWidgetState extends State<DeviceDisplayWidget>
             ),
           ],
 
-          if (status.workingState == WorkingState.working &&
+          // Show timer for both working and pause states
+          if ((status.workingState == WorkingState.working ||
+               status.workingState == WorkingState.pause) &&
               status.totalWorkingTime != null &&
               status.currentWorkingTime != null) ...[
             const SizedBox(height: 16),
             _buildTimerDisplay(status),
+          ],
+
+          // Show pause indicator
+          if (status.workingState == WorkingState.pause) ...[
+            const SizedBox(height: 12),
+            _buildPauseIndicator(),
           ],
         ],
       ),
@@ -349,18 +357,18 @@ class _DeviceDisplayWidgetState extends State<DeviceDisplayWidget>
         ? 1
         : level == DeviceLevel.level2
             ? 2
-            : 3;
-
-    final isLowBattery = batteryLevel < 20;
+            : level == DeviceLevel.level3
+                ? 3
+                : 0;  // unknown level shows no dots
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildDotGlow(levelCount >= 1, isLowBattery && levelCount == 2),
+        _buildDotGlow(levelCount >= 1, false),
         SizedBox(width: width * 0.06),
-        _buildDotGlow(levelCount >= 2, isLowBattery && levelCount == 2),
+        _buildDotGlow(levelCount >= 2, false),
         SizedBox(width: width * 0.06),
-        _buildDotGlow(levelCount >= 3, isLowBattery && levelCount == 2),
+        _buildDotGlow(levelCount >= 3, false),
       ],
     );
   }
@@ -521,6 +529,48 @@ class _DeviceDisplayWidgetState extends State<DeviceDisplayWidget>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildPauseIndicator() {
+    return AnimatedBuilder(
+      animation: _pulseAnimation,
+      builder: (context, child) {
+        return Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 10,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.amber.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Colors.amber.withOpacity(_pulseAnimation.value),
+              width: 2,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.pause_circle_filled,
+                color: Colors.amber.shade700,
+                size: 24,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'PAUSED',
+                style: TextStyle(
+                  color: Colors.amber.shade700,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -19,4 +19,5 @@ abstract class DeviceRepository {
   // Device Status
   Stream<DeviceStatus> get deviceStatusStream;
   Future<Either<Failure, DeviceStatus>> getCurrentStatus();
+  Future<void> refreshStatus();  // Re-read all characteristic values
 }

@@ -95,4 +95,9 @@ class DeviceRepositoryImpl implements DeviceRepository {
       return Left(BleFailure(e.toString()));
     }
   }
+
+  @override
+  Future<void> refreshStatus() async {
+    await remoteDataSource.refreshStatus();
+  }
 }

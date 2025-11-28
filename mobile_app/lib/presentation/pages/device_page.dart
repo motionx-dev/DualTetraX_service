@@ -15,19 +15,66 @@ class DevicePage extends StatefulWidget {
   State<DevicePage> createState() => _DevicePageState();
 }
 
-class _DevicePageState extends State<DevicePage> {
+class _DevicePageState extends State<DevicePage> with WidgetsBindingObserver {
+  bool _isListening = false;
+
   @override
   void initState() {
     super.initState();
-    // Start listening to device status
-    context.read<DeviceStatusBloc>().add(StartListeningToStatus());
+    WidgetsBinding.instance.addObserver(this);
+    // Check current connection state and start listening if already connected
+    final connectionState = context.read<DeviceConnectionBloc>().state;
+    if (connectionState is DeviceConnected) {
+      _startListening();
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // App came back to foreground - refresh status if connected
+      final connectionState = context.read<DeviceConnectionBloc>().state;
+      if (connectionState is DeviceConnected && _isListening) {
+        context.read<DeviceStatusBloc>().add(RefreshStatusRequested());
+      }
+    }
+  }
+
+  void _startListening() {
+    if (!_isListening) {
+      _isListening = true;
+      context.read<DeviceStatusBloc>().add(StartListeningToStatus());
+    }
+  }
+
+  void _stopListening() {
+    if (_isListening) {
+      _isListening = false;
+      context.read<DeviceStatusBloc>().add(StopListeningToStatus());
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
+    return BlocListener<DeviceConnectionBloc, DeviceConnectionState>(
+      listener: (context, state) {
+        if (state is DeviceDisconnected || state is DeviceConnectionError) {
+          // Reset device status when disconnected
+          _stopListening();
+        } else if (state is DeviceConnected) {
+          // Start listening when connected
+          _startListening();
+        }
+      },
+      child: Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
@@ -187,6 +234,7 @@ class _DevicePageState extends State<DevicePage> {
           ),
         ),
       ),
+    ),
     );
   }
 

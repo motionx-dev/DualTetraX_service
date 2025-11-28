@@ -6,7 +6,6 @@ import '../../data/datasources/database_helper.dart';
 import '../../data/datasources/usage_local_data_source.dart';
 import '../../data/datasources/device_local_data_source.dart';
 import '../../data/datasources/ble_remote_data_source.dart';
-import '../../data/datasources/ble_mock_data_source.dart';
 
 // Repositories
 import '../../data/repositories/device_repository_impl.dart';
@@ -85,11 +84,9 @@ Future<void> init() async {
   );
 
   //! Data Sources
-  // Use Mock for testing without real BLE device
-  // To use real BLE: Change BleMockDataSource() to BleRemoteDataSourceImpl()
+  // Use real BLE for device communication
   sl.registerLazySingleton<BleRemoteDataSource>(
-    () => BleMockDataSource(), // Mock for testing
-    // () => BleRemoteDataSourceImpl(), // Real BLE
+    () => BleRemoteDataSourceImpl(),
   );
 
   sl.registerLazySingleton<DeviceLocalDataSource>(
