@@ -36,6 +36,7 @@ Future<void> init() async {
     () => DeviceConnectionBloc(
       connectToDevice: sl(),
       deviceRepository: sl(),
+      sharedPreferences: sl(),
     ),
   );
 

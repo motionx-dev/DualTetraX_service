@@ -19,3 +19,13 @@ class ConnectionStateChanged extends DeviceConnectionEvent {
   @override
   List<Object?> get props => [isConnected];
 }
+
+class AutoReconnectSettingsChanged extends DeviceConnectionEvent {
+  final bool? enabled;
+  final int? intervalSeconds;
+
+  const AutoReconnectSettingsChanged({this.enabled, this.intervalSeconds});
+
+  @override
+  List<Object?> get props => [enabled, intervalSeconds];
+}

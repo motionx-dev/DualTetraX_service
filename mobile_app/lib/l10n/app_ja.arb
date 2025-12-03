@@ -115,5 +115,19 @@
   "portuguese": "Português",
   "spanish": "Español",
   "vietnamese": "Tiếng Việt",
-  "thai": "ไทย"
+  "thai": "ไทย",
+
+  "otaMode": "OTA アップデートモード",
+  "otaInstructions": "WiFiで機器に接続し、ウェブインターフェースでファームウェアをアップデートしてください。\n\n機器WiFi: DualTetraX-AP\nアドレス: http://192.168.4.1",
+
+  "sessionCompleted": "セッション完了",
+  "devicePoweredOff": "デバイスの電源がオフになりました",
+
+  "autoReconnect": "自動再接続",
+  "autoReconnectInterval": "自動再接続間隔",
+  "seconds": "秒",
+
+  "connectionMode": "接続モード",
+  "autoConnect": "自動",
+  "manualConnect": "手動"
 }

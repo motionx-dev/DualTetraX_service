@@ -316,4 +316,35 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get thai => 'ไทย';
+
+  @override
+  String get otaMode => 'OTA 更新模式';
+
+  @override
+  String get otaInstructions =>
+      '通过WiFi连接设备并访问网页界面以更新固件。\n\n设备WiFi: DualTetraX-AP\n地址: http://192.168.4.1';
+
+  @override
+  String get sessionCompleted => '会话完成';
+
+  @override
+  String get devicePoweredOff => '设备已关机';
+
+  @override
+  String get autoReconnect => '自动重连';
+
+  @override
+  String get autoReconnectInterval => '自动重连间隔';
+
+  @override
+  String get seconds => '秒';
+
+  @override
+  String get connectionMode => '连接模式';
+
+  @override
+  String get autoConnect => '自动';
+
+  @override
+  String get manualConnect => '手动';
 }

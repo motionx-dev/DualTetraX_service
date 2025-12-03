@@ -116,5 +116,19 @@
   "portuguese": "Português",
   "spanish": "Español",
   "vietnamese": "Tiếng Việt",
-  "thai": "ไทย"
+  "thai": "ไทย",
+
+  "otaMode": "OTA 업데이트 모드",
+  "otaInstructions": "WiFi로 기기에 연결하여 웹 인터페이스에서 펌웨어를 업데이트하세요.\n\n기기 WiFi: DualTetraX-AP\n주소: http://192.168.4.1",
+
+  "sessionCompleted": "세션 완료",
+  "devicePoweredOff": "기기 전원이 꺼졌습니다",
+
+  "autoReconnect": "자동 재연결",
+  "autoReconnectInterval": "자동 재연결 간격",
+  "seconds": "초",
+
+  "connectionMode": "연결 모드",
+  "autoConnect": "자동",
+  "manualConnect": "수동"
 }

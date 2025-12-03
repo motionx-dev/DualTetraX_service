@@ -38,6 +38,7 @@ class SettingsPage extends StatelessWidget {
               // TODO: Show device details
             },
           ),
+          _AutoReconnectTile(),
           ListTile(
             leading: Icon(
               Icons.bluetooth_disabled,
@@ -409,5 +410,75 @@ class _SectionHeader extends StatelessWidget {
             ),
       ),
     );
+  }
+}
+
+class _AutoReconnectTile extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final bloc = context.read<DeviceConnectionBloc>();
+
+    return Column(
+      children: [
+        SwitchListTile(
+          secondary: Icon(
+            Icons.autorenew,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          title: Text(l10n.autoReconnect),
+          value: bloc.isAutoReconnectEnabled,
+          onChanged: (value) {
+            bloc.add(AutoReconnectSettingsChanged(enabled: value));
+          },
+        ),
+        if (bloc.isAutoReconnectEnabled)
+          ListTile(
+            leading: const SizedBox(width: 24),
+            title: Text(l10n.autoReconnectInterval),
+            subtitle: Text('${bloc.autoReconnectInterval} ${l10n.seconds}'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => _showIntervalDialog(context, bloc.autoReconnectInterval),
+          ),
+      ],
+    );
+  }
+
+  Future<void> _showIntervalDialog(BuildContext context, int currentInterval) async {
+    final l10n = AppLocalizations.of(context)!;
+
+    final intervals = [30, 60, 120, 180, 300];
+
+    final selectedInterval = await showDialog<int>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.autoReconnectInterval),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: intervals.map((interval) {
+            final isSelected = interval == currentInterval;
+            return ListTile(
+              title: Text(
+                '$interval ${l10n.seconds}',
+                style: TextStyle(
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  color: isSelected ? Theme.of(context).colorScheme.primary : null,
+                ),
+              ),
+              trailing: isSelected
+                  ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
+                  : null,
+              onTap: () => Navigator.pop(context, interval),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+
+    if (selectedInterval != null && context.mounted) {
+      context.read<DeviceConnectionBloc>().add(
+        AutoReconnectSettingsChanged(intervalSeconds: selectedInterval),
+      );
+    }
   }
 }

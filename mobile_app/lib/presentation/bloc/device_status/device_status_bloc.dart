@@ -32,6 +32,8 @@ class DeviceStatusUpdated extends DeviceStatusEvent {
 
 class _TimerTick extends DeviceStatusEvent {}
 
+class _TimeoutDisplayExpired extends DeviceStatusEvent {}
+
 // States
 abstract class DeviceStatusState extends Equatable {
   const DeviceStatusState();
@@ -51,6 +53,8 @@ class DeviceStatusLoaded extends DeviceStatusState {
   List<Object?> get props => [status];
 }
 
+class DeviceStatusTimeoutPowerOff extends DeviceStatusState {}
+
 // Bloc
 class DeviceStatusBloc extends Bloc<DeviceStatusEvent, DeviceStatusState> {
   final GetDeviceStatus getDeviceStatus;
@@ -58,11 +62,14 @@ class DeviceStatusBloc extends Bloc<DeviceStatusEvent, DeviceStatusState> {
 
   StreamSubscription? _statusSubscription;
   Timer? _workingTimer;
+  Timer? _timeoutDisplayTimer;
   DateTime? _workingStartTime;
   int _elapsedSeconds = 0;
+  DeviceStatus? _lastStatus;
 
   // Total operation time: 8 minutes = 480 seconds
   static const int totalOperationTime = 480;
+  static const int timeoutDisplayDuration = 15;
 
   DeviceStatusBloc({
     required this.getDeviceStatus,
@@ -73,12 +80,21 @@ class DeviceStatusBloc extends Bloc<DeviceStatusEvent, DeviceStatusState> {
     on<RefreshStatusRequested>(_onRefreshStatus);
     on<DeviceStatusUpdated>(_onStatusUpdated);
     on<_TimerTick>(_onTimerTick);
+    on<_TimeoutDisplayExpired>(_onTimeoutDisplayExpired);
   }
 
   Future<void> _onStartListening(
     StartListeningToStatus event,
     Emitter<DeviceStatusState> emit,
   ) async {
+    _timeoutDisplayTimer?.cancel();
+    _timeoutDisplayTimer = null;
+
+    if (_lastStatus?.workingState == WorkingState.ota ||
+        _lastStatus?.workingState == WorkingState.timeout) {
+      _lastStatus = null;
+    }
+
     _statusSubscription = getDeviceStatus(NoParams()).listen((status) {
       add(DeviceStatusUpdated(status));
     });
@@ -91,6 +107,28 @@ class DeviceStatusBloc extends Bloc<DeviceStatusEvent, DeviceStatusState> {
     _stopWorkingTimer();
     _statusSubscription?.cancel();
     _statusSubscription = null;
+
+    if (_lastStatus?.workingState == WorkingState.ota) {
+      emit(DeviceStatusLoaded(_lastStatus!));
+    } else if (_lastStatus?.workingState == WorkingState.timeout) {
+      emit(DeviceStatusTimeoutPowerOff());
+      _timeoutDisplayTimer = Timer(
+        Duration(seconds: timeoutDisplayDuration),
+        () => add(_TimeoutDisplayExpired()),
+      );
+    } else {
+      _lastStatus = null;
+      emit(DeviceStatusInitial());
+    }
+  }
+
+  Future<void> _onTimeoutDisplayExpired(
+    _TimeoutDisplayExpired event,
+    Emitter<DeviceStatusState> emit,
+  ) async {
+    _timeoutDisplayTimer?.cancel();
+    _timeoutDisplayTimer = null;
+    _lastStatus = null;
     emit(DeviceStatusInitial());
   }
 
@@ -107,6 +145,7 @@ class DeviceStatusBloc extends Bloc<DeviceStatusEvent, DeviceStatusState> {
     Emitter<DeviceStatusState> emit,
   ) async {
     final status = event.status;
+    _lastStatus = status;
 
     // Use elapsed time from device if available, otherwise use local tracking
     if (status.currentWorkingTime != null) {
@@ -194,6 +233,7 @@ class DeviceStatusBloc extends Bloc<DeviceStatusEvent, DeviceStatusState> {
   @override
   Future<void> close() {
     _stopWorkingTimer();
+    _timeoutDisplayTimer?.cancel();
     _statusSubscription?.cancel();
     return super.close();
   }

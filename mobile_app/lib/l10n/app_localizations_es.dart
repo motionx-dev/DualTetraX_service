@@ -328,4 +328,35 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get thai => 'ไทย';
+
+  @override
+  String get otaMode => 'MODO ACTUALIZACIÓN OTA';
+
+  @override
+  String get otaInstructions =>
+      'Conéctese al dispositivo a través de WiFi y acceda a la interfaz web para actualizar el firmware.\n\nWiFi del dispositivo: DualTetraX-AP\nDirección: http://192.168.4.1';
+
+  @override
+  String get sessionCompleted => 'Sesión Completada';
+
+  @override
+  String get devicePoweredOff => 'El dispositivo se ha apagado';
+
+  @override
+  String get autoReconnect => 'Reconexión Automática';
+
+  @override
+  String get autoReconnectInterval => 'Intervalo de Reconexión';
+
+  @override
+  String get seconds => 'segundos';
+
+  @override
+  String get connectionMode => 'Modo de Conexión';
+
+  @override
+  String get autoConnect => 'Automático';
+
+  @override
+  String get manualConnect => 'Manual';
 }

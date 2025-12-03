@@ -322,4 +322,35 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get thai => 'ไทย';
+
+  @override
+  String get otaMode => 'CHẾ ĐỘ CẬP NHẬT OTA';
+
+  @override
+  String get otaInstructions =>
+      'Kết nối với thiết bị qua WiFi và truy cập giao diện web để cập nhật firmware.\n\nWiFi thiết bị: DualTetraX-AP\nĐịa chỉ: http://192.168.4.1';
+
+  @override
+  String get sessionCompleted => 'Phiên Hoàn tất';
+
+  @override
+  String get devicePoweredOff => 'Thiết bị đã tắt nguồn';
+
+  @override
+  String get autoReconnect => 'Tự động Kết nối lại';
+
+  @override
+  String get autoReconnectInterval => 'Khoảng thời gian Kết nối lại';
+
+  @override
+  String get seconds => 'giây';
+
+  @override
+  String get connectionMode => 'Chế độ Kết nối';
+
+  @override
+  String get autoConnect => 'Tự động';
+
+  @override
+  String get manualConnect => 'Thủ công';
 }

@@ -115,5 +115,19 @@
   "portuguese": "Português",
   "spanish": "Español",
   "vietnamese": "Tiếng Việt",
-  "thai": "ไทย"
+  "thai": "ไทย",
+
+  "otaMode": "OTA 更新模式",
+  "otaInstructions": "通过WiFi连接设备并访问网页界面以更新固件。\n\n设备WiFi: DualTetraX-AP\n地址: http://192.168.4.1",
+
+  "sessionCompleted": "会话完成",
+  "devicePoweredOff": "设备已关机",
+
+  "autoReconnect": "自动重连",
+  "autoReconnectInterval": "自动重连间隔",
+  "seconds": "秒",
+
+  "connectionMode": "连接模式",
+  "autoConnect": "自动",
+  "manualConnect": "手动"
 }

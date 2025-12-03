@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'package:dartz/dartz.dart';
 import '../../domain/entities/device_info.dart';
 import '../../domain/entities/device_status.dart';
 import '../../domain/entities/connection_state.dart';
+import '../../domain/entities/working_state.dart';
 import '../../domain/repositories/device_repository.dart';
 import '../../core/errors/failures.dart';
 import '../datasources/ble_remote_data_source.dart';
@@ -12,10 +14,20 @@ class DeviceRepositoryImpl implements DeviceRepository {
   final BleRemoteDataSource remoteDataSource;
   final DeviceLocalDataSource localDataSource;
 
+  WorkingState? _lastWorkingState;
+  StreamSubscription? _statusSubscription;
+
   DeviceRepositoryImpl({
     required this.remoteDataSource,
     required this.localDataSource,
-  });
+  }) {
+    _statusSubscription = remoteDataSource.deviceStatusStream.listen((status) {
+      _lastWorkingState = status.workingState;
+    });
+  }
+
+  @override
+  WorkingState? get lastWorkingState => _lastWorkingState;
 
   @override
   Stream<BleConnectionState> get connectionStateStream =>

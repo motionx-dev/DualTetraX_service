@@ -115,5 +115,19 @@
   "portuguese": "Português",
   "spanish": "Español",
   "vietnamese": "Tiếng Việt",
-  "thai": "ไทย"
+  "thai": "ไทย",
+
+  "otaMode": "โหมดอัปเดต OTA",
+  "otaInstructions": "เชื่อมต่อกับอุปกรณ์ผ่าน WiFi และเข้าถึงเว็บอินเตอร์เฟซเพื่ออัปเดตเฟิร์มแวร์\n\nWiFi อุปกรณ์: DualTetraX-AP\nที่อยู่: http://192.168.4.1",
+
+  "sessionCompleted": "เซสชันเสร็จสมบูรณ์",
+  "devicePoweredOff": "อุปกรณ์ถูกปิด",
+
+  "autoReconnect": "เชื่อมต่ออัตโนมัติ",
+  "autoReconnectInterval": "ช่วงเวลาเชื่อมต่ออัตโนมัติ",
+  "seconds": "วินาที",
+
+  "connectionMode": "โหมดการเชื่อมต่อ",
+  "autoConnect": "อัตโนมัติ",
+  "manualConnect": "ด้วยตนเอง"
 }

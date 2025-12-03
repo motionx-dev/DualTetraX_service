@@ -323,4 +323,35 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get thai => 'ไทย';
+
+  @override
+  String get otaMode => 'โหมดอัปเดต OTA';
+
+  @override
+  String get otaInstructions =>
+      'เชื่อมต่อกับอุปกรณ์ผ่าน WiFi และเข้าถึงเว็บอินเตอร์เฟซเพื่ออัปเดตเฟิร์มแวร์\n\nWiFi อุปกรณ์: DualTetraX-AP\nที่อยู่: http://192.168.4.1';
+
+  @override
+  String get sessionCompleted => 'เซสชันเสร็จสมบูรณ์';
+
+  @override
+  String get devicePoweredOff => 'อุปกรณ์ถูกปิด';
+
+  @override
+  String get autoReconnect => 'เชื่อมต่ออัตโนมัติ';
+
+  @override
+  String get autoReconnectInterval => 'ช่วงเวลาเชื่อมต่ออัตโนมัติ';
+
+  @override
+  String get seconds => 'วินาที';
+
+  @override
+  String get connectionMode => 'โหมดการเชื่อมต่อ';
+
+  @override
+  String get autoConnect => 'อัตโนมัติ';
+
+  @override
+  String get manualConnect => 'ด้วยตนเอง';
 }

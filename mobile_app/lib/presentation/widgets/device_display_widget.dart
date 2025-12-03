@@ -18,9 +18,10 @@ class DeviceDisplayWidget extends StatefulWidget {
 }
 
 class _DeviceDisplayWidgetState extends State<DeviceDisplayWidget>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
+  late AnimationController _otaBlinkController;
 
   @override
   void initState() {
@@ -33,11 +34,18 @@ class _DeviceDisplayWidgetState extends State<DeviceDisplayWidget>
     _pulseAnimation = Tween<double>(begin: 0.3, end: 1.0).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
+
+    // OTA LED blink: 500ms on + 500ms off = 1000ms cycle (same as device)
+    _otaBlinkController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    )..repeat();
   }
 
   @override
   void dispose() {
     _pulseController.dispose();
+    _otaBlinkController.dispose();
     super.dispose();
   }
 
@@ -49,6 +57,9 @@ class _DeviceDisplayWidgetState extends State<DeviceDisplayWidget>
       builder: (context, state) {
         if (state is DeviceStatusLoaded) {
           return _buildDisplay(context, state.status);
+        }
+        if (state is DeviceStatusTimeoutPowerOff) {
+          return _buildTimeoutPowerOffDisplay(context);
         }
         return _buildEmptyDisplay(context);
       },
@@ -157,6 +168,12 @@ class _DeviceDisplayWidgetState extends State<DeviceDisplayWidget>
             const SizedBox(height: 12),
             _buildPauseIndicator(),
           ],
+
+          // Show OTA mode indicator
+          if (status.workingState == WorkingState.ota) ...[
+            const SizedBox(height: 12),
+            _buildOtaIndicator(context),
+          ],
         ],
       ),
     );
@@ -195,6 +212,67 @@ class _DeviceDisplayWidgetState extends State<DeviceDisplayWidget>
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTimeoutPowerOffDisplay(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        children: [
+          AspectRatio(
+            aspectRatio: 1.0,
+            child: Stack(
+              children: [
+                _buildDeviceImage(opacity: 0.3),
+                Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.check_circle_outline,
+                        color: Colors.green,
+                        size: 64,
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.7),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          l10n.sessionCompleted,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.devicePoweredOff,
+                        style: TextStyle(
+                          color: Colors.grey.shade400,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -264,6 +342,8 @@ class _DeviceDisplayWidgetState extends State<DeviceDisplayWidget>
   }
 
   Widget _buildLEDOverlays(DeviceStatus status) {
+    final isOtaMode = status.workingState == WorkingState.ota;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
@@ -271,27 +351,33 @@ class _DeviceDisplayWidgetState extends State<DeviceDisplayWidget>
 
         return Stack(
           children: [
-            Positioned(
-              top: height * 0.12,
-              left: 0,
-              right: 0,
-              child: _buildShotTypeOverlay(status.shotType, width),
-            ),
-            Positioned(
-              top: height * 0.30,
-              left: 0,
-              right: 0,
-              child: _buildAllModesOverlay(status.shotType, status.mode, width),
-            ),
+            // OTA mode: hide Shot Type LEDs
+            if (!isOtaMode)
+              Positioned(
+                top: height * 0.12,
+                left: 0,
+                right: 0,
+                child: _buildShotTypeOverlay(status.shotType, width),
+              ),
+            // OTA mode: hide Mode LEDs
+            if (!isOtaMode)
+              Positioned(
+                top: height * 0.30,
+                left: 0,
+                right: 0,
+                child: _buildAllModesOverlay(status.shotType, status.mode, width),
+              ),
             Positioned(
               bottom: height * 0.12,
               left: 0,
               right: 0,
-              child: _buildLevelOverlay(
-                status.level,
-                status.batteryStatus.level,
-                width,
-              ),
+              child: isOtaMode
+                  ? _buildOtaLevelOverlay(width)
+                  : _buildLevelOverlay(
+                      status.level,
+                      status.batteryStatus.level,
+                      width,
+                    ),
             ),
           ],
         );
@@ -349,6 +435,27 @@ class _DeviceDisplayWidgetState extends State<DeviceDisplayWidget>
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildOtaLevelOverlay(double width) {
+    // OTA mode: all 3 LEDs blink together (500ms on, 500ms off - same as device)
+    return AnimatedBuilder(
+      animation: _otaBlinkController,
+      builder: (context, child) {
+        // 0~0.5: ON, 0.5~1.0: OFF (500ms each)
+        final isOn = _otaBlinkController.value < 0.5;
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildDotGlow(isOn, false),
+            SizedBox(width: width * 0.06),
+            _buildDotGlow(isOn, false),
+            SizedBox(width: width * 0.06),
+            _buildDotGlow(isOn, false),
+          ],
+        );
+      },
     );
   }
 
@@ -565,6 +672,61 @@ class _DeviceDisplayWidgetState extends State<DeviceDisplayWidget>
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.2,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildOtaIndicator(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return AnimatedBuilder(
+      animation: _pulseAnimation,
+      builder: (context, child) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.purple.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Colors.purple.withOpacity(_pulseAnimation.value),
+              width: 2,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.system_update,
+                    color: Colors.purple.shade700,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    l10n.otaMode,
+                    style: TextStyle(
+                      color: Colors.purple.shade700,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                l10n.otaInstructions,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.purple.shade600,
+                  fontSize: 13,
                 ),
               ),
             ],

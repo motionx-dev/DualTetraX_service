@@ -715,6 +715,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'ไทย'**
   String get thai;
+
+  /// No description provided for @otaMode.
+  ///
+  /// In en, this message translates to:
+  /// **'OTA UPDATE MODE'**
+  String get otaMode;
+
+  /// No description provided for @otaInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to the device via WiFi and access the web interface to update firmware.\n\nDevice WiFi: DualTetraX-AP\nAddress: http://192.168.4.1'**
+  String get otaInstructions;
+
+  /// No description provided for @sessionCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Session Completed'**
+  String get sessionCompleted;
+
+  /// No description provided for @devicePoweredOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Device has been powered off'**
+  String get devicePoweredOff;
+
+  /// No description provided for @autoReconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto Reconnect'**
+  String get autoReconnect;
+
+  /// No description provided for @autoReconnectInterval.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto Reconnect Interval'**
+  String get autoReconnectInterval;
+
+  /// No description provided for @seconds.
+  ///
+  /// In en, this message translates to:
+  /// **'seconds'**
+  String get seconds;
+
+  /// No description provided for @connectionMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection Mode'**
+  String get connectionMode;
+
+  /// No description provided for @autoConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get autoConnect;
+
+  /// No description provided for @manualConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual'**
+  String get manualConnect;
 }
 
 class _AppLocalizationsDelegate

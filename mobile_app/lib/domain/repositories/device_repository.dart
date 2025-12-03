@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import '../entities/device_info.dart';
 import '../entities/device_status.dart';
 import '../entities/connection_state.dart';
+import '../entities/working_state.dart';
 import '../../core/errors/failures.dart';
 
 abstract class DeviceRepository {
@@ -20,4 +21,7 @@ abstract class DeviceRepository {
   Stream<DeviceStatus> get deviceStatusStream;
   Future<Either<Failure, DeviceStatus>> getCurrentStatus();
   Future<void> refreshStatus();  // Re-read all characteristic values
+
+  // Last known working state (for auto-reconnect logic)
+  WorkingState? get lastWorkingState;
 }
