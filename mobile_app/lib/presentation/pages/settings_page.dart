@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../l10n/app_localizations.dart';
+import '../../core/di/injection_container.dart' as di;
 import '../bloc/usage_statistics/usage_statistics_bloc.dart';
 import '../bloc/device_connection/device_connection_bloc.dart';
 import '../bloc/device_connection/device_connection_event.dart';
 import '../bloc/theme/theme_bloc.dart';
 import '../bloc/locale/locale_bloc.dart';
+import '../bloc/ota/ota_bloc.dart';
+import 'ota_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -39,6 +42,25 @@ class SettingsPage extends StatelessWidget {
             },
           ),
           _AutoReconnectTile(),
+          ListTile(
+            leading: Icon(
+              Icons.system_update,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            title: Text(l10n.firmwareUpdate),
+            subtitle: Text(l10n.firmwareUpdateSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => BlocProvider(
+                    create: (_) => di.sl<OtaBloc>(),
+                    child: const OtaPage(),
+                  ),
+                ),
+              );
+            },
+          ),
           ListTile(
             leading: Icon(
               Icons.bluetooth_disabled,

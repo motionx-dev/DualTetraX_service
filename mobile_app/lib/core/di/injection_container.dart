@@ -6,12 +6,16 @@ import '../../data/datasources/database_helper.dart';
 import '../../data/datasources/usage_local_data_source.dart';
 import '../../data/datasources/device_local_data_source.dart';
 import '../../data/datasources/ble_remote_data_source.dart';
+import '../../data/datasources/ble_ota_data_source.dart';
+import '../../data/datasources/local_firmware_data_source.dart';
 
 // Repositories
 import '../../data/repositories/device_repository_impl.dart';
 import '../../data/repositories/usage_repository_impl.dart';
+import '../../data/repositories/ota_repository_impl.dart';
 import '../../domain/repositories/device_repository.dart';
 import '../../domain/repositories/usage_repository.dart';
+import '../../domain/repositories/ota_repository.dart';
 
 // Use Cases
 import '../../domain/usecases/connect_to_device.dart';
@@ -27,6 +31,7 @@ import '../../presentation/bloc/device_status/device_status_bloc.dart';
 import '../../presentation/bloc/usage_statistics/usage_statistics_bloc.dart';
 import '../../presentation/bloc/theme/theme_bloc.dart';
 import '../../presentation/bloc/locale/locale_bloc.dart';
+import '../../presentation/bloc/ota/ota_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -64,6 +69,10 @@ Future<void> init() async {
     () => LocaleBloc(sl()),
   );
 
+  sl.registerFactory(
+    () => OtaBloc(otaRepository: sl()),
+  );
+
   //! Use Cases
   sl.registerLazySingleton(() => ConnectToDevice(sl()));
   sl.registerLazySingleton(() => GetDeviceStatus(sl()));
@@ -74,20 +83,44 @@ Future<void> init() async {
 
   //! Repositories
   sl.registerLazySingleton<DeviceRepository>(
-    () => DeviceRepositoryImpl(
-      remoteDataSource: sl(),
-      localDataSource: sl(),
-    ),
+    () {
+      final bleDataSource = sl<BleRemoteDataSource>();
+      print('[DI] DeviceRepository using BleRemoteDataSource: $bleDataSource');
+      return DeviceRepositoryImpl(
+        remoteDataSource: bleDataSource,
+        localDataSource: sl(),
+      );
+    },
   );
 
   sl.registerLazySingleton<UsageRepository>(
     () => UsageRepositoryImpl(sl()),
   );
 
+  sl.registerLazySingleton<OtaRepository>(
+    () {
+      final bleDataSource = sl<BleRemoteDataSource>() as BleRemoteDataSourceImpl;
+      print('[DI] OtaRepository using BleRemoteDataSource: $bleDataSource');
+      return OtaRepositoryImpl(
+        bleOtaDataSource: sl(),
+        localFirmwareDataSource: sl(),
+        getConnectedDevice: () {
+          final device = bleDataSource.connectedDevice;
+          print('[DI] getConnectedDevice called, bleDataSource: $bleDataSource, device: $device');
+          return device;
+        },
+      );
+    },
+  );
+
   //! Data Sources
   // Use real BLE for device communication
   sl.registerLazySingleton<BleRemoteDataSource>(
-    () => BleRemoteDataSourceImpl(),
+    () {
+      final instance = BleRemoteDataSourceImpl();
+      print('[DI] BleRemoteDataSource created: $instance');
+      return instance;
+    },
   );
 
   sl.registerLazySingleton<DeviceLocalDataSource>(
@@ -96,6 +129,14 @@ Future<void> init() async {
 
   sl.registerLazySingleton<UsageLocalDataSource>(
     () => UsageLocalDataSourceImpl(sl()),
+  );
+
+  sl.registerLazySingleton<BleOtaDataSource>(
+    () => BleOtaDataSourceImpl(),
+  );
+
+  sl.registerLazySingleton<LocalFirmwareDataSource>(
+    () => LocalFirmwareDataSourceImpl(),
   );
 
   //! Core

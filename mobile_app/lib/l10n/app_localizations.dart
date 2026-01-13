@@ -775,6 +775,32 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Manual'**
   String get manualConnect;
+
+  String get firmwareUpdate;
+  String get firmwareUpdateSubtitle;
+  String get otaServiceNotAvailable;
+  String get otaUpdateCompleted;
+  String get otaReadyForUpdate;
+  String get deviceStatus;
+  String get firmware;
+  String get noFirmwareSelected;
+  String get clear;
+  String get selectFirmwareFile;
+  String get cancelUpdate;
+  String get startUpdate;
+  String get otaStateIdle;
+  String get otaStateDownloading;
+  String get otaStateValidating;
+  String get otaStateInstalling;
+  String get otaStateComplete;
+  String get otaStateError;
+  String get updateComplete;
+  String get updateCompleteMessage;
+  String get ok;
+  String get file;
+  String get version;
+  String get size;
+  String sendingChunk(int sent, int total);
 }
 
 class _AppLocalizationsDelegate

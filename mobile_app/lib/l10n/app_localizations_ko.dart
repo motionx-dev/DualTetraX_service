@@ -348,4 +348,82 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get manualConnect => '수동';
+
+  @override
+  String get firmwareUpdate => '펌웨어 업데이트';
+
+  @override
+  String get firmwareUpdateSubtitle => '블루투스를 통해 기기 펌웨어 업데이트';
+
+  @override
+  String get otaServiceNotAvailable => 'OTA 서비스를 사용할 수 없습니다';
+
+  @override
+  String get otaUpdateCompleted => '업데이트 완료';
+
+  @override
+  String get otaReadyForUpdate => '업데이트 준비됨';
+
+  @override
+  String get deviceStatus => '기기 상태';
+
+  @override
+  String get firmware => '펌웨어';
+
+  @override
+  String get noFirmwareSelected => '펌웨어가 선택되지 않았습니다';
+
+  @override
+  String get clear => '지우기';
+
+  @override
+  String get selectFirmwareFile => '펌웨어 파일 선택';
+
+  @override
+  String get cancelUpdate => '업데이트 취소';
+
+  @override
+  String get startUpdate => '업데이트 시작';
+
+  @override
+  String get otaStateIdle => '대기';
+
+  @override
+  String get otaStateDownloading => '다운로드 중...';
+
+  @override
+  String get otaStateValidating => '검증 중...';
+
+  @override
+  String get otaStateInstalling => '설치 중...';
+
+  @override
+  String get otaStateComplete => '완료';
+
+  @override
+  String get otaStateError => '오류';
+
+  @override
+  String get updateComplete => '업데이트 완료';
+
+  @override
+  String get updateCompleteMessage =>
+      '펌웨어 업데이트가 성공적으로 완료되었습니다. 기기가 자동으로 재시작됩니다.';
+
+  @override
+  String get ok => '확인';
+
+  @override
+  String get file => '파일';
+
+  @override
+  String get version => '버전';
+
+  @override
+  String get size => '크기';
+
+  @override
+  String sendingChunk(int sent, int total) {
+    return '청크 전송 중 $sent / $total';
+  }
 }

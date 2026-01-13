@@ -25,6 +25,12 @@ dependencies:
   path: ^1.8.3
   shared_preferences: ^2.2.2
 
+  # File Picker (for OTA firmware selection)
+  file_picker: ^6.1.1
+
+  # Cryptography (for MD5 checksum)
+  crypto: ^3.0.3
+
   # Charts
   fl_chart: ^0.66.0
 

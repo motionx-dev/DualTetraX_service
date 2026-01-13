@@ -347,4 +347,81 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get manualConnect => '手動';
+
+  @override
+  String get firmwareUpdate => 'ファームウェア更新';
+
+  @override
+  String get firmwareUpdateSubtitle => 'Bluetoothでデバイスのファームウェアを更新';
+
+  @override
+  String get otaServiceNotAvailable => 'OTAサービスが利用できません';
+
+  @override
+  String get otaUpdateCompleted => '更新完了';
+
+  @override
+  String get otaReadyForUpdate => '更新準備完了';
+
+  @override
+  String get deviceStatus => 'デバイス状態';
+
+  @override
+  String get firmware => 'ファームウェア';
+
+  @override
+  String get noFirmwareSelected => 'ファームウェアが選択されていません';
+
+  @override
+  String get clear => 'クリア';
+
+  @override
+  String get selectFirmwareFile => 'ファームウェアファイルを選択';
+
+  @override
+  String get cancelUpdate => '更新をキャンセル';
+
+  @override
+  String get startUpdate => '更新を開始';
+
+  @override
+  String get otaStateIdle => '待機中';
+
+  @override
+  String get otaStateDownloading => 'ダウンロード中...';
+
+  @override
+  String get otaStateValidating => '検証中...';
+
+  @override
+  String get otaStateInstalling => 'インストール中...';
+
+  @override
+  String get otaStateComplete => '完了';
+
+  @override
+  String get otaStateError => 'エラー';
+
+  @override
+  String get updateComplete => '更新完了';
+
+  @override
+  String get updateCompleteMessage => 'ファームウェアの更新が成功しました。デバイスは自動的に再起動します。';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get file => 'ファイル';
+
+  @override
+  String get version => 'バージョン';
+
+  @override
+  String get size => 'サイズ';
+
+  @override
+  String sendingChunk(int sent, int total) {
+    return 'チャンク送信中 $sent / $total';
+  }
 }

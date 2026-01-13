@@ -347,4 +347,81 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get manualConnect => '手动';
+
+  @override
+  String get firmwareUpdate => '固件更新';
+
+  @override
+  String get firmwareUpdateSubtitle => '通过蓝牙更新设备固件';
+
+  @override
+  String get otaServiceNotAvailable => 'OTA服务不可用';
+
+  @override
+  String get otaUpdateCompleted => '更新完成';
+
+  @override
+  String get otaReadyForUpdate => '准备更新';
+
+  @override
+  String get deviceStatus => '设备状态';
+
+  @override
+  String get firmware => '固件';
+
+  @override
+  String get noFirmwareSelected => '未选择固件';
+
+  @override
+  String get clear => '清除';
+
+  @override
+  String get selectFirmwareFile => '选择固件文件';
+
+  @override
+  String get cancelUpdate => '取消更新';
+
+  @override
+  String get startUpdate => '开始更新';
+
+  @override
+  String get otaStateIdle => '空闲';
+
+  @override
+  String get otaStateDownloading => '下载中...';
+
+  @override
+  String get otaStateValidating => '验证中...';
+
+  @override
+  String get otaStateInstalling => '安装中...';
+
+  @override
+  String get otaStateComplete => '完成';
+
+  @override
+  String get otaStateError => '错误';
+
+  @override
+  String get updateComplete => '更新完成';
+
+  @override
+  String get updateCompleteMessage => '固件更新成功。设备将自动重启。';
+
+  @override
+  String get ok => '确定';
+
+  @override
+  String get file => '文件';
+
+  @override
+  String get version => '版本';
+
+  @override
+  String get size => '大小';
+
+  @override
+  String sendingChunk(int sent, int total) {
+    return '发送块 $sent / $total';
+  }
 }

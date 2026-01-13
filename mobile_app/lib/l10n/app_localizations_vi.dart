@@ -353,4 +353,82 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get manualConnect => 'Thủ công';
+
+  @override
+  String get firmwareUpdate => 'Cập nhật Firmware';
+
+  @override
+  String get firmwareUpdateSubtitle => 'Cập nhật firmware thiết bị qua Bluetooth';
+
+  @override
+  String get otaServiceNotAvailable => 'Dịch vụ OTA không khả dụng';
+
+  @override
+  String get otaUpdateCompleted => 'Cập nhật hoàn tất';
+
+  @override
+  String get otaReadyForUpdate => 'Sẵn sàng cập nhật';
+
+  @override
+  String get deviceStatus => 'Trạng thái Thiết bị';
+
+  @override
+  String get firmware => 'Firmware';
+
+  @override
+  String get noFirmwareSelected => 'Chưa chọn firmware';
+
+  @override
+  String get clear => 'Xóa';
+
+  @override
+  String get selectFirmwareFile => 'Chọn Tệp Firmware';
+
+  @override
+  String get cancelUpdate => 'Hủy Cập nhật';
+
+  @override
+  String get startUpdate => 'Bắt đầu Cập nhật';
+
+  @override
+  String get otaStateIdle => 'Chờ';
+
+  @override
+  String get otaStateDownloading => 'Đang tải...';
+
+  @override
+  String get otaStateValidating => 'Đang xác thực...';
+
+  @override
+  String get otaStateInstalling => 'Đang cài đặt...';
+
+  @override
+  String get otaStateComplete => 'Hoàn tất';
+
+  @override
+  String get otaStateError => 'Lỗi';
+
+  @override
+  String get updateComplete => 'Cập nhật Hoàn tất';
+
+  @override
+  String get updateCompleteMessage =>
+      'Cập nhật firmware thành công. Thiết bị sẽ tự động khởi động lại.';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get file => 'Tệp';
+
+  @override
+  String get version => 'Phiên bản';
+
+  @override
+  String get size => 'Kích thước';
+
+  @override
+  String sendingChunk(int sent, int total) {
+    return 'Đang gửi khối $sent / $total';
+  }
 }

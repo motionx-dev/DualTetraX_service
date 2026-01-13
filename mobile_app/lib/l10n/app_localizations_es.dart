@@ -359,4 +359,82 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get manualConnect => 'Manual';
+
+  @override
+  String get firmwareUpdate => 'Actualización de Firmware';
+
+  @override
+  String get firmwareUpdateSubtitle => 'Actualizar firmware del dispositivo vía Bluetooth';
+
+  @override
+  String get otaServiceNotAvailable => 'Servicio OTA no disponible';
+
+  @override
+  String get otaUpdateCompleted => 'Actualización completada';
+
+  @override
+  String get otaReadyForUpdate => 'Listo para actualizar';
+
+  @override
+  String get deviceStatus => 'Estado del Dispositivo';
+
+  @override
+  String get firmware => 'Firmware';
+
+  @override
+  String get noFirmwareSelected => 'No se ha seleccionado firmware';
+
+  @override
+  String get clear => 'Limpiar';
+
+  @override
+  String get selectFirmwareFile => 'Seleccionar Archivo de Firmware';
+
+  @override
+  String get cancelUpdate => 'Cancelar Actualización';
+
+  @override
+  String get startUpdate => 'Iniciar Actualización';
+
+  @override
+  String get otaStateIdle => 'Inactivo';
+
+  @override
+  String get otaStateDownloading => 'Descargando...';
+
+  @override
+  String get otaStateValidating => 'Validando...';
+
+  @override
+  String get otaStateInstalling => 'Instalando...';
+
+  @override
+  String get otaStateComplete => 'Completado';
+
+  @override
+  String get otaStateError => 'Error';
+
+  @override
+  String get updateComplete => 'Actualización Completada';
+
+  @override
+  String get updateCompleteMessage =>
+      'Actualización de firmware exitosa. El dispositivo se reiniciará automáticamente.';
+
+  @override
+  String get ok => 'Aceptar';
+
+  @override
+  String get file => 'Archivo';
+
+  @override
+  String get version => 'Versión';
+
+  @override
+  String get size => 'Tamaño';
+
+  @override
+  String sendingChunk(int sent, int total) {
+    return 'Enviando bloque $sent de $total';
+  }
 }

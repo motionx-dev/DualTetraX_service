@@ -64,6 +64,9 @@ class BleRemoteDataSourceImpl implements BleRemoteDataSource {
   // Buffer for notifications received during initialization
   final List<_BufferedNotification> _notificationBuffer = [];
 
+  // Public getter for connected device (used by OTA service)
+  BluetoothDevice? get connectedDevice => _connectedDevice;
+
   @override
   Stream<BleConnectionState> get connectionStateStream =>
       _connectionStateController.stream;
@@ -126,6 +129,7 @@ class BleRemoteDataSourceImpl implements BleRemoteDataSource {
 
   Future<void> _connect(BluetoothDevice device) async {
     _connectedDevice = device;
+    print('[BLE] _connect called, _connectedDevice set to: $_connectedDevice, this: $this');
 
     // Listen to connection state
     device.connectionState.listen((state) {

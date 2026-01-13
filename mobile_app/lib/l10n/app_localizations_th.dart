@@ -354,4 +354,82 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get manualConnect => 'ด้วยตนเอง';
+
+  @override
+  String get firmwareUpdate => 'อัปเดตเฟิร์มแวร์';
+
+  @override
+  String get firmwareUpdateSubtitle => 'อัปเดตเฟิร์มแวร์อุปกรณ์ผ่าน Bluetooth';
+
+  @override
+  String get otaServiceNotAvailable => 'บริการ OTA ไม่พร้อมใช้งาน';
+
+  @override
+  String get otaUpdateCompleted => 'อัปเดตเสร็จสมบูรณ์';
+
+  @override
+  String get otaReadyForUpdate => 'พร้อมอัปเดต';
+
+  @override
+  String get deviceStatus => 'สถานะอุปกรณ์';
+
+  @override
+  String get firmware => 'เฟิร์มแวร์';
+
+  @override
+  String get noFirmwareSelected => 'ยังไม่ได้เลือกเฟิร์มแวร์';
+
+  @override
+  String get clear => 'ล้าง';
+
+  @override
+  String get selectFirmwareFile => 'เลือกไฟล์เฟิร์มแวร์';
+
+  @override
+  String get cancelUpdate => 'ยกเลิกการอัปเดต';
+
+  @override
+  String get startUpdate => 'เริ่มอัปเดต';
+
+  @override
+  String get otaStateIdle => 'ว่าง';
+
+  @override
+  String get otaStateDownloading => 'กำลังดาวน์โหลด...';
+
+  @override
+  String get otaStateValidating => 'กำลังตรวจสอบ...';
+
+  @override
+  String get otaStateInstalling => 'กำลังติดตั้ง...';
+
+  @override
+  String get otaStateComplete => 'เสร็จสมบูรณ์';
+
+  @override
+  String get otaStateError => 'ข้อผิดพลาด';
+
+  @override
+  String get updateComplete => 'อัปเดตเสร็จสมบูรณ์';
+
+  @override
+  String get updateCompleteMessage =>
+      'อัปเดตเฟิร์มแวร์สำเร็จ อุปกรณ์จะรีสตาร์ทโดยอัตโนมัติ';
+
+  @override
+  String get ok => 'ตกลง';
+
+  @override
+  String get file => 'ไฟล์';
+
+  @override
+  String get version => 'เวอร์ชัน';
+
+  @override
+  String get size => 'ขนาด';
+
+  @override
+  String sendingChunk(int sent, int total) {
+    return 'กำลังส่งบล็อก $sent / $total';
+  }
 }

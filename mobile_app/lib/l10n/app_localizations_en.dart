@@ -357,4 +357,82 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manualConnect => 'Manual';
+
+  @override
+  String get firmwareUpdate => 'Firmware Update';
+
+  @override
+  String get firmwareUpdateSubtitle => 'Update device firmware via Bluetooth';
+
+  @override
+  String get otaServiceNotAvailable => 'OTA service not available';
+
+  @override
+  String get otaUpdateCompleted => 'Update completed';
+
+  @override
+  String get otaReadyForUpdate => 'Ready for update';
+
+  @override
+  String get deviceStatus => 'Device Status';
+
+  @override
+  String get firmware => 'Firmware';
+
+  @override
+  String get noFirmwareSelected => 'No firmware selected';
+
+  @override
+  String get clear => 'Clear';
+
+  @override
+  String get selectFirmwareFile => 'Select Firmware File';
+
+  @override
+  String get cancelUpdate => 'Cancel Update';
+
+  @override
+  String get startUpdate => 'Start Update';
+
+  @override
+  String get otaStateIdle => 'Idle';
+
+  @override
+  String get otaStateDownloading => 'Downloading...';
+
+  @override
+  String get otaStateValidating => 'Validating...';
+
+  @override
+  String get otaStateInstalling => 'Installing...';
+
+  @override
+  String get otaStateComplete => 'Complete';
+
+  @override
+  String get otaStateError => 'Error';
+
+  @override
+  String get updateComplete => 'Update Complete';
+
+  @override
+  String get updateCompleteMessage =>
+      'Firmware update was successful. The device will restart automatically.';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get file => 'File';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get size => 'Size';
+
+  @override
+  String sendingChunk(int sent, int total) {
+    return 'Sending chunk $sent of $total';
+  }
 }
