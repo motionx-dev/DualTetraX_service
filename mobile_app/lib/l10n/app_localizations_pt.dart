@@ -113,6 +113,27 @@ class AppLocalizationsPt extends AppLocalizations {
   String get minutes => 'min';
 
   @override
+  String get details => 'Detalhes';
+
+  @override
+  String get weeklyUsageTime => 'Tempo de Uso Semanal';
+
+  @override
+  String get dailyUsage => 'Uso Diário';
+
+  @override
+  String get average => 'Média';
+
+  @override
+  String get minutesPerDay => 'min/dia';
+
+  @override
+  String get monthlyUsageTime => 'Tempo de Uso Mensal';
+
+  @override
+  String get usageTrend => 'Tendência de Uso';
+
+  @override
   String get weeklyStatsComingSoon => 'Estatísticas semanais (Em breve)';
 
   @override

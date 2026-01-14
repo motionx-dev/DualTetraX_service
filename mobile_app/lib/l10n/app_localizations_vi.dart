@@ -112,6 +112,27 @@ class AppLocalizationsVi extends AppLocalizations {
   String get minutes => 'phút';
 
   @override
+  String get details => 'Chi tiết';
+
+  @override
+  String get weeklyUsageTime => 'Thời gian Sử dụng Hàng tuần';
+
+  @override
+  String get dailyUsage => 'Sử dụng Hàng ngày';
+
+  @override
+  String get average => 'Trung bình';
+
+  @override
+  String get minutesPerDay => 'phút/ngày';
+
+  @override
+  String get monthlyUsageTime => 'Thời gian Sử dụng Hàng tháng';
+
+  @override
+  String get usageTrend => 'Xu hướng Sử dụng';
+
+  @override
   String get weeklyStatsComingSoon => 'Thống kê hàng tuần (Sắp có)';
 
   @override

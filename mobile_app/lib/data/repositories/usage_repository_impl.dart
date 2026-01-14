@@ -4,6 +4,8 @@ import '../../domain/entities/usage_statistics.dart';
 import '../../domain/entities/shot_type.dart';
 import '../../domain/entities/device_mode.dart';
 import '../../domain/entities/device_level.dart';
+import '../../domain/entities/sync_status.dart';
+import '../../domain/entities/battery_sample.dart';
 import '../../domain/repositories/usage_repository.dart';
 import '../../core/errors/failures.dart';
 import '../datasources/usage_local_data_source.dart';
@@ -38,9 +40,18 @@ class UsageRepositoryImpl implements UsageRepository {
 
   @override
   Future<Either<Failure, void>> endSession(
-      String sessionId, DateTime endTime) async {
+      String sessionUuid, DateTime endTime) async {
     try {
-      // TODO: Implement end session logic
+      final session = await localDataSource.getSessionByUuid(sessionUuid);
+      if (session != null) {
+        final updatedSession = session.copyWith(
+          endTime: endTime,
+          updatedAt: DateTime.now(),
+        );
+        await localDataSource.updateSession(
+          UsageSessionModel.fromEntity(updatedSession),
+        );
+      }
       return const Right(null);
     } on Exception catch (e) {
       return Left(DatabaseFailure(e.toString()));
@@ -51,6 +62,16 @@ class UsageRepositoryImpl implements UsageRepository {
   Future<Either<Failure, UsageSession?>> getActiveSession() async {
     try {
       final session = await localDataSource.getActiveSession();
+      return Right(session);
+    } on Exception catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UsageSession?>> getSessionByUuid(String uuid) async {
+    try {
+      final session = await localDataSource.getSessionByUuid(uuid);
       return Right(session);
     } on Exception catch (e) {
       return Left(DatabaseFailure(e.toString()));
@@ -77,6 +98,50 @@ class UsageRepositoryImpl implements UsageRepository {
     try {
       final sessions = await localDataSource.getSessionsByDate(date);
       return Right(sessions);
+    } on Exception catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<UsageSession>>> getUnsyncedSessions() async {
+    try {
+      final sessions = await localDataSource.getUnsyncedSessions();
+      return Right(sessions);
+    } on Exception catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateSyncStatus(
+      String uuid, SyncStatus status) async {
+    try {
+      await localDataSource.updateSyncStatus(uuid, status);
+      return const Right(null);
+    } on Exception catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> saveSessionFromDevice(
+    UsageSession session,
+    List<BatterySample> samples,
+  ) async {
+    try {
+      final existingSession = await localDataSource.getSessionByUuid(session.uuid);
+      if (existingSession != null) {
+        final model = UsageSessionModel.fromEntity(session);
+        await localDataSource.updateSession(model);
+      } else {
+        final model = UsageSessionModel.fromEntity(session);
+        await localDataSource.insertSession(model);
+      }
+      if (samples.isNotEmpty) {
+        await localDataSource.insertBatterySamples(session.uuid, samples);
+      }
+      return const Right(null);
     } on Exception catch (e) {
       return Left(DatabaseFailure(e.toString()));
     }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../../domain/entities/device_status.dart';
 import '../../domain/entities/device_info.dart';
@@ -10,14 +11,7 @@ import '../../domain/entities/working_state.dart';
 import '../../domain/entities/battery_status.dart';
 import '../../domain/entities/warning_status.dart';
 import '../models/device_info_model.dart';
-
-// Helper class to buffer notifications during initialization
-class _BufferedNotification {
-  final Guid characteristicUuid;
-  final List<int> value;
-
-  _BufferedNotification(this.characteristicUuid, this.value);
-}
+import 'ble_comm_data_source.dart';
 
 abstract class BleRemoteDataSource {
   Stream<BleConnectionState> get connectionStateStream;
@@ -28,41 +22,31 @@ abstract class BleRemoteDataSource {
   Future<void> disconnect();
   Future<DeviceInfo> getDeviceInfo();
   Future<DeviceStatus> getCurrentStatus();
-  Future<void> refreshStatus();  // Re-read all characteristic values
+  Future<void> refreshStatus();
 }
 
 class BleRemoteDataSourceImpl implements BleRemoteDataSource {
   static const String deviceNamePrefix = 'DualTetraX-';
 
-  // Service UUIDs (these should match DualTetraX firmware)
-  // TODO: Replace with actual UUIDs from DualTetraX firmware
+  // Standard BLE Device Info Service
   static final Guid deviceInfoServiceUuid = Guid('0000180a-0000-1000-8000-00805f9b34fb');
-  static final Guid realtimeStatusServiceUuid = Guid('12340000-1234-1234-1234-123456789abc');
-
-  // Characteristic UUIDs (examples - should match firmware)
   static final Guid firmwareVersionUuid = Guid('00002a26-0000-1000-8000-00805f9b34fb');
-  static final Guid shotTypeUuid = Guid('12340001-1234-1234-1234-123456789abc');
-  static final Guid modeUuid = Guid('12340002-1234-1234-1234-123456789abc');
-  static final Guid levelUuid = Guid('12340003-1234-1234-1234-123456789abc');
-  static final Guid workingStateUuid = Guid('12340004-1234-1234-1234-123456789abc');
-  static final Guid batteryStatusUuid = Guid('12340005-1234-1234-1234-123456789abc');
-  static final Guid warningStatusUuid = Guid('12340006-1234-1234-1234-123456789abc');
-  static final Guid elapsedTimeUuid = Guid('12340007-1234-1234-1234-123456789abc');
+
+  // NEW Communication Service (12340001) - Binary protocol
+  static final Guid commServiceUuid = Guid('12340001-1234-1234-1234-123456789abc');
+  static final Guid commTxCharUuid = Guid('12340002-1234-1234-1234-123456789abc');  // Notify
+  static final Guid commRxCharUuid = Guid('12340003-1234-1234-1234-123456789abc');  // Write
 
   BluetoothDevice? _connectedDevice;
+  BluetoothCharacteristic? _txChar;
+  StreamSubscription? _notifySubscription;
+
   final StreamController<BleConnectionState> _connectionStateController =
       StreamController<BleConnectionState>.broadcast();
   final StreamController<DeviceStatus> _deviceStatusController =
       StreamController<DeviceStatus>.broadcast();
 
   DeviceStatus? _currentStatus;
-  List<StreamSubscription> _characteristicSubscriptions = [];
-
-  // Flag to prevent emission during initial value reading
-  bool _isInitializing = false;
-
-  // Buffer for notifications received during initialization
-  final List<_BufferedNotification> _notificationBuffer = [];
 
   // Public getter for connected device (used by OTA service)
   BluetoothDevice? get connectedDevice => _connectedDevice;
@@ -123,7 +107,6 @@ class BleRemoteDataSourceImpl implements BleRemoteDataSource {
 
   @override
   Future<void> connectToDevice(String deviceId) async {
-    // TODO: Implement connecting to specific device by ID
     throw UnimplementedError();
   }
 
@@ -148,166 +131,103 @@ class BleRemoteDataSourceImpl implements BleRemoteDataSource {
     // Discover services
     final services = await device.discoverServices();
 
-    // Subscribe to characteristics
-    await _subscribeToCharacteristics(services);
+    // Find and subscribe to Communication Service (NEW service)
+    await _subscribeToCommService(services);
   }
 
-  Future<void> _subscribeToCharacteristics(
-      List<BluetoothService> services) async {
-    // Prevent notifications from emitting during initialization
-    _isInitializing = true;
-    _notificationBuffer.clear();
-
+  /// Subscribe to NEW Communication Service (12340001) for status updates
+  Future<void> _subscribeToCommService(List<BluetoothService> services) async {
     for (final service in services) {
-      if (service.uuid == realtimeStatusServiceUuid) {
-        for (final characteristic in service.characteristics) {
-          if (characteristic.properties.notify) {
-            // Subscribe to notifications
-            await characteristic.setNotifyValue(true);
-            final subscription =
-                characteristic.lastValueStream.listen((value) {
-              if (_isInitializing) {
-                // Buffer notifications during initialization
-                _notificationBuffer.add(_BufferedNotification(characteristic.uuid, value));
-              } else {
-                // Normal operation - emit immediately
-                _handleCharacteristicUpdate(characteristic.uuid, value, emit: true);
-              }
-            });
-            _characteristicSubscriptions.add(subscription);
+      if (service.uuid.toString().toLowerCase() == commServiceUuid.toString().toLowerCase()) {
+        for (final char in service.characteristics) {
+          final uuid = char.uuid.toString().toLowerCase();
+          if (uuid == commTxCharUuid.toString().toLowerCase()) {
+            _txChar = char;
           }
         }
       }
     }
 
-    // Read initial values - emit once after all values are read
-    await _readInitialValues(services, emitAfterAll: true);
-
-    // Process any buffered notifications (update state but don't emit - we already emitted)
-    for (final notification in _notificationBuffer) {
-      _handleCharacteristicUpdate(notification.characteristicUuid, notification.value, emit: false);
+    if (_txChar == null) {
+      print('[BLE] Warning: Communication service TX characteristic not found');
+      return;
     }
-    _notificationBuffer.clear();
 
-    // Allow notifications to emit after initialization is complete
-    _isInitializing = false;
+    // Subscribe to TX notifications (status updates from device)
+    await _txChar!.setNotifyValue(true);
+    _notifySubscription = _txChar!.onValueReceived.listen(_handleNotification);
+
+    print('[BLE] Subscribed to Communication Service (12340001)');
   }
 
-  Future<void> _readInitialValues(List<BluetoothService> services, {bool emitAfterAll = false}) async {
-    for (final service in services) {
-      if (service.uuid == realtimeStatusServiceUuid) {
-        for (final characteristic in service.characteristics) {
-          if (characteristic.properties.read) {
-            try {
-              final value = await characteristic.read();
-              if (value.isNotEmpty) {
-                _handleCharacteristicUpdate(characteristic.uuid, value, emit: !emitAfterAll);
-              }
-            } catch (e) {
-              // Ignore read errors
-            }
-          }
-        }
-      }
+  /// Handle notifications from NEW Communication Service
+  void _handleNotification(List<int> data) {
+    if (data.length < 4) return;
+
+    final bytes = Uint8List.fromList(data);
+    final msgType = bytes[0];
+    final payloadLen = bytes[1] | (bytes[2] << 8);
+
+    // Verify frame length
+    if (bytes.length < 3 + payloadLen + 1) return;
+
+    // Verify CRC (XOR of all bytes except last)
+    int crc = 0;
+    for (int i = 0; i < bytes.length - 1; i++) {
+      crc ^= bytes[i];
+    }
+    if (crc != bytes[bytes.length - 1]) {
+      print('[BLE] CRC mismatch, ignoring packet');
+      return;
     }
 
-    // Emit once after all values are read
-    if (emitAfterAll && _currentStatus != null) {
-      _deviceStatusController.add(_currentStatus!);
+    final payload = bytes.sublist(3, 3 + payloadLen);
+
+    // Handle STATUS_UPDATE (0x01)
+    if (msgType == 0x01 && payload.length >= 12) {
+      try {
+        final status = StatusUpdate.fromBytes(Uint8List.fromList(payload));
+        _updateStatusFromPayload(status);
+      } catch (e) {
+        print('[BLE] Error parsing status update: $e');
+      }
     }
+  }
+
+  /// Convert StatusUpdate from binary protocol to DeviceStatus
+  void _updateStatusFromPayload(StatusUpdate status) {
+    // Convert battery mV to percentage (simple linear mapping)
+    int batteryPercent;
+    if (status.batteryMv >= 4200) {
+      batteryPercent = 100;
+    } else if (status.batteryMv <= 3200) {
+      batteryPercent = 0;
+    } else {
+      batteryPercent = ((status.batteryMv - 3200) * 100 ~/ 1000);
+    }
+
+    _currentStatus = DeviceStatus(
+      shotType: ShotType.fromValue(status.shotType),
+      mode: DeviceMode.fromValue(status.mode),
+      level: DeviceLevel.fromValue(status.level),
+      workingState: WorkingState.fromValue(status.workingState),
+      batteryStatus: BatteryStatus(
+        level: batteryPercent,
+        state: BatteryState.fromValue(status.batteryState),
+      ),
+      warningStatus: WarningStatus.fromByte(status.warning),
+      isCharging: status.isCharging,
+      currentWorkingTime: status.elapsedTime,
+      timestamp: DateTime.now(),
+    );
+
+    _deviceStatusController.add(_currentStatus!);
   }
 
   @override
   Future<void> refreshStatus() async {
-    if (_connectedDevice == null) {
-      return;
-    }
-
-    try {
-      // Prevent notifications from emitting during refresh
-      _isInitializing = true;
-      _notificationBuffer.clear();
-
-      final services = await _connectedDevice!.discoverServices();
-      // Read all values then emit once at the end
-      await _readInitialValues(services, emitAfterAll: true);
-
-      // Process any buffered notifications (update state but don't emit)
-      for (final notification in _notificationBuffer) {
-        _handleCharacteristicUpdate(notification.characteristicUuid, notification.value, emit: false);
-      }
-      _notificationBuffer.clear();
-
-      _isInitializing = false;
-    } catch (e) {
-      _notificationBuffer.clear();
-      _isInitializing = false;
-      // Ignore refresh errors
-    }
-  }
-
-  void _handleCharacteristicUpdate(Guid characteristicUuid, List<int> value, {bool emit = true}) {
-    if (_currentStatus == null) {
-      _currentStatus = DeviceStatus(
-        shotType: ShotType.unknown,
-        mode: DeviceMode.unknown,
-        level: DeviceLevel.unknown,
-        workingState: WorkingState.off,
-        batteryStatus: const BatteryStatus(
-          level: 0,
-          state: BatteryState.sufficient,
-        ),
-        warningStatus: const WarningStatus(),
-        isCharging: false,
-        timestamp: DateTime.now(),
-      );
-    }
-
-    if (characteristicUuid == shotTypeUuid && value.isNotEmpty) {
-      _currentStatus = _currentStatus!.copyWith(
-        shotType: ShotType.fromValue(value[0]),
-        timestamp: DateTime.now(),
-      );
-    } else if (characteristicUuid == modeUuid && value.isNotEmpty) {
-      _currentStatus = _currentStatus!.copyWith(
-        mode: DeviceMode.fromValue(value[0]),
-        timestamp: DateTime.now(),
-      );
-    } else if (characteristicUuid == levelUuid && value.isNotEmpty) {
-      _currentStatus = _currentStatus!.copyWith(
-        level: DeviceLevel.fromValue(value[0]),
-        timestamp: DateTime.now(),
-      );
-    } else if (characteristicUuid == workingStateUuid && value.isNotEmpty) {
-      _currentStatus = _currentStatus!.copyWith(
-        workingState: WorkingState.fromValue(value[0]),
-        timestamp: DateTime.now(),
-      );
-    } else if (characteristicUuid == batteryStatusUuid && value.length >= 2) {
-      _currentStatus = _currentStatus!.copyWith(
-        batteryStatus: BatteryStatus(
-          level: value[0],
-          state: BatteryState.fromValue(value[1]),
-        ),
-        timestamp: DateTime.now(),
-      );
-    } else if (characteristicUuid == warningStatusUuid && value.isNotEmpty) {
-      _currentStatus = _currentStatus!.copyWith(
-        warningStatus: WarningStatus.fromByte(value[0]),
-        timestamp: DateTime.now(),
-      );
-    } else if (characteristicUuid == elapsedTimeUuid && value.length >= 2) {
-      // Elapsed time is sent as 2 bytes (little-endian uint16_t in seconds)
-      final elapsedSeconds = value[0] | (value[1] << 8);
-      _currentStatus = _currentStatus!.copyWith(
-        currentWorkingTime: elapsedSeconds,
-        timestamp: DateTime.now(),
-      );
-    }
-
-    if (emit) {
-      _deviceStatusController.add(_currentStatus!);
-    }
+    // Status updates are pushed automatically via notifications
+    // No action needed - just wait for next status update
   }
 
   @override
@@ -320,14 +240,11 @@ class BleRemoteDataSourceImpl implements BleRemoteDataSource {
   }
 
   void _cleanup() {
-    for (final subscription in _characteristicSubscriptions) {
-      subscription.cancel();
-    }
-    _characteristicSubscriptions.clear();
+    _notifySubscription?.cancel();
+    _notifySubscription = null;
+    _txChar = null;
     _connectedDevice = null;
     _currentStatus = null;
-    _isInitializing = false;
-    _notificationBuffer.clear();
   }
 
   @override

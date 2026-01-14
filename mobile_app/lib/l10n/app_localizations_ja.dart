@@ -112,6 +112,27 @@ class AppLocalizationsJa extends AppLocalizations {
   String get minutes => '分';
 
   @override
+  String get details => '詳細';
+
+  @override
+  String get weeklyUsageTime => '週間使用時間';
+
+  @override
+  String get dailyUsage => '1日の使用';
+
+  @override
+  String get average => '平均';
+
+  @override
+  String get minutesPerDay => '分/日';
+
+  @override
+  String get monthlyUsageTime => '月間使用時間';
+
+  @override
+  String get usageTrend => '使用傾向';
+
+  @override
   String get weeklyStatsComingSoon => '週間統計（近日公開）';
 
   @override

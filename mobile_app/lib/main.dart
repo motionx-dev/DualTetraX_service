@@ -11,6 +11,7 @@ import 'presentation/bloc/device_status/device_status_bloc.dart';
 import 'presentation/bloc/usage_statistics/usage_statistics_bloc.dart';
 import 'presentation/bloc/theme/theme_bloc.dart';
 import 'presentation/bloc/locale/locale_bloc.dart';
+import 'presentation/bloc/device_sync/device_sync_bloc.dart';
 import 'presentation/pages/home_page.dart';
 
 void main() async {
@@ -52,6 +53,9 @@ class DualTetraXApp extends StatelessWidget {
         ),
         BlocProvider<UsageStatisticsBloc>(
           create: (_) => di.sl<UsageStatisticsBloc>(),
+        ),
+        BlocProvider<DeviceSyncBloc>(
+          create: (_) => di.sl<DeviceSyncBloc>(),
         ),
       ],
       child: BlocBuilder<LocaleBloc, LocaleState>(

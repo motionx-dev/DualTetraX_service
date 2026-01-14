@@ -112,6 +112,27 @@ class AppLocalizationsZh extends AppLocalizations {
   String get minutes => '分钟';
 
   @override
+  String get details => '详情';
+
+  @override
+  String get weeklyUsageTime => '每周使用时间';
+
+  @override
+  String get dailyUsage => '每日使用';
+
+  @override
+  String get average => '平均';
+
+  @override
+  String get minutesPerDay => '分钟/天';
+
+  @override
+  String get monthlyUsageTime => '每月使用时间';
+
+  @override
+  String get usageTrend => '使用趋势';
+
+  @override
   String get weeklyStatsComingSoon => '每周统计（即将推出）';
 
   @override

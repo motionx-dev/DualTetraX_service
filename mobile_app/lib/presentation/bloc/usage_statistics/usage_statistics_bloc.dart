@@ -4,6 +4,8 @@ import '../../../domain/entities/usage_statistics.dart';
 import '../../../domain/usecases/get_daily_statistics.dart';
 import '../../../domain/usecases/get_weekly_statistics.dart';
 import '../../../domain/usecases/get_monthly_statistics.dart';
+import '../../../domain/usecases/get_daily_usage_for_week.dart';
+import '../../../domain/usecases/get_daily_usage_for_month.dart';
 import '../../../domain/usecases/delete_all_data.dart';
 import '../../../core/usecases/usecase.dart';
 
@@ -59,11 +61,12 @@ class UsageStatisticsLoading extends UsageStatisticsState {}
 
 class UsageStatisticsLoaded extends UsageStatisticsState {
   final UsageStatistics statistics;
+  final List<DailyUsage>? dailyUsages;
 
-  const UsageStatisticsLoaded(this.statistics);
+  const UsageStatisticsLoaded(this.statistics, {this.dailyUsages});
 
   @override
-  List<Object?> get props => [statistics];
+  List<Object?> get props => [statistics, dailyUsages];
 }
 
 class UsageStatisticsError extends UsageStatisticsState {
@@ -83,12 +86,16 @@ class UsageStatisticsBloc
   final GetDailyStatistics getDailyStatistics;
   final GetWeeklyStatistics getWeeklyStatistics;
   final GetMonthlyStatistics getMonthlyStatistics;
+  final GetDailyUsageForWeek getDailyUsageForWeek;
+  final GetDailyUsageForMonth getDailyUsageForMonth;
   final DeleteAllData deleteAllData;
 
   UsageStatisticsBloc({
     required this.getDailyStatistics,
     required this.getWeeklyStatistics,
     required this.getMonthlyStatistics,
+    required this.getDailyUsageForWeek,
+    required this.getDailyUsageForMonth,
     required this.deleteAllData,
   }) : super(UsageStatisticsInitial()) {
     on<LoadDailyStatistics>(_onLoadDaily);
@@ -118,10 +125,16 @@ class UsageStatisticsBloc
     emit(UsageStatisticsLoading());
 
     final result = await getWeeklyStatistics(WeekParams(event.weekStart));
+    final dailyResult = await getDailyUsageForWeek(WeekUsageParams(event.weekStart));
 
     result.fold(
       (failure) => emit(UsageStatisticsError(failure.message)),
-      (statistics) => emit(UsageStatisticsLoaded(statistics)),
+      (statistics) {
+        dailyResult.fold(
+          (failure) => emit(UsageStatisticsLoaded(statistics)),
+          (dailyUsages) => emit(UsageStatisticsLoaded(statistics, dailyUsages: dailyUsages)),
+        );
+      },
     );
   }
 
@@ -132,10 +145,16 @@ class UsageStatisticsBloc
     emit(UsageStatisticsLoading());
 
     final result = await getMonthlyStatistics(MonthParams(event.year, event.month));
+    final dailyResult = await getDailyUsageForMonth(MonthUsageParams(event.year, event.month));
 
     result.fold(
       (failure) => emit(UsageStatisticsError(failure.message)),
-      (statistics) => emit(UsageStatisticsLoaded(statistics)),
+      (statistics) {
+        dailyResult.fold(
+          (failure) => emit(UsageStatisticsLoaded(statistics)),
+          (dailyUsages) => emit(UsageStatisticsLoaded(statistics, dailyUsages: dailyUsages)),
+        );
+      },
     );
   }
 

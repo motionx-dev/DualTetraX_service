@@ -112,6 +112,27 @@ class AppLocalizationsTh extends AppLocalizations {
   String get minutes => 'นาที';
 
   @override
+  String get details => 'รายละเอียด';
+
+  @override
+  String get weeklyUsageTime => 'เวลาใช้งานรายสัปดาห์';
+
+  @override
+  String get dailyUsage => 'การใช้งานรายวัน';
+
+  @override
+  String get average => 'เฉลี่ย';
+
+  @override
+  String get minutesPerDay => 'นาที/วัน';
+
+  @override
+  String get monthlyUsageTime => 'เวลาใช้งานรายเดือน';
+
+  @override
+  String get usageTrend => 'แนวโน้มการใช้งาน';
+
+  @override
   String get weeklyStatsComingSoon => 'สถิติรายสัปดาห์ (เร็วๆ นี้)';
 
   @override

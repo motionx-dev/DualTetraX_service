@@ -8,6 +8,7 @@ import '../../data/datasources/device_local_data_source.dart';
 import '../../data/datasources/ble_remote_data_source.dart';
 import '../../data/datasources/ble_ota_data_source.dart';
 import '../../data/datasources/local_firmware_data_source.dart';
+import '../../data/datasources/ble_comm_data_source.dart';
 
 // Repositories
 import '../../data/repositories/device_repository_impl.dart';
@@ -23,7 +24,10 @@ import '../../domain/usecases/get_device_status.dart';
 import '../../domain/usecases/get_daily_statistics.dart';
 import '../../domain/usecases/get_weekly_statistics.dart';
 import '../../domain/usecases/get_monthly_statistics.dart';
+import '../../domain/usecases/get_daily_usage_for_week.dart';
+import '../../domain/usecases/get_daily_usage_for_month.dart';
 import '../../domain/usecases/delete_all_data.dart';
+import '../../domain/usecases/sync_device_sessions.dart';
 
 // Presentation
 import '../../presentation/bloc/device_connection/device_connection_bloc.dart';
@@ -32,6 +36,7 @@ import '../../presentation/bloc/usage_statistics/usage_statistics_bloc.dart';
 import '../../presentation/bloc/theme/theme_bloc.dart';
 import '../../presentation/bloc/locale/locale_bloc.dart';
 import '../../presentation/bloc/ota/ota_bloc.dart';
+import '../../presentation/bloc/device_sync/device_sync_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -57,6 +62,8 @@ Future<void> init() async {
       getDailyStatistics: sl(),
       getWeeklyStatistics: sl(),
       getMonthlyStatistics: sl(),
+      getDailyUsageForWeek: sl(),
+      getDailyUsageForMonth: sl(),
       deleteAllData: sl(),
     ),
   );
@@ -76,13 +83,31 @@ Future<void> init() async {
     ),
   );
 
+  sl.registerFactory(
+    () {
+      final bleDataSource = sl<BleRemoteDataSource>() as BleRemoteDataSourceImpl;
+      return DeviceSyncBloc(
+        syncDeviceSessionsUseCase: sl(),
+        bleCommDataSource: sl(),
+        connectionStateStream: sl<DeviceRepository>().connectionStateStream,
+        getConnectedDevice: () => bleDataSource.connectedDevice,
+      );
+    },
+  );
+
   //! Use Cases
   sl.registerLazySingleton(() => ConnectToDevice(sl()));
   sl.registerLazySingleton(() => GetDeviceStatus(sl()));
   sl.registerLazySingleton(() => GetDailyStatistics(sl()));
   sl.registerLazySingleton(() => GetWeeklyStatistics(sl()));
   sl.registerLazySingleton(() => GetMonthlyStatistics(sl()));
+  sl.registerLazySingleton(() => GetDailyUsageForWeek(sl()));
+  sl.registerLazySingleton(() => GetDailyUsageForMonth(sl()));
   sl.registerLazySingleton(() => DeleteAllData(sl()));
+  sl.registerLazySingleton(() => SyncDeviceSessionsUseCase(
+    usageRepository: sl(),
+    bleCommDataSource: sl(),
+  ));
 
   //! Repositories
   sl.registerLazySingleton<DeviceRepository>(
@@ -140,6 +165,10 @@ Future<void> init() async {
 
   sl.registerLazySingleton<LocalFirmwareDataSource>(
     () => LocalFirmwareDataSourceImpl(),
+  );
+
+  sl.registerLazySingleton<BleCommDataSource>(
+    () => BleCommDataSourceImpl(),
   );
 
   //! Core

@@ -7,6 +7,7 @@ import '../bloc/device_connection/device_connection_state.dart';
 import '../bloc/device_status/device_status_bloc.dart';
 import '../widgets/device_display_widget.dart';
 import '../widgets/connection_status_widget.dart';
+import '../widgets/sync_status_widget.dart';
 
 class DevicePage extends StatefulWidget {
   const DevicePage({super.key});
@@ -143,6 +144,10 @@ class _DevicePageState extends State<DevicePage> with WidgetsBindingObserver {
 
               // Connection Status Card
               const ConnectionStatusWidget(),
+              const SizedBox(height: 12),
+
+              // Sync Status Card
+              const SyncStatusWidget(),
               const SizedBox(height: 16),
 
               // Connect Button

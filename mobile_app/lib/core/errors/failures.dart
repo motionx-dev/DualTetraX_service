@@ -32,3 +32,7 @@ class ConnectionFailure extends Failure {
 class UnknownFailure extends Failure {
   const UnknownFailure(super.message);
 }
+
+class DeviceFailure extends Failure {
+  const DeviceFailure(super.message);
+}

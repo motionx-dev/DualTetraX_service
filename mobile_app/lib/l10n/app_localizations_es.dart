@@ -113,6 +113,27 @@ class AppLocalizationsEs extends AppLocalizations {
   String get minutes => 'min';
 
   @override
+  String get details => 'Detalles';
+
+  @override
+  String get weeklyUsageTime => 'Tiempo de Uso Semanal';
+
+  @override
+  String get dailyUsage => 'Uso Diario';
+
+  @override
+  String get average => 'Promedio';
+
+  @override
+  String get minutesPerDay => 'min/día';
+
+  @override
+  String get monthlyUsageTime => 'Tiempo de Uso Mensual';
+
+  @override
+  String get usageTrend => 'Tendencia de Uso';
+
+  @override
   String get weeklyStatsComingSoon => 'Estadísticas semanales (Próximamente)';
 
   @override

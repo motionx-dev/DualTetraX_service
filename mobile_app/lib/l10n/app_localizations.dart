@@ -308,6 +308,48 @@ abstract class AppLocalizations {
   /// **'min'**
   String get minutes;
 
+  /// No description provided for @details.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get details;
+
+  /// No description provided for @weeklyUsageTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Usage Time'**
+  String get weeklyUsageTime;
+
+  /// No description provided for @dailyUsage.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Usage'**
+  String get dailyUsage;
+
+  /// No description provided for @average.
+  ///
+  /// In en, this message translates to:
+  /// **'Average'**
+  String get average;
+
+  /// No description provided for @minutesPerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'min/day'**
+  String get minutesPerDay;
+
+  /// No description provided for @monthlyUsageTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Usage Time'**
+  String get monthlyUsageTime;
+
+  /// No description provided for @usageTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage Trend'**
+  String get usageTrend;
+
   /// No description provided for @weeklyStatsComingSoon.
   ///
   /// In en, this message translates to:

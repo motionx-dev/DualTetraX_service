@@ -112,6 +112,27 @@ class AppLocalizationsKo extends AppLocalizations {
   String get minutes => '분';
 
   @override
+  String get details => '세부 정보';
+
+  @override
+  String get weeklyUsageTime => '주간 사용 시간';
+
+  @override
+  String get dailyUsage => '일별 사용';
+
+  @override
+  String get average => '평균';
+
+  @override
+  String get minutesPerDay => '분/일';
+
+  @override
+  String get monthlyUsageTime => '월간 사용 시간';
+
+  @override
+  String get usageTrend => '사용 추이';
+
+  @override
   String get weeklyStatsComingSoon => '주간 통계 (구현 예정)';
 
   @override
