@@ -493,14 +493,18 @@ class BleCommDataSourceImpl implements BleCommDataSource {
     }
     frame[frameLen - 1] = crc;
 
+    // Start listening for response BEFORE sending request
+    // (broadcast stream requires listener to be ready before event)
+    final responseFuture = _responseController.stream.first.timeout(
+      _responseTimeout,
+      onTimeout: () => throw TimeoutException('No response from device'),
+    );
+
     // Send request
     await _rxChar!.write(frame, withoutResponse: false);
 
     // Wait for response
-    final response = await _responseController.stream.first.timeout(
-      _responseTimeout,
-      onTimeout: () => throw TimeoutException('No response from device'),
-    );
+    final response = await responseFuture;
 
     return response;
   }

@@ -15,6 +15,7 @@ class DeviceSyncBloc extends Bloc<DeviceSyncEvent, DeviceSyncState> {
 
   StreamSubscription? _connectionSubscription;
   StreamSubscription? _statusSubscription;
+  StreamSubscription? _sessionEndSubscription;
   bool _isCommInitialized = false;
 
   DeviceSyncBloc({
@@ -46,19 +47,38 @@ class DeviceSyncBloc extends Bloc<DeviceSyncEvent, DeviceSyncState> {
 
   void _listenToStatusUpdates() {
     _statusSubscription?.cancel();
+    _sessionEndSubscription?.cancel();
+
+    // Listen to status updates for UI display only (not for session detection)
+    // Session detection is handled by firmware's SESSION_END notification
     _statusSubscription = bleCommDataSource.statusUpdates.listen((status) {
-      // Status updates are received automatically when connected
-      // Session active flag indicates if a session is in progress
-      if (status.isSessionActive && state is! DeviceSyncActiveSession) {
-        add(SessionStartReceived(
-          uuid: '', // UUID not available in status update
-          shotType: status.shotType,
-          mode: status.mode,
-          level: status.level,
-        ));
-      } else if (!status.isSessionActive && state is DeviceSyncActiveSession) {
-        add(const SessionEndReceived(uuid: ''));
+      final currentState = state;
+
+      // Update UI state for active session display (informational only)
+      if (status.isSessionActive) {
+        if (currentState is! DeviceSyncActiveSession ||
+            currentState.shotType != status.shotType ||
+            currentState.mode != status.mode) {
+          // Update UI to show current active session info
+          add(SessionStartReceived(
+            uuid: '',
+            shotType: status.shotType,
+            mode: status.mode,
+            level: status.level,
+          ));
+        }
+      } else if (currentState is DeviceSyncActiveSession) {
+        // Session no longer active - return to time synced state
+        // Actual session sync will be triggered by SESSION_END notification from firmware
+        add(const SyncReset());
       }
+    });
+
+    // Listen to dedicated session end notifications from firmware for reliable sync
+    // This is the authoritative source for session completion
+    _sessionEndSubscription = bleCommDataSource.sessionEndStream.listen((notification) {
+      // Firmware sent SESSION_END - trigger sync to get the completed session
+      add(SessionEndReceived(uuid: notification.uuid));
     });
   }
 
@@ -85,6 +105,20 @@ class DeviceSyncBloc extends Bloc<DeviceSyncEvent, DeviceSyncState> {
 
       if (result == ResponseStatus.success) {
         emit(DeviceSyncTimeSynced());
+
+        // Automatically sync any missed sessions from device
+        // This catches sessions that occurred while the app was disconnected
+        final syncResult = await syncDeviceSessionsUseCase.syncAllSessions();
+        syncResult.fold(
+          (failure) {
+            // Sync failed, but time sync succeeded - stay in time synced state
+          },
+          (syncedCount) {
+            if (syncedCount > 0) {
+              emit(DeviceSyncSessionComplete(syncedCount));
+            }
+          },
+        );
       } else {
         emit(DeviceSyncTimeSyncFailed('Time sync failed: ${result.name}'));
       }
@@ -99,6 +133,8 @@ class DeviceSyncBloc extends Bloc<DeviceSyncEvent, DeviceSyncState> {
   ) async {
     _statusSubscription?.cancel();
     _statusSubscription = null;
+    _sessionEndSubscription?.cancel();
+    _sessionEndSubscription = null;
 
     if (_isCommInitialized) {
       await bleCommDataSource.disconnect();
@@ -159,25 +195,44 @@ class DeviceSyncBloc extends Bloc<DeviceSyncEvent, DeviceSyncState> {
     ));
   }
 
-  void _onSessionEndReceived(
+  Future<void> _onSessionEndReceived(
     SessionEndReceived event,
     Emitter<DeviceSyncState> emit,
-  ) {
-    // After session ends, go back to time synced state
-    emit(DeviceSyncTimeSynced());
+  ) async {
+    // After session ends, automatically sync sessions from device
+    emit(const DeviceSyncSessionSyncing(totalSessions: 0, syncedSessions: 0));
+
+    try {
+      final result = await syncDeviceSessionsUseCase.syncAllSessions();
+
+      result.fold(
+        (failure) {
+          // On failure, just go back to time synced state
+          emit(DeviceSyncTimeSynced());
+        },
+        (syncedCount) {
+          // Emit complete then go back to time synced
+          emit(DeviceSyncSessionComplete(syncedCount));
+        },
+      );
+    } catch (e) {
+      emit(DeviceSyncTimeSynced());
+    }
   }
 
   void _onSyncReset(
     SyncReset event,
     Emitter<DeviceSyncState> emit,
   ) {
-    emit(DeviceSyncInitial());
+    // Return to time synced state (not initial - we're still connected)
+    emit(DeviceSyncTimeSynced());
   }
 
   @override
   Future<void> close() {
     _connectionSubscription?.cancel();
     _statusSubscription?.cancel();
+    _sessionEndSubscription?.cancel();
     if (_isCommInitialized) {
       bleCommDataSource.disconnect();
     }
