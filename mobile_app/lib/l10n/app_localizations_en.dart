@@ -432,6 +432,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get size => 'Size';
 
   @override
+  String get deviceNotConnected => 'Device is not connected';
+
+  @override
   String sendingChunk(int sent, int total) {
     return 'Sending chunk $sent of $total';
   }

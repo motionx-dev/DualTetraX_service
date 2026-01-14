@@ -129,5 +129,32 @@
 
   "connectionMode": "Chế độ Kết nối",
   "autoConnect": "Tự động",
-  "manualConnect": "Thủ công"
+  "manualConnect": "Thủ công",
+
+  "firmwareUpdate": "Cập nhật Firmware",
+  "firmwareUpdateSubtitle": "Cập nhật firmware thiết bị qua Bluetooth",
+  "otaServiceNotAvailable": "Dịch vụ OTA không khả dụng",
+  "otaUpdateCompleted": "Cập nhật hoàn tất",
+  "otaReadyForUpdate": "Sẵn sàng cập nhật",
+  "deviceStatus": "Trạng thái Thiết bị",
+  "firmware": "Firmware",
+  "noFirmwareSelected": "Chưa chọn firmware",
+  "clear": "Xóa",
+  "selectFirmwareFile": "Chọn Tệp Firmware",
+  "cancelUpdate": "Hủy Cập nhật",
+  "startUpdate": "Bắt đầu Cập nhật",
+  "otaStateIdle": "Chờ",
+  "otaStateDownloading": "Đang tải...",
+  "otaStateValidating": "Đang xác thực...",
+  "otaStateInstalling": "Đang cài đặt...",
+  "otaStateComplete": "Hoàn tất",
+  "otaStateError": "Lỗi",
+  "updateComplete": "Cập nhật Hoàn tất",
+  "updateCompleteMessage": "Cập nhật firmware thành công. Thiết bị sẽ tự động khởi động lại.",
+  "ok": "OK",
+  "file": "Tệp",
+  "version": "Phiên bản",
+  "size": "Kích thước",
+  "deviceNotConnected": "Thiết bị chưa được kết nối",
+  "sendingChunk": "Đang gửi khối {sent} / {total}"
 }

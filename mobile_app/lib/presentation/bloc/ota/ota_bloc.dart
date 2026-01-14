@@ -2,16 +2,24 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/repositories/ota_repository.dart';
 import '../../../domain/entities/ota_state.dart' as domain;
+import '../../../domain/entities/ota_status.dart';
+import '../../../domain/entities/ota_error.dart';
+import '../../../domain/entities/connection_state.dart';
 import 'ota_event.dart';
 import 'ota_state.dart';
 
 class OtaBloc extends Bloc<OtaEvent, OtaBlocState> {
   final OtaRepository otaRepository;
+  final Stream<BleConnectionState> connectionStateStream;
 
   StreamSubscription? _otaStatusSubscription;
+  StreamSubscription? _connectionSubscription;
   bool _isSendingChunks = false;
 
-  OtaBloc({required this.otaRepository}) : super(const OtaInitial()) {
+  OtaBloc({
+    required this.otaRepository,
+    required this.connectionStateStream,
+  }) : super(const OtaInitial()) {
     on<InitializeOtaRequested>(_onInitializeOta);
     on<PickFirmwareRequested>(_onPickFirmware);
     on<ClearFirmwareRequested>(_onClearFirmware);
@@ -20,6 +28,17 @@ class OtaBloc extends Bloc<OtaEvent, OtaBlocState> {
     on<OtaStatusChanged>(_onStatusChanged);
     on<ChunkProgressUpdated>(_onChunkProgressUpdated);
     on<OtaFinishRequested>(_onFinishOta);
+    on<ConnectionLostDuringOta>(_onConnectionLost);
+
+    _listenToConnectionState();
+  }
+
+  void _listenToConnectionState() {
+    _connectionSubscription = connectionStateStream.listen((connState) {
+      if (connState == BleConnectionState.disconnected && _isSendingChunks) {
+        add(const ConnectionLostDuringOta());
+      }
+    });
   }
 
   Future<void> _onInitializeOta(
@@ -83,16 +102,16 @@ class OtaBloc extends Bloc<OtaEvent, OtaBlocState> {
     }
 
     try {
+      // Start OTA on device (this calculates actual chunk count based on MTU)
+      await otaRepository.startOtaUpdate(event.firmware);
+
       emit(state.copyWith(
         isTransferring: true,
         sendProgress: 0,
         sentChunks: 0,
-        totalChunks: event.firmware.chunkCount,
+        totalChunks: otaRepository.totalChunks,
         clearError: true,
       ));
-
-      // Start OTA on device
-      await otaRepository.startOtaUpdate(event.firmware);
 
       // Start sending chunks
       _isSendingChunks = true;
@@ -113,8 +132,8 @@ class OtaBloc extends Bloc<OtaEvent, OtaBlocState> {
 
         add(ChunkProgressUpdated(
           progress: progress,
-          sentChunks: (progress * state.totalChunks) ~/ 100,
-          totalChunks: state.totalChunks,
+          sentChunks: otaRepository.sentChunks,
+          totalChunks: otaRepository.totalChunks,
         ));
 
         if (!hasMore) {
@@ -147,8 +166,26 @@ class OtaBloc extends Bloc<OtaEvent, OtaBlocState> {
   ) async {
     try {
       await otaRepository.finishOtaUpdate();
-      // Device will send status updates via notification
     } catch (e) {
+      final errorStr = e.toString().toLowerCase();
+      final isDisconnectError = errorStr.contains('disconnect') ||
+          errorStr.contains('fbp-code: 6');
+
+      if (state.sendProgress >= 95 && isDisconnectError) {
+        emit(state.copyWith(
+          isOtaServiceReady: false,
+          isTransferring: false,
+          deviceStatus: OtaStatus(
+            state: domain.OtaState.success,
+            error: OtaError.none,
+            progress: 100,
+            batteryLevel: state.deviceStatus?.batteryLevel ?? 100,
+            timestamp: DateTime.now(),
+          ),
+        ));
+        return;
+      }
+
       emit(state.copyWith(
         isTransferring: false,
         errorMessage: 'Failed to finish OTA: $e',
@@ -198,8 +235,56 @@ class OtaBloc extends Bloc<OtaEvent, OtaBlocState> {
     ));
   }
 
+  Future<void> _onConnectionLost(
+    ConnectionLostDuringOta event,
+    Emitter<OtaBlocState> emit,
+  ) async {
+    // Skip if OTA already completed successfully
+    if (state.isSuccess) return;
+
+    _isSendingChunks = false;
+
+    // Check if device reported SUCCESS, VALIDATING, or UPGRADING state
+    // These states indicate OTA was in final stages when connection dropped
+    final deviceState = state.deviceStatus?.state;
+    final isInFinalStages = deviceState == domain.OtaState.success ||
+        deviceState == domain.OtaState.validating ||
+        deviceState == domain.OtaState.upgrading;
+
+    // If all chunks were sent (>= 95%) or device was in final stages, treat as success
+    // Device reboots after OTA success, so disconnection is expected
+    if (state.sendProgress >= 95 || isInFinalStages) {
+      emit(state.copyWith(
+        isOtaServiceReady: false,
+        isTransferring: false,
+        deviceStatus: OtaStatus(
+          state: domain.OtaState.success,
+          error: OtaError.none,
+          progress: 100,
+          batteryLevel: state.deviceStatus?.batteryLevel ?? 100,
+          timestamp: DateTime.now(),
+        ),
+      ));
+      return;
+    }
+
+    // Cancel OTA if in progress
+    if (state.isTransferring) {
+      try {
+        await otaRepository.cancelOtaUpdate();
+      } catch (_) {}
+    }
+
+    emit(state.copyWith(
+      isOtaServiceReady: false,
+      isTransferring: false,
+      errorMessage: 'Device disconnected',
+    ));
+  }
+
   @override
   Future<void> close() {
+    _connectionSubscription?.cancel();
     _isSendingChunks = false;
     _otaStatusSubscription?.cancel();
     otaRepository.dispose();

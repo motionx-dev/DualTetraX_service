@@ -423,6 +423,9 @@ class AppLocalizationsKo extends AppLocalizations {
   String get size => '크기';
 
   @override
+  String get deviceNotConnected => '디바이스가 연결되어 있지 않습니다';
+
+  @override
   String sendingChunk(int sent, int total) {
     return '청크 전송 중 $sent / $total';
   }

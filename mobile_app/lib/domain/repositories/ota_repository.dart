@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import '../entities/ota_status.dart';
 import '../entities/firmware_info.dart';
 
@@ -31,6 +30,12 @@ abstract class OtaRepository {
 
   /// Get current progress percentage (0-100)
   int get currentProgress;
+
+  /// Get total chunk count
+  int get totalChunks;
+
+  /// Get sent chunk count
+  int get sentChunks;
 
   /// Dispose resources
   void dispose();

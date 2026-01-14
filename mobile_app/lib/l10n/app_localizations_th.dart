@@ -429,6 +429,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get size => 'ขนาด';
 
   @override
+  String get deviceNotConnected => 'อุปกรณ์ไม่ได้เชื่อมต่อ';
+
+  @override
   String sendingChunk(int sent, int total) {
     return 'กำลังส่งบล็อก $sent / $total';
   }

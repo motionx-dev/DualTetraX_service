@@ -91,7 +91,12 @@ class _OtaPageState extends State<OtaPage> {
     } else if (state.isOtaActive) {
       icon = Icons.sync;
       color = theme.colorScheme.primary;
-      status = _getOtaStateText(context, state.otaState);
+      // Use transferring status if actively sending chunks, otherwise use device state
+      if (state.isTransferring) {
+        status = l10n.otaStateDownloading;
+      } else {
+        status = _getOtaStateText(context, state.otaState);
+      }
     } else if (state.isSuccess) {
       icon = Icons.check_circle;
       color = Colors.green;
@@ -195,10 +200,16 @@ class _OtaPageState extends State<OtaPage> {
 
   Widget _buildProgressCard(BuildContext context, OtaBlocState state) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     // Use device progress if downloading, otherwise use send progress
     final progress = state.deviceStatus?.progress ?? state.sendProgress;
     final progressValue = progress / 100.0;
+
+    // Show appropriate status text based on transfer state
+    final statusText = state.isTransferring
+        ? l10n.otaStateDownloading
+        : _getOtaStateText(context, state.otaState);
 
     return Card(
       child: Padding(
@@ -210,7 +221,7 @@ class _OtaPageState extends State<OtaPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  _getOtaStateText(context, state.otaState),
+                  statusText,
                   style: theme.textTheme.titleMedium,
                 ),
                 Text(
@@ -248,28 +259,34 @@ class _OtaPageState extends State<OtaPage> {
     final l10n = AppLocalizations.of(context)!;
 
     if (state.isOtaActive) {
-      return FilledButton.icon(
-        onPressed: () {
-          context.read<OtaBloc>().add(const CancelOtaRequested());
-        },
-        style: FilledButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.error,
+      return SizedBox(
+        height: 56,
+        child: FilledButton.icon(
+          onPressed: () {
+            context.read<OtaBloc>().add(const CancelOtaRequested());
+          },
+          style: FilledButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+          icon: const Icon(Icons.cancel),
+          label: Text(l10n.cancelUpdate),
         ),
-        icon: const Icon(Icons.cancel),
-        label: Text(l10n.cancelUpdate),
       );
     }
 
-    return FilledButton.icon(
-      onPressed: state.canStartOta
-          ? () {
-              context
-                  .read<OtaBloc>()
-                  .add(StartOtaRequested(state.selectedFirmware!));
-            }
-          : null,
-      icon: const Icon(Icons.system_update),
-      label: Text(l10n.startUpdate),
+    return SizedBox(
+      height: 56,
+      child: FilledButton.icon(
+        onPressed: state.canStartOta
+            ? () {
+                context
+                    .read<OtaBloc>()
+                    .add(StartOtaRequested(state.selectedFirmware!));
+              }
+            : null,
+        icon: const Icon(Icons.system_update),
+        label: Text(l10n.startUpdate),
+      ),
     );
   }
 

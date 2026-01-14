@@ -421,6 +421,9 @@ class AppLocalizationsJa extends AppLocalizations {
   String get size => 'サイズ';
 
   @override
+  String get deviceNotConnected => 'デバイスが接続されていません';
+
+  @override
   String sendingChunk(int sent, int total) {
     return 'チャンク送信中 $sent / $total';
   }

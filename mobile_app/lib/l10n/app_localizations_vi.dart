@@ -358,7 +358,8 @@ class AppLocalizationsVi extends AppLocalizations {
   String get firmwareUpdate => 'Cập nhật Firmware';
 
   @override
-  String get firmwareUpdateSubtitle => 'Cập nhật firmware thiết bị qua Bluetooth';
+  String get firmwareUpdateSubtitle =>
+      'Cập nhật firmware thiết bị qua Bluetooth';
 
   @override
   String get otaServiceNotAvailable => 'Dịch vụ OTA không khả dụng';
@@ -426,6 +427,9 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get size => 'Kích thước';
+
+  @override
+  String get deviceNotConnected => 'Thiết bị chưa được kết nối';
 
   @override
   String sendingChunk(int sent, int total) {

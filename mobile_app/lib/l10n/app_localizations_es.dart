@@ -364,7 +364,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get firmwareUpdate => 'Actualización de Firmware';
 
   @override
-  String get firmwareUpdateSubtitle => 'Actualizar firmware del dispositivo vía Bluetooth';
+  String get firmwareUpdateSubtitle =>
+      'Actualizar firmware del dispositivo vía Bluetooth';
 
   @override
   String get otaServiceNotAvailable => 'Servicio OTA no disponible';
@@ -432,6 +433,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get size => 'Tamaño';
+
+  @override
+  String get deviceNotConnected => 'Dispositivo no conectado';
 
   @override
   String sendingChunk(int sent, int total) {

@@ -5,6 +5,7 @@ import '../../core/di/injection_container.dart' as di;
 import '../bloc/usage_statistics/usage_statistics_bloc.dart';
 import '../bloc/device_connection/device_connection_bloc.dart';
 import '../bloc/device_connection/device_connection_event.dart';
+import '../bloc/device_connection/device_connection_state.dart';
 import '../bloc/theme/theme_bloc.dart';
 import '../bloc/locale/locale_bloc.dart';
 import '../bloc/ota/ota_bloc.dart';
@@ -51,6 +52,15 @@ class SettingsPage extends StatelessWidget {
             subtitle: Text(l10n.firmwareUpdateSubtitle),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
+              final connectionState = context.read<DeviceConnectionBloc>().state;
+
+              if (connectionState is! DeviceConnected) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l10n.deviceNotConnected)),
+                );
+                return;
+              }
+
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => BlocProvider(

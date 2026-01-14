@@ -155,5 +155,38 @@
 
   "connectionMode": "Connection Mode",
   "autoConnect": "Auto",
-  "manualConnect": "Manual"
+  "manualConnect": "Manual",
+
+  "firmwareUpdate": "Firmware Update",
+  "firmwareUpdateSubtitle": "Update device firmware via Bluetooth",
+  "otaServiceNotAvailable": "OTA service not available",
+  "otaUpdateCompleted": "Update completed",
+  "otaReadyForUpdate": "Ready for update",
+  "deviceStatus": "Device Status",
+  "firmware": "Firmware",
+  "noFirmwareSelected": "No firmware selected",
+  "clear": "Clear",
+  "selectFirmwareFile": "Select Firmware File",
+  "cancelUpdate": "Cancel Update",
+  "startUpdate": "Start Update",
+  "otaStateIdle": "Idle",
+  "otaStateDownloading": "Downloading...",
+  "otaStateValidating": "Validating...",
+  "otaStateInstalling": "Installing...",
+  "otaStateComplete": "Complete",
+  "otaStateError": "Error",
+  "updateComplete": "Update Complete",
+  "updateCompleteMessage": "Firmware update was successful. The device will restart automatically.",
+  "ok": "OK",
+  "file": "File",
+  "version": "Version",
+  "size": "Size",
+  "deviceNotConnected": "Device is not connected",
+  "sendingChunk": "Sending chunk {sent} of {total}",
+  "@sendingChunk": {
+    "placeholders": {
+      "sent": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  }
 }

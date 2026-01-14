@@ -129,5 +129,32 @@
 
   "connectionMode": "连接模式",
   "autoConnect": "自动",
-  "manualConnect": "手动"
+  "manualConnect": "手动",
+
+  "firmwareUpdate": "固件更新",
+  "firmwareUpdateSubtitle": "通过蓝牙更新设备固件",
+  "otaServiceNotAvailable": "OTA服务不可用",
+  "otaUpdateCompleted": "更新完成",
+  "otaReadyForUpdate": "准备更新",
+  "deviceStatus": "设备状态",
+  "firmware": "固件",
+  "noFirmwareSelected": "未选择固件",
+  "clear": "清除",
+  "selectFirmwareFile": "选择固件文件",
+  "cancelUpdate": "取消更新",
+  "startUpdate": "开始更新",
+  "otaStateIdle": "空闲",
+  "otaStateDownloading": "下载中...",
+  "otaStateValidating": "验证中...",
+  "otaStateInstalling": "安装中...",
+  "otaStateComplete": "完成",
+  "otaStateError": "错误",
+  "updateComplete": "更新完成",
+  "updateCompleteMessage": "固件更新成功。设备将自动重启。",
+  "ok": "确定",
+  "file": "文件",
+  "version": "版本",
+  "size": "大小",
+  "deviceNotConnected": "设备未连接",
+  "sendingChunk": "发送块 {sent} / {total}"
 }

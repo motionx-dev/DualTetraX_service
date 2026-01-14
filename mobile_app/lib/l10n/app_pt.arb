@@ -129,5 +129,32 @@
 
   "connectionMode": "Modo de Conexão",
   "autoConnect": "Automático",
-  "manualConnect": "Manual"
+  "manualConnect": "Manual",
+
+  "firmwareUpdate": "Atualização de Firmware",
+  "firmwareUpdateSubtitle": "Atualizar firmware do dispositivo via Bluetooth",
+  "otaServiceNotAvailable": "Serviço OTA não disponível",
+  "otaUpdateCompleted": "Atualização concluída",
+  "otaReadyForUpdate": "Pronto para atualizar",
+  "deviceStatus": "Status do Dispositivo",
+  "firmware": "Firmware",
+  "noFirmwareSelected": "Nenhum firmware selecionado",
+  "clear": "Limpar",
+  "selectFirmwareFile": "Selecionar Arquivo de Firmware",
+  "cancelUpdate": "Cancelar Atualização",
+  "startUpdate": "Iniciar Atualização",
+  "otaStateIdle": "Ocioso",
+  "otaStateDownloading": "Baixando...",
+  "otaStateValidating": "Validando...",
+  "otaStateInstalling": "Instalando...",
+  "otaStateComplete": "Concluído",
+  "otaStateError": "Erro",
+  "updateComplete": "Atualização Concluída",
+  "updateCompleteMessage": "Atualização de firmware bem-sucedida. O dispositivo reiniciará automaticamente.",
+  "ok": "OK",
+  "file": "Arquivo",
+  "version": "Versão",
+  "size": "Tamanho",
+  "deviceNotConnected": "Dispositivo não conectado",
+  "sendingChunk": "Enviando bloco {sent} de {total}"
 }

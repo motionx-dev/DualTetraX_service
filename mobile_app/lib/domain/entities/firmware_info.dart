@@ -57,7 +57,7 @@ class FirmwareInfo extends Equatable {
 
   /// Calculate chunk count for BLE transfer
   int get chunkCount {
-    const chunkSize = 240; // Max chunk payload size from firmware
+    const chunkSize = 508; // MTU 512 - 4 byte header
     return (size / chunkSize).ceil();
   }
 

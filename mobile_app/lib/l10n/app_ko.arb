@@ -130,5 +130,32 @@
 
   "connectionMode": "연결 모드",
   "autoConnect": "자동",
-  "manualConnect": "수동"
+  "manualConnect": "수동",
+
+  "firmwareUpdate": "펌웨어 업데이트",
+  "firmwareUpdateSubtitle": "블루투스를 통해 기기 펌웨어 업데이트",
+  "otaServiceNotAvailable": "OTA 서비스를 사용할 수 없습니다",
+  "otaUpdateCompleted": "업데이트 완료",
+  "otaReadyForUpdate": "업데이트 준비됨",
+  "deviceStatus": "기기 상태",
+  "firmware": "펌웨어",
+  "noFirmwareSelected": "펌웨어가 선택되지 않았습니다",
+  "clear": "지우기",
+  "selectFirmwareFile": "펌웨어 파일 선택",
+  "cancelUpdate": "업데이트 취소",
+  "startUpdate": "업데이트 시작",
+  "otaStateIdle": "대기",
+  "otaStateDownloading": "다운로드 중...",
+  "otaStateValidating": "검증 중...",
+  "otaStateInstalling": "설치 중...",
+  "otaStateComplete": "완료",
+  "otaStateError": "오류",
+  "updateComplete": "업데이트 완료",
+  "updateCompleteMessage": "펌웨어 업데이트가 성공적으로 완료되었습니다. 기기가 자동으로 재시작됩니다.",
+  "ok": "확인",
+  "file": "파일",
+  "version": "버전",
+  "size": "크기",
+  "deviceNotConnected": "디바이스가 연결되어 있지 않습니다",
+  "sendingChunk": "청크 전송 중 {sent} / {total}"
 }

@@ -70,7 +70,10 @@ Future<void> init() async {
   );
 
   sl.registerFactory(
-    () => OtaBloc(otaRepository: sl()),
+    () => OtaBloc(
+      otaRepository: sl(),
+      connectionStateStream: sl<DeviceRepository>().connectionStateStream,
+    ),
   );
 
   //! Use Cases
@@ -100,13 +103,13 @@ Future<void> init() async {
   sl.registerLazySingleton<OtaRepository>(
     () {
       final bleDataSource = sl<BleRemoteDataSource>() as BleRemoteDataSourceImpl;
-      print('[DI] OtaRepository using BleRemoteDataSource: $bleDataSource');
+      print('[DI] OtaRepository using BleRemoteDataSource hash=${bleDataSource.hashCode}');
       return OtaRepositoryImpl(
         bleOtaDataSource: sl(),
         localFirmwareDataSource: sl(),
         getConnectedDevice: () {
           final device = bleDataSource.connectedDevice;
-          print('[DI] getConnectedDevice called, bleDataSource: $bleDataSource, device: $device');
+          print('[DI] getConnectedDevice: hash=${bleDataSource.hashCode}, device: $device');
           return device;
         },
       );
@@ -118,7 +121,7 @@ Future<void> init() async {
   sl.registerLazySingleton<BleRemoteDataSource>(
     () {
       final instance = BleRemoteDataSourceImpl();
-      print('[DI] BleRemoteDataSource created: $instance');
+      print('[DI] BleRemoteDataSource created hash=${instance.hashCode}');
       return instance;
     },
   );

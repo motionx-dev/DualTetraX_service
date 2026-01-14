@@ -129,20 +129,21 @@ class BleRemoteDataSourceImpl implements BleRemoteDataSource {
 
   Future<void> _connect(BluetoothDevice device) async {
     _connectedDevice = device;
-    print('[BLE] _connect called, _connectedDevice set to: $_connectedDevice, this: $this');
+    print('[BLE] _connect: hash=$hashCode, device=$_connectedDevice');
 
-    // Listen to connection state
+    // Connect to device
+    await device.connect(timeout: const Duration(seconds: 10));
+
+    // Emit connected state immediately after successful connection
+    _connectionStateController.add(BleConnectionState.connected);
+
+    // Listen for future disconnection events
     device.connectionState.listen((state) {
-      if (state == BluetoothConnectionState.connected) {
-        _connectionStateController.add(BleConnectionState.connected);
-      } else if (state == BluetoothConnectionState.disconnected) {
+      if (state == BluetoothConnectionState.disconnected) {
         _connectionStateController.add(BleConnectionState.disconnected);
         _cleanup();
       }
     });
-
-    // Connect to device
-    await device.connect(timeout: const Duration(seconds: 10));
 
     // Discover services
     final services = await device.discoverServices();

@@ -26,7 +26,7 @@ dependencies:
   shared_preferences: ^2.2.2
 
   # File Picker (for OTA firmware selection)
-  file_picker: ^6.1.1
+  file_picker: ^8.0.0
 
   # Cryptography (for MD5 checksum)
   crypto: ^3.0.3

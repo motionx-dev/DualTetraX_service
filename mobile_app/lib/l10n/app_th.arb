@@ -129,5 +129,32 @@
 
   "connectionMode": "โหมดการเชื่อมต่อ",
   "autoConnect": "อัตโนมัติ",
-  "manualConnect": "ด้วยตนเอง"
+  "manualConnect": "ด้วยตนเอง",
+
+  "firmwareUpdate": "อัปเดตเฟิร์มแวร์",
+  "firmwareUpdateSubtitle": "อัปเดตเฟิร์มแวร์อุปกรณ์ผ่าน Bluetooth",
+  "otaServiceNotAvailable": "บริการ OTA ไม่พร้อมใช้งาน",
+  "otaUpdateCompleted": "อัปเดตเสร็จสมบูรณ์",
+  "otaReadyForUpdate": "พร้อมอัปเดต",
+  "deviceStatus": "สถานะอุปกรณ์",
+  "firmware": "เฟิร์มแวร์",
+  "noFirmwareSelected": "ยังไม่ได้เลือกเฟิร์มแวร์",
+  "clear": "ล้าง",
+  "selectFirmwareFile": "เลือกไฟล์เฟิร์มแวร์",
+  "cancelUpdate": "ยกเลิกการอัปเดต",
+  "startUpdate": "เริ่มอัปเดต",
+  "otaStateIdle": "ว่าง",
+  "otaStateDownloading": "กำลังดาวน์โหลด...",
+  "otaStateValidating": "กำลังตรวจสอบ...",
+  "otaStateInstalling": "กำลังติดตั้ง...",
+  "otaStateComplete": "เสร็จสมบูรณ์",
+  "otaStateError": "ข้อผิดพลาด",
+  "updateComplete": "อัปเดตเสร็จสมบูรณ์",
+  "updateCompleteMessage": "อัปเดตเฟิร์มแวร์สำเร็จ อุปกรณ์จะรีสตาร์ทโดยอัตโนมัติ",
+  "ok": "ตกลง",
+  "file": "ไฟล์",
+  "version": "เวอร์ชัน",
+  "size": "ขนาด",
+  "deviceNotConnected": "อุปกรณ์ไม่ได้เชื่อมต่อ",
+  "sendingChunk": "กำลังส่งบล็อก {sent} / {total}"
 }

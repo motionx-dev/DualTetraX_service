@@ -776,30 +776,160 @@ abstract class AppLocalizations {
   /// **'Manual'**
   String get manualConnect;
 
+  /// No description provided for @firmwareUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware Update'**
   String get firmwareUpdate;
+
+  /// No description provided for @firmwareUpdateSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update device firmware via Bluetooth'**
   String get firmwareUpdateSubtitle;
+
+  /// No description provided for @otaServiceNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'OTA service not available'**
   String get otaServiceNotAvailable;
+
+  /// No description provided for @otaUpdateCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Update completed'**
   String get otaUpdateCompleted;
+
+  /// No description provided for @otaReadyForUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready for update'**
   String get otaReadyForUpdate;
+
+  /// No description provided for @deviceStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Device Status'**
   String get deviceStatus;
+
+  /// No description provided for @firmware.
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware'**
   String get firmware;
+
+  /// No description provided for @noFirmwareSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'No firmware selected'**
   String get noFirmwareSelected;
+
+  /// No description provided for @clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
   String get clear;
+
+  /// No description provided for @selectFirmwareFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Firmware File'**
   String get selectFirmwareFile;
+
+  /// No description provided for @cancelUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Update'**
   String get cancelUpdate;
+
+  /// No description provided for @startUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Update'**
   String get startUpdate;
+
+  /// No description provided for @otaStateIdle.
+  ///
+  /// In en, this message translates to:
+  /// **'Idle'**
   String get otaStateIdle;
+
+  /// No description provided for @otaStateDownloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading...'**
   String get otaStateDownloading;
+
+  /// No description provided for @otaStateValidating.
+  ///
+  /// In en, this message translates to:
+  /// **'Validating...'**
   String get otaStateValidating;
+
+  /// No description provided for @otaStateInstalling.
+  ///
+  /// In en, this message translates to:
+  /// **'Installing...'**
   String get otaStateInstalling;
+
+  /// No description provided for @otaStateComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete'**
   String get otaStateComplete;
+
+  /// No description provided for @otaStateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
   String get otaStateError;
+
+  /// No description provided for @updateComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Complete'**
   String get updateComplete;
+
+  /// No description provided for @updateCompleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Firmware update was successful. The device will restart automatically.'**
   String get updateCompleteMessage;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
   String get ok;
+
+  /// No description provided for @file.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
   String get file;
+
+  /// No description provided for @version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
   String get version;
+
+  /// No description provided for @size.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
   String get size;
+
+  /// No description provided for @deviceNotConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Device is not connected'**
+  String get deviceNotConnected;
+
+  /// No description provided for @sendingChunk.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending chunk {sent} of {total}'**
   String sendingChunk(int sent, int total);
 }
 

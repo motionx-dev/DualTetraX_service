@@ -69,3 +69,8 @@ class ChunkProgressUpdated extends OtaEvent {
 class OtaFinishRequested extends OtaEvent {
   const OtaFinishRequested();
 }
+
+/// Internal event: Device connection lost during OTA
+class ConnectionLostDuringOta extends OtaEvent {
+  const ConnectionLostDuringOta();
+}

@@ -17,6 +17,9 @@ abstract class BleOtaDataSource {
   /// Stream of OTA status updates from device
   Stream<OtaStatus> get otaStatusStream;
 
+  /// Chunk size based on negotiated MTU
+  int get chunkSize;
+
   /// Initialize OTA service with connected device
   Future<void> initialize(BluetoothDevice device);
 
@@ -26,8 +29,8 @@ abstract class BleOtaDataSource {
   /// Check if OTA service is available on device
   Future<bool> isOtaServiceAvailable();
 
-  /// Start OTA update with firmware info
-  Future<void> startOta(FirmwareInfo firmware);
+  /// Start OTA update with firmware info and chunk count
+  Future<void> startOta(FirmwareInfo firmware, int chunkCount);
 
   /// Send firmware data chunk
   Future<void> sendChunk(int index, Uint8List data);
@@ -61,10 +64,14 @@ class BleOtaDataSourceImpl implements BleOtaDataSource {
   BluetoothCharacteristic? _controlChar;
   BluetoothCharacteristic? _statusChar;
   BluetoothCharacteristic? _dataChar;
+  int _mtu = 185;
 
   StreamSubscription<List<int>>? _statusSubscription;
   final StreamController<OtaStatus> _statusController =
       StreamController<OtaStatus>.broadcast();
+
+  @override
+  int get chunkSize => _mtu - 7;
 
   @override
   Stream<OtaStatus> get otaStatusStream => _statusController.stream;
@@ -73,7 +80,16 @@ class BleOtaDataSourceImpl implements BleOtaDataSource {
   Future<void> initialize(BluetoothDevice device) async {
     _device = device;
 
-    // Discover services if not already done
+    // Request larger MTU (optional, ignore errors)
+    try {
+      _mtu = await device.requestMtu(512);
+      print('[OTA] Negotiated MTU: $_mtu');
+    } catch (e) {
+      _mtu = device.mtuNow;
+      print('[OTA] MTU request failed: $e, using device MTU: $_mtu');
+    }
+    print('[OTA] Using chunk size: $chunkSize');
+
     List<BluetoothService> services = await device.discoverServices();
 
     // Debug: log all discovered services
@@ -110,6 +126,8 @@ class BleOtaDataSourceImpl implements BleOtaDataSource {
       throw Exception('OTA characteristics not found');
     }
 
+    print('[OTA] Found characteristics: control=${_controlChar!.uuid}, status=${_statusChar!.uuid}, data=${_dataChar!.uuid}');
+
     // Subscribe to status notifications
     await _statusChar!.setNotifyValue(true);
     _statusSubscription = _statusChar!.onValueReceived.listen((value) {
@@ -137,24 +155,31 @@ class BleOtaDataSourceImpl implements BleOtaDataSource {
   }
 
   @override
-  Future<void> startOta(FirmwareInfo firmware) async {
+  Future<void> startOta(FirmwareInfo firmware, int chunkCount) async {
     if (_controlChar == null) {
       throw Exception('OTA control characteristic not available');
     }
+
+    print('[OTA] startOta: size=${firmware.size}, chunks=$chunkCount, chunkSize=$chunkSize');
 
     // Build START command: [cmd(1), size(4), chunk_count(4)]
     final data = ByteData(9);
     data.setUint8(0, OtaCommand.start);
     data.setUint32(1, firmware.size, Endian.little);
-    data.setUint32(5, firmware.chunkCount, Endian.little);
+    data.setUint32(5, chunkCount, Endian.little);
 
     await _controlChar!.write(data.buffer.asUint8List(), withoutResponse: false);
+    print('[OTA] START command sent');
   }
 
   @override
   Future<void> sendChunk(int index, Uint8List chunkData) async {
     if (_dataChar == null) {
       throw Exception('OTA data characteristic not available');
+    }
+
+    if (index % 100 == 0) {
+      print('[OTA] sendChunk: index=$index, len=${chunkData.length}');
     }
 
     // Build chunk packet: [index(4), data(...)]
@@ -164,7 +189,6 @@ class BleOtaDataSourceImpl implements BleOtaDataSource {
       packet.setUint8(4 + i, chunkData[i]);
     }
 
-    // Write without response for faster throughput
     await _dataChar!.write(packet.buffer.asUint8List(), withoutResponse: true);
   }
 
@@ -183,6 +207,8 @@ class BleOtaDataSourceImpl implements BleOtaDataSource {
       throw Exception('OTA control characteristic not available');
     }
 
+    print('[OTA] cancelOta called');
+    print(StackTrace.current);
     await _controlChar!.write([OtaCommand.cancel], withoutResponse: false);
   }
 

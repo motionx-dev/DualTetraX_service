@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../../domain/entities/ota_status.dart';
 import '../../domain/entities/firmware_info.dart';
@@ -12,11 +11,10 @@ class OtaRepositoryImpl implements OtaRepository {
   final LocalFirmwareDataSource _localFirmwareDataSource;
   final BluetoothDevice? Function() _getConnectedDevice;
 
-  static const int chunkSize = 240; // Match firmware MAX_CHUNK_SIZE
-
   FirmwareInfo? _currentFirmware;
   int _currentChunkIndex = 0;
   int _totalChunks = 0;
+  int _chunkSize = 240;
 
   OtaRepositoryImpl({
     required BleOtaDataSource bleOtaDataSource,
@@ -53,9 +51,10 @@ class OtaRepositoryImpl implements OtaRepository {
   Future<void> startOtaUpdate(FirmwareInfo firmware) async {
     _currentFirmware = firmware;
     _currentChunkIndex = 0;
-    _totalChunks = firmware.chunkCount;
+    _chunkSize = _bleOtaDataSource.chunkSize;
+    _totalChunks = (firmware.size / _chunkSize).ceil();
 
-    await _bleOtaDataSource.startOta(firmware);
+    await _bleOtaDataSource.startOta(firmware, _totalChunks);
   }
 
   @override
@@ -72,7 +71,7 @@ class OtaRepositoryImpl implements OtaRepository {
     final chunkData = await _localFirmwareDataSource.getChunk(
       _currentFirmware!.path!,
       _currentChunkIndex,
-      chunkSize,
+      _chunkSize,
     );
 
     // Send chunk via BLE
@@ -102,6 +101,12 @@ class OtaRepositoryImpl implements OtaRepository {
     if (_totalChunks == 0) return 0;
     return (_currentChunkIndex * 100) ~/ _totalChunks;
   }
+
+  @override
+  int get totalChunks => _totalChunks;
+
+  @override
+  int get sentChunks => _currentChunkIndex;
 
   @override
   void dispose() {

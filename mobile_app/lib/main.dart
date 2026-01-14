@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 import 'core/di/injection_container.dart' as di;
@@ -14,6 +15,9 @@ import 'presentation/pages/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Disable flutter_blue_plus verbose logs (native iOS/Android logs)
+  FlutterBluePlus.setLogLevel(LogLevel.none);
 
   // Lock orientation to portrait mode only
   await SystemChrome.setPreferredOrientations([

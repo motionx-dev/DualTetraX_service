@@ -421,6 +421,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get size => '大小';
 
   @override
+  String get deviceNotConnected => '设备未连接';
+
+  @override
   String sendingChunk(int sent, int total) {
     return '发送块 $sent / $total';
   }

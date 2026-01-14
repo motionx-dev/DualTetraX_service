@@ -129,5 +129,32 @@
 
   "connectionMode": "接続モード",
   "autoConnect": "自動",
-  "manualConnect": "手動"
+  "manualConnect": "手動",
+
+  "firmwareUpdate": "ファームウェア更新",
+  "firmwareUpdateSubtitle": "Bluetoothでデバイスのファームウェアを更新",
+  "otaServiceNotAvailable": "OTAサービスが利用できません",
+  "otaUpdateCompleted": "更新完了",
+  "otaReadyForUpdate": "更新準備完了",
+  "deviceStatus": "デバイス状態",
+  "firmware": "ファームウェア",
+  "noFirmwareSelected": "ファームウェアが選択されていません",
+  "clear": "クリア",
+  "selectFirmwareFile": "ファームウェアファイルを選択",
+  "cancelUpdate": "更新をキャンセル",
+  "startUpdate": "更新を開始",
+  "otaStateIdle": "待機中",
+  "otaStateDownloading": "ダウンロード中...",
+  "otaStateValidating": "検証中...",
+  "otaStateInstalling": "インストール中...",
+  "otaStateComplete": "完了",
+  "otaStateError": "エラー",
+  "updateComplete": "更新完了",
+  "updateCompleteMessage": "ファームウェアの更新が成功しました。デバイスは自動的に再起動します。",
+  "ok": "OK",
+  "file": "ファイル",
+  "version": "バージョン",
+  "size": "サイズ",
+  "deviceNotConnected": "デバイスが接続されていません",
+  "sendingChunk": "チャンク送信中 {sent} / {total}"
 }
