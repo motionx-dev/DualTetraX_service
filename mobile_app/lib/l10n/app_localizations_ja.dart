@@ -109,7 +109,16 @@ class AppLocalizationsJa extends AppLocalizations {
   String get usageByType => 'Shotタイプ別使用時間';
 
   @override
+  String get usageByUShotMode => 'U-Shot Mode Usage';
+
+  @override
+  String get usageByEShotMode => 'E-Shot Mode Usage';
+
+  @override
   String get minutes => '分';
+
+  @override
+  String get secondsShort => 'sec';
 
   @override
   String get details => '詳細';

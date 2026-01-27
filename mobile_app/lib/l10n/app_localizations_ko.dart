@@ -109,7 +109,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get usageByType => 'Shot 타입별 사용 시간';
 
   @override
+  String get usageByUShotMode => 'U-Shot 모드별 사용 시간';
+
+  @override
+  String get usageByEShotMode => 'E-Shot 모드별 사용 시간';
+
+  @override
   String get minutes => '분';
+
+  @override
+  String get secondsShort => '초';
 
   @override
   String get details => '세부 정보';

@@ -302,11 +302,29 @@ abstract class AppLocalizations {
   /// **'Usage by Shot Type'**
   String get usageByType;
 
+  /// No description provided for @usageByUShotMode.
+  ///
+  /// In en, this message translates to:
+  /// **'U-Shot Mode Usage'**
+  String get usageByUShotMode;
+
+  /// No description provided for @usageByEShotMode.
+  ///
+  /// In en, this message translates to:
+  /// **'E-Shot Mode Usage'**
+  String get usageByEShotMode;
+
   /// No description provided for @minutes.
   ///
   /// In en, this message translates to:
   /// **'min'**
   String get minutes;
+
+  /// No description provided for @secondsShort.
+  ///
+  /// In en, this message translates to:
+  /// **'sec'**
+  String get secondsShort;
 
   /// No description provided for @details.
   ///

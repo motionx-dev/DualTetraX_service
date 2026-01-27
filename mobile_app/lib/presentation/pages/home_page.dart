@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../l10n/app_localizations.dart';
+import '../bloc/usage_statistics/usage_statistics_bloc.dart';
 import 'device_page.dart';
 import 'statistics_page.dart';
 import 'guide_page.dart';
@@ -43,6 +45,11 @@ class _HomePageState extends State<HomePage> {
           setState(() {
             _currentIndex = index;
           });
+          // Reload statistics when switching to Statistics tab
+          if (index == 1) {
+            context.read<UsageStatisticsBloc>()
+                .add(LoadDailyStatistics(DateTime.now()));
+          }
         },
         destinations: [
           NavigationDestination(

@@ -109,7 +109,16 @@ class AppLocalizationsTh extends AppLocalizations {
   String get usageByType => 'การใช้งานตามประเภท Shot';
 
   @override
+  String get usageByUShotMode => 'U-Shot Mode Usage';
+
+  @override
+  String get usageByEShotMode => 'E-Shot Mode Usage';
+
+  @override
   String get minutes => 'นาที';
+
+  @override
+  String get secondsShort => 'sec';
 
   @override
   String get details => 'รายละเอียด';

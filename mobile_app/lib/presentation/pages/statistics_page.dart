@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../l10n/app_localizations.dart';
 import '../../domain/entities/shot_type.dart';
+import '../../domain/entities/device_mode.dart';
 import '../../domain/entities/usage_statistics.dart';
 import '../bloc/usage_statistics/usage_statistics_bloc.dart';
 
@@ -79,6 +80,35 @@ class _StatisticsPageState extends State<StatisticsPage>
   }
 }
 
+/// Format seconds as "X분 Y초" or "Y초" for short durations
+String _formatDuration(int seconds, AppLocalizations l10n) {
+  if (seconds < 60) {
+    return '$seconds${l10n.secondsShort}';
+  }
+  final minutes = seconds ~/ 60;
+  final remainingSeconds = seconds % 60;
+  if (remainingSeconds == 0) {
+    return '$minutes${l10n.minutes}';
+  }
+  return '$minutes${l10n.minutes} $remainingSeconds${l10n.secondsShort}';
+}
+
+/// Colors for U-Shot modes
+final Map<DeviceMode, Color> _uShotModeColors = {
+  DeviceMode.glow: Colors.blue.shade300,
+  DeviceMode.tuning: Colors.blue.shade500,
+  DeviceMode.renewal: Colors.blue.shade700,
+  DeviceMode.volume: Colors.blue.shade900,
+};
+
+/// Colors for E-Shot modes
+final Map<DeviceMode, Color> _eShotModeColors = {
+  DeviceMode.cleansing: Colors.orange.shade300,
+  DeviceMode.firming: Colors.orange.shade500,
+  DeviceMode.lifting: Colors.orange.shade700,
+  DeviceMode.lf: Colors.orange.shade900,
+};
+
 class _DailyStatisticsView extends StatelessWidget {
   const _DailyStatisticsView();
 
@@ -98,9 +128,11 @@ class _DailyStatisticsView extends StatelessWidget {
               children: [
                 _buildSummaryCard(l10n.dailyUsageTime, state.statistics, l10n),
                 const SizedBox(height: 16),
-                _buildPieChartCard(l10n.usageByType, state.statistics, l10n),
+                _buildShotTypePieChartCard(l10n.usageByType, state.statistics, l10n),
                 const SizedBox(height: 16),
-                _buildUsageByTypeCard(l10n.details, state.statistics, l10n),
+                _buildUShotModePieChartCard(l10n.usageByUShotMode, state.statistics, l10n),
+                const SizedBox(height: 16),
+                _buildEShotModePieChartCard(l10n.usageByEShotMode, state.statistics, l10n),
               ],
             ),
           );
@@ -131,7 +163,7 @@ class _DailyStatisticsView extends StatelessWidget {
             const SizedBox(height: 16),
             Center(
               child: Text(
-                '${statistics.totalUsageMinutes} ${l10n.minutes}',
+                _formatDuration(statistics.totalUsageSeconds, l10n),
                 style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -144,7 +176,7 @@ class _DailyStatisticsView extends StatelessWidget {
     );
   }
 
-  Widget _buildPieChartCard(String title, UsageStatistics statistics, AppLocalizations l10n) {
+  Widget _buildShotTypePieChartCard(String title, UsageStatistics statistics, AppLocalizations l10n) {
     final hasData = statistics.usageByShot.values.any((v) => v > 0);
 
     if (!hasData) {
@@ -154,13 +186,7 @@ class _DailyStatisticsView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 40),
               Center(child: Text(l10n.noUsageData)),
               const SizedBox(height: 40),
@@ -170,62 +196,52 @@ class _DailyStatisticsView extends StatelessWidget {
       );
     }
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 200,
-              child: PieChart(
-                PieChartData(
-                  sections: _buildPieChartSections(statistics),
-                  centerSpaceRadius: 40,
-                  sectionsSpace: 2,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildLegend(statistics),
-          ],
-        ),
-      ),
-    );
-  }
-
-  List<PieChartSectionData> _buildPieChartSections(UsageStatistics statistics) {
     final colors = {
       ShotType.uShot: Colors.blue,
       ShotType.eShot: Colors.orange,
       ShotType.ledCare: Colors.green,
     };
 
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 200,
+              child: PieChart(
+                PieChartData(
+                  sections: _buildShotTypePieChartSections(statistics, colors),
+                  centerSpaceRadius: 40,
+                  sectionsSpace: 2,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildShotTypeLegend(statistics, colors, l10n),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<PieChartSectionData> _buildShotTypePieChartSections(UsageStatistics statistics, Map<ShotType, Color> colors) {
     final sections = <PieChartSectionData>[];
     final total = statistics.usageByShot.values.fold(0, (a, b) => a + b);
 
-    statistics.usageByShot.forEach((type, minutes) {
-      if (minutes > 0 && type != ShotType.unknown) {
-        final percentage = (minutes / total * 100).round();
+    statistics.usageByShot.forEach((type, seconds) {
+      if (seconds > 0 && type != ShotType.unknown) {
+        final percentage = (seconds / total * 100).round();
         sections.add(
           PieChartSectionData(
             color: colors[type] ?? Colors.grey,
-            value: minutes.toDouble(),
+            value: seconds.toDouble(),
             title: '$percentage%',
             radius: 60,
-            titleStyle: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+            titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
           ),
         );
       }
@@ -234,71 +250,132 @@ class _DailyStatisticsView extends StatelessWidget {
     return sections;
   }
 
-  Widget _buildLegend(UsageStatistics statistics) {
-    final colors = {
-      ShotType.uShot: Colors.blue,
-      ShotType.eShot: Colors.orange,
-      ShotType.ledCare: Colors.green,
-    };
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildShotTypeLegend(UsageStatistics statistics, Map<ShotType, Color> colors, AppLocalizations l10n) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 16,
+      runSpacing: 8,
       children: statistics.usageByShot.entries
           .where((e) => e.value > 0 && e.key != ShotType.unknown)
           .map((entry) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Row(
-            children: [
-              Container(
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: colors[entry.key] ?? Colors.grey,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 4),
-              Text(entry.key.displayName),
-            ],
-          ),
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(width: 12, height: 12, decoration: BoxDecoration(color: colors[entry.key], shape: BoxShape.circle)),
+            const SizedBox(width: 4),
+            Text('${entry.key.displayName} (${_formatDuration(entry.value, l10n)})', style: const TextStyle(fontSize: 12)),
+          ],
         );
       }).toList(),
     );
   }
 
-  Widget _buildUsageByTypeCard(String title, UsageStatistics statistics, AppLocalizations l10n) {
+  Widget _buildUShotModePieChartCard(String title, UsageStatistics statistics, AppLocalizations l10n) {
+    final uShotModes = statistics.usageByMode.entries
+        .where((e) => e.key.isUShotMode && e.value > 0)
+        .toList();
+
+    if (uShotModes.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 180,
+              child: PieChart(
+                PieChartData(
+                  sections: _buildModePieChartSections(uShotModes, _uShotModeColors),
+                  centerSpaceRadius: 35,
+                  sectionsSpace: 2,
+                ),
               ),
             ),
             const SizedBox(height: 16),
-            ...statistics.usageByShot.entries
-                .where((e) => e.key != ShotType.unknown)
-                .map((entry) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(entry.key.displayName),
-                    Text('${entry.value} ${l10n.minutes}'),
-                  ],
-                ),
-              );
-            }),
+            _buildModeLegend(uShotModes, _uShotModeColors, l10n),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildEShotModePieChartCard(String title, UsageStatistics statistics, AppLocalizations l10n) {
+    final eShotModes = statistics.usageByMode.entries
+        .where((e) => e.key.isEShotMode && e.value > 0)
+        .toList();
+
+    if (eShotModes.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 180,
+              child: PieChart(
+                PieChartData(
+                  sections: _buildModePieChartSections(eShotModes, _eShotModeColors),
+                  centerSpaceRadius: 35,
+                  sectionsSpace: 2,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildModeLegend(eShotModes, _eShotModeColors, l10n),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<PieChartSectionData> _buildModePieChartSections(
+    List<MapEntry<DeviceMode, int>> modes,
+    Map<DeviceMode, Color> colors,
+  ) {
+    final total = modes.fold(0, (sum, e) => sum + e.value);
+    return modes.map((entry) {
+      final percentage = (entry.value / total * 100).round();
+      return PieChartSectionData(
+        color: colors[entry.key] ?? Colors.grey,
+        value: entry.value.toDouble(),
+        title: '$percentage%',
+        radius: 55,
+        titleStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+      );
+    }).toList();
+  }
+
+  Widget _buildModeLegend(
+    List<MapEntry<DeviceMode, int>> modes,
+    Map<DeviceMode, Color> colors,
+    AppLocalizations l10n,
+  ) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 12,
+      runSpacing: 8,
+      children: modes.map((entry) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(width: 10, height: 10, decoration: BoxDecoration(color: colors[entry.key], shape: BoxShape.circle)),
+            const SizedBox(width: 4),
+            Text('${entry.key.displayName} (${_formatDuration(entry.value, l10n)})', style: const TextStyle(fontSize: 11)),
+          ],
+        );
+      }).toList(),
     );
   }
 }
@@ -324,7 +401,11 @@ class _WeeklyStatisticsView extends StatelessWidget {
                 const SizedBox(height: 16),
                 _buildBarChartCard(l10n.dailyUsage, state.statistics, state.dailyUsages, l10n),
                 const SizedBox(height: 16),
-                _buildPieChartCard(l10n.usageByType, state.statistics, l10n),
+                _buildShotTypeBarChartCard(l10n.usageByType, state.dailyUsages, l10n),
+                const SizedBox(height: 16),
+                _buildUShotModePieChartCard(l10n.usageByUShotMode, state.statistics, l10n),
+                const SizedBox(height: 16),
+                _buildEShotModePieChartCard(l10n.usageByEShotMode, state.statistics, l10n),
               ],
             ),
           );
@@ -337,27 +418,25 @@ class _WeeklyStatisticsView extends StatelessWidget {
   }
 
   Widget _buildWeeklySummaryCard(String title, UsageStatistics statistics, AppLocalizations l10n) {
+    final avgSecondsPerDay = statistics.totalUsageSeconds ~/ 7;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             Center(
               child: Text(
-                '${statistics.totalUsageMinutes} ${l10n.minutes}',
+                _formatDuration(statistics.totalUsageSeconds, l10n),
                 style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(height: 8),
             Center(
               child: Text(
-                '${l10n.average}: ${(statistics.totalUsageMinutes / 7).round()} ${l10n.minutesPerDay}',
+                '${l10n.average}: ${_formatDuration(avgSecondsPerDay, l10n)}/${l10n.daily}',
                 style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
             ),
@@ -370,15 +449,15 @@ class _WeeklyStatisticsView extends StatelessWidget {
   Widget _buildBarChartCard(String title, UsageStatistics statistics, List<DailyUsage>? dailyUsages, AppLocalizations l10n) {
     final days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-    // Calculate max Y based on actual data
-    double maxY = 60.0;
+    // Calculate max Y based on actual data (in minutes for display)
+    double maxY = 10.0;
     if (dailyUsages != null && dailyUsages.isNotEmpty) {
-      final maxUsage = dailyUsages.map((d) => d.usageMinutes).reduce((a, b) => a > b ? a : b);
-      maxY = maxUsage > 0 ? (maxUsage * 1.2).ceilToDouble() : 60.0;
+      final maxUsage = dailyUsages.map((d) => d.usageSeconds / 60.0).reduce((a, b) => a > b ? a : b);
+      maxY = maxUsage > 0 ? (maxUsage * 1.2).ceilToDouble() : 10.0;
     }
 
     // Check if there are any unsynced sessions
-    final hasUnsyncedData = dailyUsages?.any((d) => d.unsyncedMinutes > 0) ?? false;
+    final hasUnsyncedData = dailyUsages?.any((d) => d.unsyncedSeconds > 0) ?? false;
 
     return Card(
       child: Padding(
@@ -386,10 +465,7 @@ class _WeeklyStatisticsView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             SizedBox(
               height: 200,
@@ -397,7 +473,21 @@ class _WeeklyStatisticsView extends StatelessWidget {
                 BarChartData(
                   alignment: BarChartAlignment.spaceAround,
                   maxY: maxY,
-                  barTouchData: BarTouchData(enabled: true),
+                  barTouchData: BarTouchData(
+                    enabled: true,
+                    touchTooltipData: BarTouchTooltipData(
+                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                        final dailyUsage = (dailyUsages != null && groupIndex < dailyUsages.length)
+                            ? dailyUsages[groupIndex]
+                            : null;
+                        if (dailyUsage == null) return null;
+                        return BarTooltipItem(
+                          _formatDuration(dailyUsage.usageSeconds, l10n),
+                          const TextStyle(color: Colors.white, fontSize: 12),
+                        );
+                      },
+                    ),
+                  ),
                   titlesData: FlTitlesData(
                     show: true,
                     bottomTitles: AxisTitles(
@@ -437,8 +527,8 @@ class _WeeklyStatisticsView extends StatelessWidget {
                     final dailyUsage = (dailyUsages != null && index < dailyUsages.length)
                         ? dailyUsages[index]
                         : null;
-                    final syncedMinutes = dailyUsage?.syncedMinutes.toDouble() ?? 0.0;
-                    final unsyncedMinutes = dailyUsage?.unsyncedMinutes.toDouble() ?? 0.0;
+                    final syncedMinutes = (dailyUsage?.syncedSeconds ?? 0) / 60.0;
+                    final unsyncedMinutes = (dailyUsage?.unsyncedSeconds ?? 0) / 60.0;
 
                     return BarChartGroupData(
                       x: index,
@@ -477,6 +567,157 @@ class _WeeklyStatisticsView extends StatelessWidget {
     );
   }
 
+  Widget _buildShotTypeBarChartCard(String title, List<DailyUsage>? dailyUsages, AppLocalizations l10n) {
+    final days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    // Calculate max Y based on shot type data (in minutes)
+    double maxY = 10.0;
+    if (dailyUsages != null && dailyUsages.isNotEmpty) {
+      double maxUsage = 0;
+      for (final daily in dailyUsages) {
+        final uShotSeconds = daily.usageByShot[ShotType.uShot] ?? 0;
+        final eShotSeconds = daily.usageByShot[ShotType.eShot] ?? 0;
+        final maxForDay = (uShotSeconds > eShotSeconds ? uShotSeconds : eShotSeconds) / 60.0;
+        if (maxForDay > maxUsage) maxUsage = maxForDay;
+      }
+      maxY = maxUsage > 0 ? (maxUsage * 1.2).ceilToDouble() : 10.0;
+    }
+
+    // Check if there's any data
+    final hasData = dailyUsages?.any((d) =>
+        (d.usageByShot[ShotType.uShot] ?? 0) > 0 ||
+        (d.usageByShot[ShotType.eShot] ?? 0) > 0) ?? false;
+
+    if (!hasData) {
+      return const SizedBox.shrink();
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 200,
+              child: BarChart(
+                BarChartData(
+                  alignment: BarChartAlignment.spaceAround,
+                  maxY: maxY,
+                  barTouchData: BarTouchData(
+                    enabled: true,
+                    touchTooltipData: BarTouchTooltipData(
+                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                        final dailyUsage = (dailyUsages != null && groupIndex < dailyUsages.length)
+                            ? dailyUsages[groupIndex]
+                            : null;
+                        if (dailyUsage == null) return null;
+                        final isUShot = rodIndex == 0;
+                        final seconds = isUShot
+                            ? (dailyUsage.usageByShot[ShotType.uShot] ?? 0)
+                            : (dailyUsage.usageByShot[ShotType.eShot] ?? 0);
+                        final label = isUShot ? 'U-Shot' : 'E-Shot';
+                        return BarTooltipItem(
+                          '$label: ${_formatDuration(seconds, l10n)}',
+                          const TextStyle(color: Colors.white, fontSize: 11),
+                        );
+                      },
+                    ),
+                  ),
+                  titlesData: FlTitlesData(
+                    show: true,
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          final index = value.toInt();
+                          if (index >= 0 && index < days.length) {
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Text(days[index], style: const TextStyle(fontSize: 10)),
+                            );
+                          }
+                          return const Text('');
+                        },
+                      ),
+                    ),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 40,
+                        getTitlesWidget: (value, meta) {
+                          return Text('${value.toInt()}m', style: const TextStyle(fontSize: 10));
+                        },
+                      ),
+                    ),
+                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  ),
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    horizontalInterval: maxY / 4,
+                  ),
+                  borderData: FlBorderData(show: false),
+                  barGroups: List.generate(7, (index) {
+                    final dailyUsage = (dailyUsages != null && index < dailyUsages.length)
+                        ? dailyUsages[index]
+                        : null;
+                    final uShotMinutes = ((dailyUsage?.usageByShot[ShotType.uShot] ?? 0) / 60.0);
+                    final eShotMinutes = ((dailyUsage?.usageByShot[ShotType.eShot] ?? 0) / 60.0);
+
+                    return BarChartGroupData(
+                      x: index,
+                      barRods: [
+                        BarChartRodData(
+                          toY: uShotMinutes,
+                          width: 8,
+                          color: Colors.blue,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(3),
+                            topRight: Radius.circular(3),
+                          ),
+                        ),
+                        BarChartRodData(
+                          toY: eShotMinutes,
+                          width: 8,
+                          color: Colors.orange,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(3),
+                            topRight: Radius.circular(3),
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            _buildShotTypeBarLegend(l10n),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShotTypeBarLegend(AppLocalizations l10n) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(width: 12, height: 12, decoration: const BoxDecoration(color: Colors.blue, shape: BoxShape.circle)),
+        const SizedBox(width: 4),
+        Text(l10n.shotTypeUShot, style: const TextStyle(fontSize: 11)),
+        const SizedBox(width: 16),
+        Container(width: 12, height: 12, decoration: const BoxDecoration(color: Colors.orange, shape: BoxShape.circle)),
+        const SizedBox(width: 4),
+        Text(l10n.shotTypeEShot, style: const TextStyle(fontSize: 11)),
+      ],
+    );
+  }
+
   Widget _buildTimeSyncLegend(AppLocalizations l10n) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -492,31 +733,14 @@ class _WeeklyStatisticsView extends StatelessWidget {
     );
   }
 
-  Widget _buildPieChartCard(String title, UsageStatistics statistics, AppLocalizations l10n) {
-    final hasData = statistics.usageByShot.values.any((v) => v > 0);
+  Widget _buildUShotModePieChartCard(String title, UsageStatistics statistics, AppLocalizations l10n) {
+    final uShotModes = statistics.usageByMode.entries
+        .where((e) => e.key.isUShotMode && e.value > 0)
+        .toList();
 
-    if (!hasData) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 40),
-              Center(child: Text(l10n.noUsageData)),
-              const SizedBox(height: 40),
-            ],
-          ),
-        ),
-      );
+    if (uShotModes.isEmpty) {
+      return const SizedBox.shrink();
     }
-
-    final colors = {
-      ShotType.uShot: Colors.blue,
-      ShotType.eShot: Colors.orange,
-      ShotType.ledCare: Colors.green,
-    };
 
     return Card(
       child: Padding(
@@ -530,56 +754,89 @@ class _WeeklyStatisticsView extends StatelessWidget {
               height: 160,
               child: PieChart(
                 PieChartData(
-                  sections: _buildPieChartSections(statistics, colors),
+                  sections: _buildModePieChartSections(uShotModes, _uShotModeColors),
                   centerSpaceRadius: 30,
                   sectionsSpace: 2,
                 ),
               ),
             ),
             const SizedBox(height: 8),
-            _buildLegend(statistics, colors),
+            _buildModeLegend(uShotModes, _uShotModeColors, l10n),
           ],
         ),
       ),
     );
   }
 
-  List<PieChartSectionData> _buildPieChartSections(UsageStatistics statistics, Map<ShotType, Color> colors) {
-    final sections = <PieChartSectionData>[];
-    final total = statistics.usageByShot.values.fold(0, (a, b) => a + b);
+  Widget _buildEShotModePieChartCard(String title, UsageStatistics statistics, AppLocalizations l10n) {
+    final eShotModes = statistics.usageByMode.entries
+        .where((e) => e.key.isEShotMode && e.value > 0)
+        .toList();
 
-    statistics.usageByShot.forEach((type, minutes) {
-      if (minutes > 0 && type != ShotType.unknown) {
-        final percentage = (minutes / total * 100).round();
-        sections.add(
-          PieChartSectionData(
-            color: colors[type] ?? Colors.grey,
-            value: minutes.toDouble(),
-            title: '$percentage%',
-            radius: 50,
-            titleStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-        );
-      }
-    });
-    return sections;
+    if (eShotModes.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 160,
+              child: PieChart(
+                PieChartData(
+                  sections: _buildModePieChartSections(eShotModes, _eShotModeColors),
+                  centerSpaceRadius: 30,
+                  sectionsSpace: 2,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            _buildModeLegend(eShotModes, _eShotModeColors, l10n),
+          ],
+        ),
+      ),
+    );
   }
 
-  Widget _buildLegend(UsageStatistics statistics, Map<ShotType, Color> colors) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: statistics.usageByShot.entries
-          .where((e) => e.value > 0 && e.key != ShotType.unknown)
-          .map((entry) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Row(
-            children: [
-              Container(width: 10, height: 10, decoration: BoxDecoration(color: colors[entry.key], shape: BoxShape.circle)),
-              const SizedBox(width: 4),
-              Text(entry.key.displayName, style: const TextStyle(fontSize: 12)),
-            ],
-          ),
+  List<PieChartSectionData> _buildModePieChartSections(
+    List<MapEntry<DeviceMode, int>> modes,
+    Map<DeviceMode, Color> colors,
+  ) {
+    final total = modes.fold(0, (sum, e) => sum + e.value);
+    return modes.map((entry) {
+      final percentage = (entry.value / total * 100).round();
+      return PieChartSectionData(
+        color: colors[entry.key] ?? Colors.grey,
+        value: entry.value.toDouble(),
+        title: '$percentage%',
+        radius: 50,
+        titleStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+      );
+    }).toList();
+  }
+
+  Widget _buildModeLegend(
+    List<MapEntry<DeviceMode, int>> modes,
+    Map<DeviceMode, Color> colors,
+    AppLocalizations l10n,
+  ) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 12,
+      runSpacing: 8,
+      children: modes.map((entry) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(width: 10, height: 10, decoration: BoxDecoration(color: colors[entry.key], shape: BoxShape.circle)),
+            const SizedBox(width: 4),
+            Text('${entry.key.displayName} (${_formatDuration(entry.value, l10n)})', style: const TextStyle(fontSize: 11)),
+          ],
         );
       }).toList(),
     );
@@ -607,7 +864,11 @@ class _MonthlyStatisticsView extends StatelessWidget {
                 const SizedBox(height: 16),
                 _buildLineChartCard(l10n.usageTrend, state.statistics, state.dailyUsages, l10n),
                 const SizedBox(height: 16),
-                _buildPieChartCard(l10n.usageByType, state.statistics, l10n),
+                _buildShotTypeLineChartCard(l10n.usageByType, state.statistics, state.dailyUsages, l10n),
+                const SizedBox(height: 16),
+                _buildUShotModePieChartCard(l10n.usageByUShotMode, state.statistics, l10n),
+                const SizedBox(height: 16),
+                _buildEShotModePieChartCard(l10n.usageByEShotMode, state.statistics, l10n),
               ],
             ),
           );
@@ -621,6 +882,7 @@ class _MonthlyStatisticsView extends StatelessWidget {
 
   Widget _buildMonthlySummaryCard(String title, UsageStatistics statistics, AppLocalizations l10n) {
     final daysInMonth = DateTime(statistics.endDate.year, statistics.endDate.month + 1, 0).day;
+    final avgSecondsPerDay = statistics.totalUsageSeconds ~/ daysInMonth;
 
     return Card(
       child: Padding(
@@ -632,14 +894,14 @@ class _MonthlyStatisticsView extends StatelessWidget {
             const SizedBox(height: 16),
             Center(
               child: Text(
-                '${statistics.totalUsageMinutes} ${l10n.minutes}',
+                _formatDuration(statistics.totalUsageSeconds, l10n),
                 style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(height: 8),
             Center(
               child: Text(
-                '${l10n.average}: ${(statistics.totalUsageMinutes / daysInMonth).round()} ${l10n.minutesPerDay}',
+                '${l10n.average}: ${_formatDuration(avgSecondsPerDay, l10n)}/${l10n.daily}',
                 style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
             ),
@@ -652,15 +914,15 @@ class _MonthlyStatisticsView extends StatelessWidget {
   Widget _buildLineChartCard(String title, UsageStatistics statistics, List<DailyUsage>? dailyUsages, AppLocalizations l10n) {
     final daysInMonth = DateTime(statistics.endDate.year, statistics.endDate.month + 1, 0).day;
 
-    // Calculate max Y based on actual data
-    double maxY = 60.0;
+    // Calculate max Y based on actual data (in minutes for display)
+    double maxY = 10.0;
     if (dailyUsages != null && dailyUsages.isNotEmpty) {
-      final maxUsage = dailyUsages.map((d) => d.usageMinutes).reduce((a, b) => a > b ? a : b);
-      maxY = maxUsage > 0 ? (maxUsage * 1.2).ceilToDouble() : 60.0;
+      final maxUsage = dailyUsages.map((d) => d.usageSeconds / 60.0).reduce((a, b) => a > b ? a : b);
+      maxY = maxUsage > 0 ? (maxUsage * 1.2).ceilToDouble() : 10.0;
     }
 
     // Check if there are any unsynced sessions
-    final hasUnsyncedData = dailyUsages?.any((d) => d.unsyncedMinutes > 0) ?? false;
+    final hasUnsyncedData = dailyUsages?.any((d) => d.unsyncedSeconds > 0) ?? false;
 
     return Card(
       child: Padding(
@@ -719,7 +981,7 @@ class _MonthlyStatisticsView extends StatelessWidget {
                     LineChartBarData(
                       spots: List.generate(daysInMonth, (index) {
                         final syncedMinutes = (dailyUsages != null && index < dailyUsages.length)
-                            ? dailyUsages[index].syncedMinutes.toDouble()
+                            ? dailyUsages[index].syncedSeconds / 60.0
                             : 0.0;
                         return FlSpot(index.toDouble(), syncedMinutes);
                       }),
@@ -738,7 +1000,7 @@ class _MonthlyStatisticsView extends StatelessWidget {
                       LineChartBarData(
                         spots: List.generate(daysInMonth, (index) {
                           final unsyncedMinutes = (dailyUsages != null && index < dailyUsages.length)
-                              ? dailyUsages[index].unsyncedMinutes.toDouble()
+                              ? dailyUsages[index].unsyncedSeconds / 60.0
                               : 0.0;
                           return FlSpot(index.toDouble(), unsyncedMinutes);
                         }),
@@ -772,6 +1034,147 @@ class _MonthlyStatisticsView extends StatelessWidget {
     );
   }
 
+  Widget _buildShotTypeLineChartCard(String title, UsageStatistics statistics, List<DailyUsage>? dailyUsages, AppLocalizations l10n) {
+    final daysInMonth = DateTime(statistics.endDate.year, statistics.endDate.month + 1, 0).day;
+
+    // Calculate max Y based on shot type data (in minutes)
+    double maxY = 10.0;
+    if (dailyUsages != null && dailyUsages.isNotEmpty) {
+      double maxUsage = 0;
+      for (final daily in dailyUsages) {
+        final uShotMinutes = (daily.usageByShot[ShotType.uShot] ?? 0) / 60.0;
+        final eShotMinutes = (daily.usageByShot[ShotType.eShot] ?? 0) / 60.0;
+        final maxForDay = uShotMinutes > eShotMinutes ? uShotMinutes : eShotMinutes;
+        if (maxForDay > maxUsage) maxUsage = maxForDay;
+      }
+      maxY = maxUsage > 0 ? (maxUsage * 1.2).ceilToDouble() : 10.0;
+    }
+
+    // Check if there's any data
+    final hasData = dailyUsages?.any((d) =>
+        (d.usageByShot[ShotType.uShot] ?? 0) > 0 ||
+        (d.usageByShot[ShotType.eShot] ?? 0) > 0) ?? false;
+
+    if (!hasData) {
+      return const SizedBox.shrink();
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 200,
+              child: LineChart(
+                LineChartData(
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    horizontalInterval: maxY / 4,
+                  ),
+                  titlesData: FlTitlesData(
+                    show: true,
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        interval: 7,
+                        getTitlesWidget: (value, meta) {
+                          final day = value.toInt() + 1;
+                          if (day == 1 || day == 8 || day == 15 || day == 22 || day == 29) {
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Text('$day', style: const TextStyle(fontSize: 10)),
+                            );
+                          }
+                          return const Text('');
+                        },
+                      ),
+                    ),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 40,
+                        getTitlesWidget: (value, meta) {
+                          return Text('${value.toInt()}m', style: const TextStyle(fontSize: 10));
+                        },
+                      ),
+                    ),
+                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  ),
+                  borderData: FlBorderData(show: false),
+                  minX: 0,
+                  maxX: (daysInMonth - 1).toDouble(),
+                  minY: 0,
+                  maxY: maxY,
+                  lineBarsData: [
+                    // U-Shot line
+                    LineChartBarData(
+                      spots: List.generate(daysInMonth, (index) {
+                        final uShotMinutes = (dailyUsages != null && index < dailyUsages.length)
+                            ? (dailyUsages[index].usageByShot[ShotType.uShot] ?? 0) / 60.0
+                            : 0.0;
+                        return FlSpot(index.toDouble(), uShotMinutes);
+                      }),
+                      isCurved: true,
+                      color: Colors.blue,
+                      barWidth: 2,
+                      isStrokeCapRound: true,
+                      dotData: const FlDotData(show: false),
+                      belowBarData: BarAreaData(
+                        show: true,
+                        color: Colors.blue.withAlpha(30),
+                      ),
+                    ),
+                    // E-Shot line
+                    LineChartBarData(
+                      spots: List.generate(daysInMonth, (index) {
+                        final eShotMinutes = (dailyUsages != null && index < dailyUsages.length)
+                            ? (dailyUsages[index].usageByShot[ShotType.eShot] ?? 0) / 60.0
+                            : 0.0;
+                        return FlSpot(index.toDouble(), eShotMinutes);
+                      }),
+                      isCurved: true,
+                      color: Colors.orange,
+                      barWidth: 2,
+                      isStrokeCapRound: true,
+                      dotData: const FlDotData(show: false),
+                      belowBarData: BarAreaData(
+                        show: true,
+                        color: Colors.orange.withAlpha(30),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            _buildShotTypeLineLegend(l10n),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShotTypeLineLegend(AppLocalizations l10n) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(width: 20, height: 2, color: Colors.blue),
+        const SizedBox(width: 4),
+        Text(l10n.shotTypeUShot, style: const TextStyle(fontSize: 11)),
+        const SizedBox(width: 16),
+        Container(width: 20, height: 2, color: Colors.orange),
+        const SizedBox(width: 4),
+        Text(l10n.shotTypeEShot, style: const TextStyle(fontSize: 11)),
+      ],
+    );
+  }
+
   Widget _buildTimeSyncLegendMonthly(AppLocalizations l10n) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -787,31 +1190,14 @@ class _MonthlyStatisticsView extends StatelessWidget {
     );
   }
 
-  Widget _buildPieChartCard(String title, UsageStatistics statistics, AppLocalizations l10n) {
-    final hasData = statistics.usageByShot.values.any((v) => v > 0);
+  Widget _buildUShotModePieChartCard(String title, UsageStatistics statistics, AppLocalizations l10n) {
+    final uShotModes = statistics.usageByMode.entries
+        .where((e) => e.key.isUShotMode && e.value > 0)
+        .toList();
 
-    if (!hasData) {
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 40),
-              Center(child: Text(l10n.noUsageData)),
-              const SizedBox(height: 40),
-            ],
-          ),
-        ),
-      );
+    if (uShotModes.isEmpty) {
+      return const SizedBox.shrink();
     }
-
-    final colors = {
-      ShotType.uShot: Colors.blue,
-      ShotType.eShot: Colors.orange,
-      ShotType.ledCare: Colors.green,
-    };
 
     return Card(
       child: Padding(
@@ -825,56 +1211,89 @@ class _MonthlyStatisticsView extends StatelessWidget {
               height: 160,
               child: PieChart(
                 PieChartData(
-                  sections: _buildPieChartSections(statistics, colors),
+                  sections: _buildModePieChartSections(uShotModes, _uShotModeColors),
                   centerSpaceRadius: 30,
                   sectionsSpace: 2,
                 ),
               ),
             ),
             const SizedBox(height: 8),
-            _buildLegend(statistics, colors),
+            _buildModeLegend(uShotModes, _uShotModeColors, l10n),
           ],
         ),
       ),
     );
   }
 
-  List<PieChartSectionData> _buildPieChartSections(UsageStatistics statistics, Map<ShotType, Color> colors) {
-    final sections = <PieChartSectionData>[];
-    final total = statistics.usageByShot.values.fold(0, (a, b) => a + b);
+  Widget _buildEShotModePieChartCard(String title, UsageStatistics statistics, AppLocalizations l10n) {
+    final eShotModes = statistics.usageByMode.entries
+        .where((e) => e.key.isEShotMode && e.value > 0)
+        .toList();
 
-    statistics.usageByShot.forEach((type, minutes) {
-      if (minutes > 0 && type != ShotType.unknown) {
-        final percentage = (minutes / total * 100).round();
-        sections.add(
-          PieChartSectionData(
-            color: colors[type] ?? Colors.grey,
-            value: minutes.toDouble(),
-            title: '$percentage%',
-            radius: 50,
-            titleStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-        );
-      }
-    });
-    return sections;
+    if (eShotModes.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 160,
+              child: PieChart(
+                PieChartData(
+                  sections: _buildModePieChartSections(eShotModes, _eShotModeColors),
+                  centerSpaceRadius: 30,
+                  sectionsSpace: 2,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            _buildModeLegend(eShotModes, _eShotModeColors, l10n),
+          ],
+        ),
+      ),
+    );
   }
 
-  Widget _buildLegend(UsageStatistics statistics, Map<ShotType, Color> colors) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: statistics.usageByShot.entries
-          .where((e) => e.value > 0 && e.key != ShotType.unknown)
-          .map((entry) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Row(
-            children: [
-              Container(width: 10, height: 10, decoration: BoxDecoration(color: colors[entry.key], shape: BoxShape.circle)),
-              const SizedBox(width: 4),
-              Text(entry.key.displayName, style: const TextStyle(fontSize: 12)),
-            ],
-          ),
+  List<PieChartSectionData> _buildModePieChartSections(
+    List<MapEntry<DeviceMode, int>> modes,
+    Map<DeviceMode, Color> colors,
+  ) {
+    final total = modes.fold(0, (sum, e) => sum + e.value);
+    return modes.map((entry) {
+      final percentage = (entry.value / total * 100).round();
+      return PieChartSectionData(
+        color: colors[entry.key] ?? Colors.grey,
+        value: entry.value.toDouble(),
+        title: '$percentage%',
+        radius: 50,
+        titleStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+      );
+    }).toList();
+  }
+
+  Widget _buildModeLegend(
+    List<MapEntry<DeviceMode, int>> modes,
+    Map<DeviceMode, Color> colors,
+    AppLocalizations l10n,
+  ) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 12,
+      runSpacing: 8,
+      children: modes.map((entry) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(width: 10, height: 10, decoration: BoxDecoration(color: colors[entry.key], shape: BoxShape.circle)),
+            const SizedBox(width: 4),
+            Text('${entry.key.displayName} (${_formatDuration(entry.value, l10n)})', style: const TextStyle(fontSize: 11)),
+          ],
         );
       }).toList(),
     );

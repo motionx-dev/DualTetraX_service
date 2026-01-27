@@ -110,7 +110,16 @@ class AppLocalizationsPt extends AppLocalizations {
   String get usageByType => 'Uso por Tipo de Shot';
 
   @override
+  String get usageByUShotMode => 'U-Shot Mode Usage';
+
+  @override
+  String get usageByEShotMode => 'E-Shot Mode Usage';
+
+  @override
   String get minutes => 'min';
+
+  @override
+  String get secondsShort => 'sec';
 
   @override
   String get details => 'Detalhes';

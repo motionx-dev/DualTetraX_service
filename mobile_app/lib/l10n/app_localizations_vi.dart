@@ -109,7 +109,16 @@ class AppLocalizationsVi extends AppLocalizations {
   String get usageByType => 'Sử dụng theo Loại Shot';
 
   @override
+  String get usageByUShotMode => 'U-Shot Mode Usage';
+
+  @override
+  String get usageByEShotMode => 'E-Shot Mode Usage';
+
+  @override
   String get minutes => 'phút';
+
+  @override
+  String get secondsShort => 'sec';
 
   @override
   String get details => 'Chi tiết';

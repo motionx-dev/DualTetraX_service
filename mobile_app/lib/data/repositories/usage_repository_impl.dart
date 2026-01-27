@@ -202,31 +202,31 @@ class UsageRepositoryImpl implements UsageRepository {
       for (int i = 0; i < 7; i++) {
         final date = weekStart.add(Duration(days: i));
         final sessions = await localDataSource.getSessionsByDate(date);
-        final totalMinutes = sessions.fold<int>(
+        final totalSeconds = sessions.fold<int>(
           0,
-          (sum, session) => sum + (session.workingDurationSeconds ~/ 60),
+          (sum, session) => sum + session.workingDurationSeconds,
         );
 
         final usageByShot = <ShotType, int>{};
-        int syncedMinutes = 0;
-        int unsyncedMinutes = 0;
+        int syncedSeconds = 0;
+        int unsyncedSeconds = 0;
         for (final session in sessions) {
-          final minutes = session.workingDurationSeconds ~/ 60;
+          final seconds = session.workingDurationSeconds;
           usageByShot[session.shotType] =
-              (usageByShot[session.shotType] ?? 0) + minutes;
+              (usageByShot[session.shotType] ?? 0) + seconds;
           if (session.timeSynced) {
-            syncedMinutes += minutes;
+            syncedSeconds += seconds;
           } else {
-            unsyncedMinutes += minutes;
+            unsyncedSeconds += seconds;
           }
         }
 
         dailyUsages.add(DailyUsage(
           date: date,
-          usageMinutes: totalMinutes,
+          usageSeconds: totalSeconds,
           usageByShot: usageByShot,
-          syncedMinutes: syncedMinutes,
-          unsyncedMinutes: unsyncedMinutes,
+          syncedSeconds: syncedSeconds,
+          unsyncedSeconds: unsyncedSeconds,
         ));
       }
       return Right(dailyUsages);
@@ -247,31 +247,31 @@ class UsageRepositoryImpl implements UsageRepository {
       for (int day = 1; day <= daysInMonth; day++) {
         final date = DateTime(year, month, day);
         final sessions = await localDataSource.getSessionsByDate(date);
-        final totalMinutes = sessions.fold<int>(
+        final totalSeconds = sessions.fold<int>(
           0,
-          (sum, session) => sum + (session.workingDurationSeconds ~/ 60),
+          (sum, session) => sum + session.workingDurationSeconds,
         );
 
         final usageByShot = <ShotType, int>{};
-        int syncedMinutes = 0;
-        int unsyncedMinutes = 0;
+        int syncedSeconds = 0;
+        int unsyncedSeconds = 0;
         for (final session in sessions) {
-          final minutes = session.workingDurationSeconds ~/ 60;
+          final seconds = session.workingDurationSeconds;
           usageByShot[session.shotType] =
-              (usageByShot[session.shotType] ?? 0) + minutes;
+              (usageByShot[session.shotType] ?? 0) + seconds;
           if (session.timeSynced) {
-            syncedMinutes += minutes;
+            syncedSeconds += seconds;
           } else {
-            unsyncedMinutes += minutes;
+            unsyncedSeconds += seconds;
           }
         }
 
         dailyUsages.add(DailyUsage(
           date: date,
-          usageMinutes: totalMinutes,
+          usageSeconds: totalSeconds,
           usageByShot: usageByShot,
-          syncedMinutes: syncedMinutes,
-          unsyncedMinutes: unsyncedMinutes,
+          syncedSeconds: syncedSeconds,
+          unsyncedSeconds: unsyncedSeconds,
         ));
       }
       return Right(dailyUsages);
@@ -328,21 +328,21 @@ class UsageRepositoryImpl implements UsageRepository {
     DateTime startDate,
     DateTime endDate,
   ) {
-    int totalMinutes = 0;
+    int totalSeconds = 0;
     final usageByShot = <ShotType, int>{};
     final usageByMode = <DeviceMode, int>{};
     final usageByLevel = <DeviceLevel, int>{};
     int warningCount = 0;
 
     for (final session in sessions) {
-      final minutes = session.workingDurationSeconds ~/ 60;
-      totalMinutes += minutes;
+      final seconds = session.workingDurationSeconds;
+      totalSeconds += seconds;
 
       usageByShot[session.shotType] =
-          (usageByShot[session.shotType] ?? 0) + minutes;
-      usageByMode[session.mode] = (usageByMode[session.mode] ?? 0) + minutes;
+          (usageByShot[session.shotType] ?? 0) + seconds;
+      usageByMode[session.mode] = (usageByMode[session.mode] ?? 0) + seconds;
       usageByLevel[session.level] =
-          (usageByLevel[session.level] ?? 0) + minutes;
+          (usageByLevel[session.level] ?? 0) + seconds;
 
       if (session.hadTemperatureWarning || session.hadBatteryWarning) {
         warningCount++;
@@ -352,7 +352,7 @@ class UsageRepositoryImpl implements UsageRepository {
     return UsageStatistics(
       startDate: startDate,
       endDate: endDate,
-      totalUsageMinutes: totalMinutes,
+      totalUsageSeconds: totalSeconds,
       usageByShot: usageByShot,
       usageByMode: usageByMode,
       usageByLevel: usageByLevel,
