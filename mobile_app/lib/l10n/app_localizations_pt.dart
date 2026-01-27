@@ -203,7 +203,7 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get deleteDataMessage =>
-      'Todo o histórico de uso será excluído.\\nEsta ação não pode ser desfeita.\\nDeseja continuar?';
+      'Todo o histórico de uso será excluído.\nEsta ação não pode ser desfeita.\nDeseja continuar?';
 
   @override
   String get cancel => 'Cancelar';

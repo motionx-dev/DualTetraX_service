@@ -65,7 +65,7 @@
   "termsOfService": "服务条款",
   "privacyPolicy": "隐私政策",
   "deleteDataTitle": "删除数据",
-  "deleteDataMessage": "所有使用记录将被删除。\\n此操作无法撤销。\\n是否继续？",
+  "deleteDataMessage": "所有使用记录将被删除。\n此操作无法撤销。\n是否继续？",
   "cancel": "取消",
   "delete": "删除",
   "allDataDeleted": "所有数据已删除",

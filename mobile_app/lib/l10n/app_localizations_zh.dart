@@ -201,7 +201,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deleteDataTitle => '删除数据';
 
   @override
-  String get deleteDataMessage => '所有使用记录将被删除。\\n此操作无法撤销。\\n是否继续？';
+  String get deleteDataMessage => '所有使用记录将被删除。\n此操作无法撤销。\n是否继续？';
 
   @override
   String get cancel => '取消';

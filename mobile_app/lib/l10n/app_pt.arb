@@ -65,7 +65,7 @@
   "termsOfService": "Termos de Serviço",
   "privacyPolicy": "Política de Privacidade",
   "deleteDataTitle": "Excluir Dados",
-  "deleteDataMessage": "Todo o histórico de uso será excluído.\\nEsta ação não pode ser desfeita.\\nDeseja continuar?",
+  "deleteDataMessage": "Todo o histórico de uso será excluído.\nEsta ação não pode ser desfeita.\nDeseja continuar?",
   "cancel": "Cancelar",
   "delete": "Excluir",
   "allDataDeleted": "Todos os dados foram excluídos",

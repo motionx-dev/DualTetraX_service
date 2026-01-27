@@ -175,6 +175,7 @@ class SyncDeviceSessionsUseCase {
     }
 
     // Convert to domain entities
+    // Both firmware and app use 0-based featureType (0=U-Shot, 1=E-Shot, 2=LED)
     final shotType = ShotType.fromValue(featureType);
     final deviceMode = _convertMode(featureType, mode);
     final deviceLevel = DeviceLevel.fromValue(level + 1); // firmware uses 0-2, app uses 1-3
@@ -207,14 +208,15 @@ class SyncDeviceSessionsUseCase {
   }
 
   /// Convert firmware mode (0-3) to DeviceMode based on feature type
+  /// Firmware uses 0-based featureType: 0=U-Shot, 1=E-Shot, 2=LED Care
   DeviceMode _convertMode(int featureType, int mode) {
-    if (featureType == 1) {
+    if (featureType == 0) {
       // U-Shot: mode 0-3 → glow(0x01), tuning(0x02), renewal(0x03), volume(0x04)
       return DeviceMode.fromValue(mode + 1);
-    } else if (featureType == 2) {
+    } else if (featureType == 1) {
       // E-Shot: mode 0-3 → cleansing(0x11), firming(0x12), lifting(0x13), lf(0x14)
       return DeviceMode.fromValue(mode + 0x11);
-    } else if (featureType == 3) {
+    } else if (featureType == 2) {
       // LED Care
       return DeviceMode.ledMode;
     }

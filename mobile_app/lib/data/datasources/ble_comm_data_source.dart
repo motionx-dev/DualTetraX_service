@@ -62,7 +62,7 @@ enum ResponseStatus {
 /// Status update payload from device (12 bytes)
 /// Matches firmware StatusUpdatePayload structure
 class StatusUpdate {
-  final int shotType;       // 0=Unknown, 1=U-Shot, 2=E-Shot, 3=LED
+  final int shotType;       // 0=U-Shot, 1=E-Shot, 2=LED (matches FeatureType)
   final int mode;           // Current mode (1-8)
   final int level;          // Current level (1-3)
   final int workingState;   // 0=OFF, 1=WORKING, 2=PAUSE, 3=STANDBY
@@ -145,7 +145,7 @@ class SessionSummary {
 /// Session start notification from device
 class SessionStartNotification {
   final String uuid;
-  final int featureType;    // 1=U-Shot, 2=E-Shot, 3=LED
+  final int featureType;    // 0=U-Shot, 1=E-Shot, 2=LED (matches FeatureType)
   final int mode;           // U-Shot: 0x01-0x04, E-Shot: 0x11-0x14, LED: 0x21
   final int level;          // 1-3
   final int ledPattern;

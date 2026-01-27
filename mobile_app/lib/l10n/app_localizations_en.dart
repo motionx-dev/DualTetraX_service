@@ -202,7 +202,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteDataMessage =>
-      'All usage history will be deleted.\\nThis action cannot be undone.\\nDo you want to continue?';
+      'All usage history will be deleted.\nThis action cannot be undone.\nDo you want to continue?';
 
   @override
   String get cancel => 'Cancel';

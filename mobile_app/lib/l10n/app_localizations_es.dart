@@ -203,7 +203,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get deleteDataMessage =>
-      'Se eliminará todo el historial de uso.\\nEsta acción no se puede deshacer.\\n¿Desea continuar?';
+      'Se eliminará todo el historial de uso.\nEsta acción no se puede deshacer.\n¿Desea continuar?';
 
   @override
   String get cancel => 'Cancelar';

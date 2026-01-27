@@ -65,7 +65,7 @@
   "termsOfService": "利用規約",
   "privacyPolicy": "プライバシーポリシー",
   "deleteDataTitle": "データ削除",
-  "deleteDataMessage": "すべての使用履歴が削除されます。\\nこの操作は元に戻せません。\\n続行しますか？",
+  "deleteDataMessage": "すべての使用履歴が削除されます。\nこの操作は元に戻せません。\n続行しますか？",
   "cancel": "キャンセル",
   "delete": "削除",
   "allDataDeleted": "すべてのデータが削除されました",

@@ -485,7 +485,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteDataMessage.
   ///
   /// In en, this message translates to:
-  /// **'All usage history will be deleted.\\nThis action cannot be undone.\\nDo you want to continue?'**
+  /// **'All usage history will be deleted.\nThis action cannot be undone.\nDo you want to continue?'**
   String get deleteDataMessage;
 
   /// No description provided for @cancel.

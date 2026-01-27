@@ -202,7 +202,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deleteDataMessage =>
-      'ประวัติการใช้งานทั้งหมดจะถูกลบ\\nการดำเนินการนี้ไม่สามารถยกเลิกได้\\nคุณต้องการดำเนินการต่อหรือไม่?';
+      'ประวัติการใช้งานทั้งหมดจะถูกลบ\nการดำเนินการนี้ไม่สามารถยกเลิกได้\nคุณต้องการดำเนินการต่อหรือไม่?';
 
   @override
   String get cancel => 'ยกเลิก';

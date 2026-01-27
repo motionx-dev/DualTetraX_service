@@ -201,7 +201,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get deleteDataTitle => 'データ削除';
 
   @override
-  String get deleteDataMessage => 'すべての使用履歴が削除されます。\\nこの操作は元に戻せません。\\n続行しますか？';
+  String get deleteDataMessage => 'すべての使用履歴が削除されます。\nこの操作は元に戻せません。\n続行しますか？';
 
   @override
   String get cancel => 'キャンセル';

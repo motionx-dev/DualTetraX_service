@@ -202,7 +202,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get deleteDataMessage =>
-      'Tất cả lịch sử sử dụng sẽ bị xóa.\\nHành động này không thể hoàn tác.\\nBạn có muốn tiếp tục?';
+      'Tất cả lịch sử sử dụng sẽ bị xóa.\nHành động này không thể hoàn tác.\nBạn có muốn tiếp tục?';
 
   @override
   String get cancel => 'Hủy';

@@ -94,7 +94,7 @@
   "termsOfService": "Terms of Service",
   "privacyPolicy": "Privacy Policy",
   "deleteDataTitle": "Delete Data",
-  "deleteDataMessage": "All usage history will be deleted.\\nThis action cannot be undone.\\nDo you want to continue?",
+  "deleteDataMessage": "All usage history will be deleted.\nThis action cannot be undone.\nDo you want to continue?",
   "cancel": "Cancel",
   "delete": "Delete",
   "allDataDeleted": "All data has been deleted",

@@ -65,7 +65,7 @@
   "termsOfService": "Términos de Servicio",
   "privacyPolicy": "Política de Privacidad",
   "deleteDataTitle": "Eliminar Datos",
-  "deleteDataMessage": "Se eliminará todo el historial de uso.\\nEsta acción no se puede deshacer.\\n¿Desea continuar?",
+  "deleteDataMessage": "Se eliminará todo el historial de uso.\nEsta acción no se puede deshacer.\n¿Desea continuar?",
   "cancel": "Cancelar",
   "delete": "Eliminar",
   "allDataDeleted": "Todos los datos han sido eliminados",

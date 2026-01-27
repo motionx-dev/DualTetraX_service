@@ -65,7 +65,7 @@
   "termsOfService": "Điều khoản Dịch vụ",
   "privacyPolicy": "Chính sách Bảo mật",
   "deleteDataTitle": "Xóa Dữ liệu",
-  "deleteDataMessage": "Tất cả lịch sử sử dụng sẽ bị xóa.\\nHành động này không thể hoàn tác.\\nBạn có muốn tiếp tục?",
+  "deleteDataMessage": "Tất cả lịch sử sử dụng sẽ bị xóa.\nHành động này không thể hoàn tác.\nBạn có muốn tiếp tục?",
   "cancel": "Hủy",
   "delete": "Xóa",
   "allDataDeleted": "Tất cả dữ liệu đã được xóa",

@@ -202,7 +202,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get deleteDataMessage =>
-      '모든 사용 기록이 삭제됩니다.\\n이 작업은 취소할 수 없습니다.\\n계속하시겠습니까?';
+      '모든 사용 기록이 삭제됩니다.\n이 작업은 취소할 수 없습니다.\n계속하시겠습니까?';
 
   @override
   String get cancel => '취소';
