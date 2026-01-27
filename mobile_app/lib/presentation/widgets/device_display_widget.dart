@@ -404,34 +404,34 @@ class _DeviceDisplayWidgetState extends State<DeviceDisplayWidget>
           children: [
             _buildModeIndicator('GL', shotType == ShotType.uShot && mode == DeviceMode.glow),
             SizedBox(width: width * 0.20),
-            _buildModeIndicator('CL', shotType == ShotType.eShot && mode == DeviceMode.cleansing),
+            _buildModeIndicator('CL', shotType == ShotType.eShot && mode == DeviceMode.clean),
           ],
         ),
         const SizedBox(height: 6),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildModeIndicator('TN', shotType == ShotType.uShot && mode == DeviceMode.tuning),
+            _buildModeIndicator('TN', shotType == ShotType.uShot && mode == DeviceMode.toneup),
             SizedBox(width: width * 0.20),
-            _buildModeIndicator('FM', shotType == ShotType.eShot && mode == DeviceMode.firming),
+            _buildModeIndicator('FM', shotType == ShotType.eShot && mode == DeviceMode.firm),
           ],
         ),
         const SizedBox(height: 6),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildModeIndicator('RE', shotType == ShotType.uShot && mode == DeviceMode.renewal),
+            _buildModeIndicator('RN', shotType == ShotType.uShot && mode == DeviceMode.renew),
             SizedBox(width: width * 0.20),
-            _buildModeIndicator('LN', shotType == ShotType.eShot && mode == DeviceMode.lifting),
+            _buildModeIndicator('LN', shotType == ShotType.eShot && mode == DeviceMode.line),
           ],
         ),
         const SizedBox(height: 6),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildModeIndicator('VO', shotType == ShotType.uShot && mode == DeviceMode.volume),
+            _buildModeIndicator('VL', shotType == ShotType.uShot && mode == DeviceMode.volume),
             SizedBox(width: width * 0.20),
-            _buildModeIndicator('LF', shotType == ShotType.eShot && mode == DeviceMode.lf),
+            _buildModeIndicator('LF', shotType == ShotType.eShot && mode == DeviceMode.lift),
           ],
         ),
       ],

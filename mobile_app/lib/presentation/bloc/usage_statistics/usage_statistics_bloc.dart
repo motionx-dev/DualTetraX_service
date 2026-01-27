@@ -47,38 +47,73 @@ class LoadMonthlyStatistics extends UsageStatisticsEvent {
 
 class DeleteAllDataRequested extends UsageStatisticsEvent {}
 
-// States
-abstract class UsageStatisticsState extends Equatable {
-  const UsageStatisticsState();
+// Period type to distinguish which tab's data is loaded
+enum StatisticsPeriod { daily, weekly, monthly }
 
-  @override
-  List<Object?> get props => [];
-}
-
-class UsageStatisticsInitial extends UsageStatisticsState {}
-
-class UsageStatisticsLoading extends UsageStatisticsState {}
-
-class UsageStatisticsLoaded extends UsageStatisticsState {
-  final UsageStatistics statistics;
+// Data holder for each period
+class PeriodData extends Equatable {
+  final bool isLoading;
+  final UsageStatistics? statistics;
   final List<DailyUsage>? dailyUsages;
+  final String? error;
 
-  const UsageStatisticsLoaded(this.statistics, {this.dailyUsages});
+  const PeriodData({
+    this.isLoading = false,
+    this.statistics,
+    this.dailyUsages,
+    this.error,
+  });
+
+  PeriodData copyWith({
+    bool? isLoading,
+    UsageStatistics? statistics,
+    List<DailyUsage>? dailyUsages,
+    String? error,
+    bool clearError = false,
+  }) {
+    return PeriodData(
+      isLoading: isLoading ?? this.isLoading,
+      statistics: statistics ?? this.statistics,
+      dailyUsages: dailyUsages ?? this.dailyUsages,
+      error: clearError ? null : (error ?? this.error),
+    );
+  }
 
   @override
-  List<Object?> get props => [statistics, dailyUsages];
+  List<Object?> get props => [isLoading, statistics, dailyUsages, error];
 }
 
-class UsageStatisticsError extends UsageStatisticsState {
-  final String message;
+// State that caches data for all periods
+class UsageStatisticsState extends Equatable {
+  final PeriodData daily;
+  final PeriodData weekly;
+  final PeriodData monthly;
+  final bool dataDeleted;
 
-  const UsageStatisticsError(this.message);
+  const UsageStatisticsState({
+    this.daily = const PeriodData(),
+    this.weekly = const PeriodData(),
+    this.monthly = const PeriodData(),
+    this.dataDeleted = false,
+  });
+
+  UsageStatisticsState copyWith({
+    PeriodData? daily,
+    PeriodData? weekly,
+    PeriodData? monthly,
+    bool? dataDeleted,
+  }) {
+    return UsageStatisticsState(
+      daily: daily ?? this.daily,
+      weekly: weekly ?? this.weekly,
+      monthly: monthly ?? this.monthly,
+      dataDeleted: dataDeleted ?? this.dataDeleted,
+    );
+  }
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [daily, weekly, monthly, dataDeleted];
 }
-
-class DataDeleted extends UsageStatisticsState {}
 
 // Bloc
 class UsageStatisticsBloc
@@ -97,7 +132,7 @@ class UsageStatisticsBloc
     required this.getDailyUsageForWeek,
     required this.getDailyUsageForMonth,
     required this.deleteAllData,
-  }) : super(UsageStatisticsInitial()) {
+  }) : super(const UsageStatisticsState()) {
     on<LoadDailyStatistics>(_onLoadDaily);
     on<LoadWeeklyStatistics>(_onLoadWeekly);
     on<LoadMonthlyStatistics>(_onLoadMonthly);
@@ -108,13 +143,19 @@ class UsageStatisticsBloc
     LoadDailyStatistics event,
     Emitter<UsageStatisticsState> emit,
   ) async {
-    emit(UsageStatisticsLoading());
+    emit(state.copyWith(
+      daily: state.daily.copyWith(isLoading: true, clearError: true),
+    ));
 
     final result = await getDailyStatistics(DateParams(event.date));
 
     result.fold(
-      (failure) => emit(UsageStatisticsError(failure.message)),
-      (statistics) => emit(UsageStatisticsLoaded(statistics)),
+      (failure) => emit(state.copyWith(
+        daily: state.daily.copyWith(isLoading: false, error: failure.message),
+      )),
+      (statistics) => emit(state.copyWith(
+        daily: PeriodData(isLoading: false, statistics: statistics),
+      )),
     );
   }
 
@@ -122,17 +163,25 @@ class UsageStatisticsBloc
     LoadWeeklyStatistics event,
     Emitter<UsageStatisticsState> emit,
   ) async {
-    emit(UsageStatisticsLoading());
+    emit(state.copyWith(
+      weekly: state.weekly.copyWith(isLoading: true, clearError: true),
+    ));
 
     final result = await getWeeklyStatistics(WeekParams(event.weekStart));
     final dailyResult = await getDailyUsageForWeek(WeekUsageParams(event.weekStart));
 
     result.fold(
-      (failure) => emit(UsageStatisticsError(failure.message)),
+      (failure) => emit(state.copyWith(
+        weekly: state.weekly.copyWith(isLoading: false, error: failure.message),
+      )),
       (statistics) {
         dailyResult.fold(
-          (failure) => emit(UsageStatisticsLoaded(statistics)),
-          (dailyUsages) => emit(UsageStatisticsLoaded(statistics, dailyUsages: dailyUsages)),
+          (failure) => emit(state.copyWith(
+            weekly: PeriodData(isLoading: false, statistics: statistics),
+          )),
+          (dailyUsages) => emit(state.copyWith(
+            weekly: PeriodData(isLoading: false, statistics: statistics, dailyUsages: dailyUsages),
+          )),
         );
       },
     );
@@ -142,17 +191,25 @@ class UsageStatisticsBloc
     LoadMonthlyStatistics event,
     Emitter<UsageStatisticsState> emit,
   ) async {
-    emit(UsageStatisticsLoading());
+    emit(state.copyWith(
+      monthly: state.monthly.copyWith(isLoading: true, clearError: true),
+    ));
 
     final result = await getMonthlyStatistics(MonthParams(event.year, event.month));
     final dailyResult = await getDailyUsageForMonth(MonthUsageParams(event.year, event.month));
 
     result.fold(
-      (failure) => emit(UsageStatisticsError(failure.message)),
+      (failure) => emit(state.copyWith(
+        monthly: state.monthly.copyWith(isLoading: false, error: failure.message),
+      )),
       (statistics) {
         dailyResult.fold(
-          (failure) => emit(UsageStatisticsLoaded(statistics)),
-          (dailyUsages) => emit(UsageStatisticsLoaded(statistics, dailyUsages: dailyUsages)),
+          (failure) => emit(state.copyWith(
+            monthly: PeriodData(isLoading: false, statistics: statistics),
+          )),
+          (dailyUsages) => emit(state.copyWith(
+            monthly: PeriodData(isLoading: false, statistics: statistics, dailyUsages: dailyUsages),
+          )),
         );
       },
     );
@@ -162,13 +219,17 @@ class UsageStatisticsBloc
     DeleteAllDataRequested event,
     Emitter<UsageStatisticsState> emit,
   ) async {
-    emit(UsageStatisticsLoading());
+    emit(state.copyWith(
+      daily: state.daily.copyWith(isLoading: true),
+    ));
 
     final result = await deleteAllData(NoParams());
 
     result.fold(
-      (failure) => emit(UsageStatisticsError(failure.message)),
-      (_) => emit(DataDeleted()),
+      (failure) => emit(state.copyWith(
+        daily: state.daily.copyWith(isLoading: false, error: failure.message),
+      )),
+      (_) => emit(const UsageStatisticsState(dataDeleted: true)),
     );
   }
 }

@@ -128,8 +128,8 @@ class BleMockDataSource implements BleRemoteDataSource {
     if (_random.nextDouble() > 0.8) {
       final modes = [
         DeviceMode.glow,
-        DeviceMode.tuning,
-        DeviceMode.renewal,
+        DeviceMode.toneup,
+        DeviceMode.renew,
         DeviceMode.volume,
       ];
       _currentStatus = _currentStatus.copyWith(

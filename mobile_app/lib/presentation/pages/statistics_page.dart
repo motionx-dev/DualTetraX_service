@@ -22,12 +22,6 @@ class _StatisticsPageState extends State<StatisticsPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _loadInitialData();
-  }
-
-  void _loadInitialData() {
-    context.read<UsageStatisticsBloc>()
-        .add(LoadDailyStatistics(DateTime.now()));
   }
 
   @override
@@ -46,21 +40,6 @@ class _StatisticsPageState extends State<StatisticsPage>
         automaticallyImplyLeading: false,
         bottom: TabBar(
           controller: _tabController,
-          onTap: (index) {
-            if (index == 0) {
-              context.read<UsageStatisticsBloc>()
-                  .add(LoadDailyStatistics(DateTime.now()));
-            } else if (index == 1) {
-              final now = DateTime.now();
-              final weekStart = now.subtract(Duration(days: now.weekday - 1));
-              context.read<UsageStatisticsBloc>()
-                  .add(LoadWeeklyStatistics(weekStart));
-            } else if (index == 2) {
-              final now = DateTime.now();
-              context.read<UsageStatisticsBloc>()
-                  .add(LoadMonthlyStatistics(now.year, now.month));
-            }
-          },
           tabs: [
             Tab(text: l10n.daily),
             Tab(text: l10n.weekly),
@@ -80,6 +59,56 @@ class _StatisticsPageState extends State<StatisticsPage>
   }
 }
 
+/// Date navigation header widget
+class _DateNavigationHeader extends StatelessWidget {
+  final String displayText;
+  final VoidCallback onPrevious;
+  final VoidCallback onNext;
+  final VoidCallback onTap;
+  final bool canGoNext;
+
+  const _DateNavigationHeader({
+    required this.displayText,
+    required this.onPrevious,
+    required this.onNext,
+    required this.onTap,
+    this.canGoNext = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.chevron_left),
+            onPressed: onPrevious,
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: onTap,
+              child: Text(
+                displayText,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.chevron_right),
+            onPressed: canGoNext ? onNext : null,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Format seconds as "X분 Y초" or "Y초" for short durations
 String _formatDuration(int seconds, AppLocalizations l10n) {
   if (seconds < 60) {
@@ -93,56 +122,140 @@ String _formatDuration(int seconds, AppLocalizations l10n) {
   return '$minutes${l10n.minutes} $remainingSeconds${l10n.secondsShort}';
 }
 
-/// Colors for U-Shot modes
+/// Colors for U-Shot modes (firmware: GLOW, TONEUP, RENEW, VOLUME)
 final Map<DeviceMode, Color> _uShotModeColors = {
   DeviceMode.glow: Colors.blue.shade300,
-  DeviceMode.tuning: Colors.blue.shade500,
-  DeviceMode.renewal: Colors.blue.shade700,
+  DeviceMode.toneup: Colors.blue.shade500,
+  DeviceMode.renew: Colors.blue.shade700,
   DeviceMode.volume: Colors.blue.shade900,
 };
 
-/// Colors for E-Shot modes
+/// Colors for E-Shot modes (firmware: CLEAN, FIRM, LINE, LIFT)
 final Map<DeviceMode, Color> _eShotModeColors = {
-  DeviceMode.cleansing: Colors.orange.shade300,
-  DeviceMode.firming: Colors.orange.shade500,
-  DeviceMode.lifting: Colors.orange.shade700,
-  DeviceMode.lf: Colors.orange.shade900,
+  DeviceMode.clean: Colors.orange.shade300,
+  DeviceMode.firm: Colors.orange.shade500,
+  DeviceMode.line: Colors.orange.shade700,
+  DeviceMode.lift: Colors.orange.shade900,
 };
 
-class _DailyStatisticsView extends StatelessWidget {
+class _DailyStatisticsView extends StatefulWidget {
   const _DailyStatisticsView();
+
+  @override
+  State<_DailyStatisticsView> createState() => _DailyStatisticsViewState();
+}
+
+class _DailyStatisticsViewState extends State<_DailyStatisticsView> {
+  late DateTime _selectedDate;
+  final _weekdays = ['', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = DateTime.now();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
+    });
+  }
+
+  void _loadData() {
+    context.read<UsageStatisticsBloc>().add(LoadDailyStatistics(_selectedDate));
+  }
+
+  void _goToPreviousDay() {
+    setState(() {
+      _selectedDate = _selectedDate.subtract(const Duration(days: 1));
+    });
+    _loadData();
+  }
+
+  void _goToNextDay() {
+    final today = DateTime.now();
+    if (_selectedDate.year < today.year ||
+        _selectedDate.month < today.month ||
+        _selectedDate.day < today.day) {
+      setState(() {
+        _selectedDate = _selectedDate.add(const Duration(days: 1));
+      });
+      _loadData();
+    }
+  }
+
+  bool _canGoNext() {
+    final today = DateTime.now();
+    return _selectedDate.year < today.year ||
+        (_selectedDate.year == today.year && _selectedDate.month < today.month) ||
+        (_selectedDate.year == today.year && _selectedDate.month == today.month && _selectedDate.day < today.day);
+  }
+
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+      _loadData();
+    }
+  }
+
+  String _formatDateDisplay() {
+    final locale = Localizations.localeOf(context).languageCode;
+    final weekday = _weekdays[_selectedDate.weekday];
+    if (locale == 'ko') {
+      return '${_selectedDate.year}년 ${_selectedDate.month}월 ${_selectedDate.day}일 ($weekday)';
+    }
+    return '${_selectedDate.year}/${_selectedDate.month}/${_selectedDate.day} ($weekday)';
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return BlocBuilder<UsageStatisticsBloc, UsageStatisticsState>(
-      builder: (context, state) {
-        if (state is UsageStatisticsLoading) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (state is UsageStatisticsLoaded) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSummaryCard(l10n.dailyUsageTime, state.statistics, l10n),
-                const SizedBox(height: 16),
-                _buildShotTypePieChartCard(l10n.usageByType, state.statistics, l10n),
-                const SizedBox(height: 16),
-                _buildUShotModePieChartCard(l10n.usageByUShotMode, state.statistics, l10n),
-                const SizedBox(height: 16),
-                _buildEShotModePieChartCard(l10n.usageByEShotMode, state.statistics, l10n),
-              ],
-            ),
-          );
-        } else if (state is UsageStatisticsError) {
-          return Center(
-            child: Text(l10n.error(state.message)),
-          );
-        }
-        return Center(child: Text(l10n.noUsageData));
-      },
+    return Column(
+      children: [
+        _DateNavigationHeader(
+          displayText: _formatDateDisplay(),
+          onPrevious: _goToPreviousDay,
+          onNext: _goToNextDay,
+          onTap: _pickDate,
+          canGoNext: _canGoNext(),
+        ),
+        Expanded(
+          child: BlocBuilder<UsageStatisticsBloc, UsageStatisticsState>(
+            buildWhen: (previous, current) => previous.daily != current.daily,
+            builder: (context, state) {
+              final data = state.daily;
+              if (data.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (data.error != null) {
+                return Center(child: Text(l10n.error(data.error!)));
+              } else if (data.statistics != null) {
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSummaryCard(l10n.dailyUsageTime, data.statistics!, l10n),
+                      const SizedBox(height: 16),
+                      _buildShotTypePieChartCard(l10n.usageByType, data.statistics!, l10n),
+                      const SizedBox(height: 16),
+                      _buildUShotModePieChartCard(l10n.usageByUShotMode, data.statistics!, l10n),
+                      const SizedBox(height: 16),
+                      _buildEShotModePieChartCard(l10n.usageByEShotMode, data.statistics!, l10n),
+                    ],
+                  ),
+                );
+              }
+              return Center(child: Text(l10n.noUsageData));
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -350,9 +463,9 @@ class _DailyStatisticsView extends StatelessWidget {
       return PieChartSectionData(
         color: colors[entry.key] ?? Colors.grey,
         value: entry.value.toDouble(),
-        title: '$percentage%',
+        title: '${entry.key.shortName}\n$percentage%',
         radius: 55,
-        titleStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+        titleStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
       );
     }).toList();
   }
@@ -372,7 +485,7 @@ class _DailyStatisticsView extends StatelessWidget {
           children: [
             Container(width: 10, height: 10, decoration: BoxDecoration(color: colors[entry.key], shape: BoxShape.circle)),
             const SizedBox(width: 4),
-            Text('${entry.key.displayName} (${_formatDuration(entry.value, l10n)})', style: const TextStyle(fontSize: 11)),
+            Text('${entry.key.shortName} - ${entry.key.displayName} (${_formatDuration(entry.value, l10n)})', style: const TextStyle(fontSize: 11)),
           ],
         );
       }).toList(),
@@ -380,40 +493,128 @@ class _DailyStatisticsView extends StatelessWidget {
   }
 }
 
-class _WeeklyStatisticsView extends StatelessWidget {
+class _WeeklyStatisticsView extends StatefulWidget {
   const _WeeklyStatisticsView();
+
+  @override
+  State<_WeeklyStatisticsView> createState() => _WeeklyStatisticsViewState();
+}
+
+class _WeeklyStatisticsViewState extends State<_WeeklyStatisticsView> {
+  late DateTime _weekStart;
+
+  @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+    _weekStart = now.subtract(Duration(days: now.weekday - 1));
+    _weekStart = DateTime(_weekStart.year, _weekStart.month, _weekStart.day);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
+    });
+  }
+
+  void _loadData() {
+    context.read<UsageStatisticsBloc>().add(LoadWeeklyStatistics(_weekStart));
+  }
+
+  void _goToPreviousWeek() {
+    setState(() {
+      _weekStart = _weekStart.subtract(const Duration(days: 7));
+    });
+    _loadData();
+  }
+
+  void _goToNextWeek() {
+    final today = DateTime.now();
+    final currentWeekStart = today.subtract(Duration(days: today.weekday - 1));
+    if (_weekStart.isBefore(currentWeekStart)) {
+      setState(() {
+        _weekStart = _weekStart.add(const Duration(days: 7));
+      });
+      _loadData();
+    }
+  }
+
+  bool _canGoNext() {
+    final today = DateTime.now();
+    final currentWeekStart = DateTime(today.year, today.month, today.day)
+        .subtract(Duration(days: today.weekday - 1));
+    return _weekStart.isBefore(currentWeekStart);
+  }
+
+  Future<void> _pickWeek() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _weekStart,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      // Calculate week start (Monday) from picked date
+      final newWeekStart = picked.subtract(Duration(days: picked.weekday - 1));
+      setState(() {
+        _weekStart = DateTime(newWeekStart.year, newWeekStart.month, newWeekStart.day);
+      });
+      _loadData();
+    }
+  }
+
+  String _formatWeekDisplay() {
+    final locale = Localizations.localeOf(context).languageCode;
+    final weekEnd = _weekStart.add(const Duration(days: 6));
+    if (locale == 'ko') {
+      return '${_weekStart.year}년 ${_weekStart.month}/${_weekStart.day} - ${weekEnd.month}/${weekEnd.day}';
+    }
+    return '${_weekStart.year} ${_weekStart.month}/${_weekStart.day} - ${weekEnd.month}/${weekEnd.day}';
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return BlocBuilder<UsageStatisticsBloc, UsageStatisticsState>(
-      builder: (context, state) {
-        if (state is UsageStatisticsLoading) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (state is UsageStatisticsLoaded) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildWeeklySummaryCard(l10n.weeklyUsageTime, state.statistics, l10n),
-                const SizedBox(height: 16),
-                _buildBarChartCard(l10n.dailyUsage, state.statistics, state.dailyUsages, l10n),
-                const SizedBox(height: 16),
-                _buildShotTypeBarChartCard(l10n.usageByType, state.dailyUsages, l10n),
-                const SizedBox(height: 16),
-                _buildUShotModePieChartCard(l10n.usageByUShotMode, state.statistics, l10n),
-                const SizedBox(height: 16),
-                _buildEShotModePieChartCard(l10n.usageByEShotMode, state.statistics, l10n),
-              ],
-            ),
-          );
-        } else if (state is UsageStatisticsError) {
-          return Center(child: Text(l10n.error(state.message)));
-        }
-        return Center(child: Text(l10n.noUsageData));
-      },
+    return Column(
+      children: [
+        _DateNavigationHeader(
+          displayText: _formatWeekDisplay(),
+          onPrevious: _goToPreviousWeek,
+          onNext: _goToNextWeek,
+          onTap: _pickWeek,
+          canGoNext: _canGoNext(),
+        ),
+        Expanded(
+          child: BlocBuilder<UsageStatisticsBloc, UsageStatisticsState>(
+            buildWhen: (previous, current) => previous.weekly != current.weekly,
+            builder: (context, state) {
+              final data = state.weekly;
+              if (data.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (data.error != null) {
+                return Center(child: Text(l10n.error(data.error!)));
+              } else if (data.statistics != null) {
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildWeeklySummaryCard(l10n.weeklyUsageTime, data.statistics!, l10n),
+                      const SizedBox(height: 16),
+                      _buildBarChartCard(l10n.dailyUsage, data.statistics!, data.dailyUsages, l10n),
+                      const SizedBox(height: 16),
+                      _buildShotTypeBarChartCard(l10n.usageByType, data.dailyUsages, l10n),
+                      const SizedBox(height: 16),
+                      _buildUShotModePieChartCard(l10n.usageByUShotMode, data.statistics!, l10n),
+                      const SizedBox(height: 16),
+                      _buildEShotModePieChartCard(l10n.usageByEShotMode, data.statistics!, l10n),
+                    ],
+                  ),
+                );
+              }
+              return Center(child: Text(l10n.noUsageData));
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -813,9 +1014,9 @@ class _WeeklyStatisticsView extends StatelessWidget {
       return PieChartSectionData(
         color: colors[entry.key] ?? Colors.grey,
         value: entry.value.toDouble(),
-        title: '$percentage%',
+        title: '${entry.key.shortName}\n$percentage%',
         radius: 50,
-        titleStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+        titleStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
       );
     }).toList();
   }
@@ -835,7 +1036,7 @@ class _WeeklyStatisticsView extends StatelessWidget {
           children: [
             Container(width: 10, height: 10, decoration: BoxDecoration(color: colors[entry.key], shape: BoxShape.circle)),
             const SizedBox(width: 4),
-            Text('${entry.key.displayName} (${_formatDuration(entry.value, l10n)})', style: const TextStyle(fontSize: 11)),
+            Text('${entry.key.shortName} - ${entry.key.displayName} (${_formatDuration(entry.value, l10n)})', style: const TextStyle(fontSize: 11)),
           ],
         );
       }).toList(),
@@ -843,40 +1044,137 @@ class _WeeklyStatisticsView extends StatelessWidget {
   }
 }
 
-class _MonthlyStatisticsView extends StatelessWidget {
+class _MonthlyStatisticsView extends StatefulWidget {
   const _MonthlyStatisticsView();
+
+  @override
+  State<_MonthlyStatisticsView> createState() => _MonthlyStatisticsViewState();
+}
+
+class _MonthlyStatisticsViewState extends State<_MonthlyStatisticsView> {
+  late int _selectedYear;
+  late int _selectedMonth;
+
+  @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+    _selectedYear = now.year;
+    _selectedMonth = now.month;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
+    });
+  }
+
+  void _loadData() {
+    context.read<UsageStatisticsBloc>().add(LoadMonthlyStatistics(_selectedYear, _selectedMonth));
+  }
+
+  void _goToPreviousMonth() {
+    setState(() {
+      if (_selectedMonth == 1) {
+        _selectedMonth = 12;
+        _selectedYear--;
+      } else {
+        _selectedMonth--;
+      }
+    });
+    _loadData();
+  }
+
+  void _goToNextMonth() {
+    final now = DateTime.now();
+    if (_selectedYear < now.year || (_selectedYear == now.year && _selectedMonth < now.month)) {
+      setState(() {
+        if (_selectedMonth == 12) {
+          _selectedMonth = 1;
+          _selectedYear++;
+        } else {
+          _selectedMonth++;
+        }
+      });
+      _loadData();
+    }
+  }
+
+  bool _canGoNext() {
+    final now = DateTime.now();
+    return _selectedYear < now.year || (_selectedYear == now.year && _selectedMonth < now.month);
+  }
+
+  Future<void> _pickMonth() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime(_selectedYear, _selectedMonth),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(now.year, now.month),
+      initialDatePickerMode: DatePickerMode.year,
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedYear = picked.year;
+        _selectedMonth = picked.month;
+      });
+      _loadData();
+    }
+  }
+
+  String _formatMonthDisplay() {
+    final locale = Localizations.localeOf(context).languageCode;
+    final monthNames = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    if (locale == 'ko') {
+      return '$_selectedYear년 $_selectedMonth월';
+    }
+    return '${monthNames[_selectedMonth]} $_selectedYear';
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return BlocBuilder<UsageStatisticsBloc, UsageStatisticsState>(
-      builder: (context, state) {
-        if (state is UsageStatisticsLoading) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (state is UsageStatisticsLoaded) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildMonthlySummaryCard(l10n.monthlyUsageTime, state.statistics, l10n),
-                const SizedBox(height: 16),
-                _buildLineChartCard(l10n.usageTrend, state.statistics, state.dailyUsages, l10n),
-                const SizedBox(height: 16),
-                _buildShotTypeLineChartCard(l10n.usageByType, state.statistics, state.dailyUsages, l10n),
-                const SizedBox(height: 16),
-                _buildUShotModePieChartCard(l10n.usageByUShotMode, state.statistics, l10n),
-                const SizedBox(height: 16),
-                _buildEShotModePieChartCard(l10n.usageByEShotMode, state.statistics, l10n),
-              ],
-            ),
-          );
-        } else if (state is UsageStatisticsError) {
-          return Center(child: Text(l10n.error(state.message)));
-        }
-        return Center(child: Text(l10n.noUsageData));
-      },
+    return Column(
+      children: [
+        _DateNavigationHeader(
+          displayText: _formatMonthDisplay(),
+          onPrevious: _goToPreviousMonth,
+          onNext: _goToNextMonth,
+          onTap: _pickMonth,
+          canGoNext: _canGoNext(),
+        ),
+        Expanded(
+          child: BlocBuilder<UsageStatisticsBloc, UsageStatisticsState>(
+            buildWhen: (previous, current) => previous.monthly != current.monthly,
+            builder: (context, state) {
+              final data = state.monthly;
+              if (data.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (data.error != null) {
+                return Center(child: Text(l10n.error(data.error!)));
+              } else if (data.statistics != null) {
+                return SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildMonthlySummaryCard(l10n.monthlyUsageTime, data.statistics!, l10n),
+                      const SizedBox(height: 16),
+                      _buildLineChartCard(l10n.usageTrend, data.statistics!, data.dailyUsages, l10n),
+                      const SizedBox(height: 16),
+                      _buildShotTypeLineChartCard(l10n.usageByType, data.statistics!, data.dailyUsages, l10n),
+                      const SizedBox(height: 16),
+                      _buildUShotModePieChartCard(l10n.usageByUShotMode, data.statistics!, l10n),
+                      const SizedBox(height: 16),
+                      _buildEShotModePieChartCard(l10n.usageByEShotMode, data.statistics!, l10n),
+                    ],
+                  ),
+                );
+              }
+              return Center(child: Text(l10n.noUsageData));
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -1270,9 +1568,9 @@ class _MonthlyStatisticsView extends StatelessWidget {
       return PieChartSectionData(
         color: colors[entry.key] ?? Colors.grey,
         value: entry.value.toDouble(),
-        title: '$percentage%',
+        title: '${entry.key.shortName}\n$percentage%',
         radius: 50,
-        titleStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+        titleStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
       );
     }).toList();
   }
@@ -1292,7 +1590,7 @@ class _MonthlyStatisticsView extends StatelessWidget {
           children: [
             Container(width: 10, height: 10, decoration: BoxDecoration(color: colors[entry.key], shape: BoxShape.circle)),
             const SizedBox(width: 4),
-            Text('${entry.key.displayName} (${_formatDuration(entry.value, l10n)})', style: const TextStyle(fontSize: 11)),
+            Text('${entry.key.shortName} - ${entry.key.displayName} (${_formatDuration(entry.value, l10n)})', style: const TextStyle(fontSize: 11)),
           ],
         );
       }).toList(),

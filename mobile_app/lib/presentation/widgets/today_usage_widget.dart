@@ -14,9 +14,11 @@ class _TodayUsageWidgetState extends State<TodayUsageWidget> {
   @override
   void initState() {
     super.initState();
-    // Load today's statistics
-    context.read<UsageStatisticsBloc>()
-        .add(LoadDailyStatistics(DateTime.now()));
+    // Load today's statistics after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<UsageStatisticsBloc>()
+          .add(LoadDailyStatistics(DateTime.now()));
+    });
   }
 
   @override
@@ -38,28 +40,30 @@ class _TodayUsageWidgetState extends State<TodayUsageWidget> {
             ),
             const SizedBox(height: 16),
             BlocBuilder<UsageStatisticsBloc, UsageStatisticsState>(
+              buildWhen: (previous, current) => previous.daily != current.daily,
               builder: (context, state) {
-                if (state is UsageStatisticsLoading) {
+                final data = state.daily;
+                if (data.isLoading) {
                   return const Center(child: CircularProgressIndicator());
-                } else if (state is UsageStatisticsLoaded) {
+                } else if (data.error != null) {
+                  return Text(
+                    l10n.cannotLoadData(data.error!),
+                    style: const TextStyle(color: Colors.red),
+                  );
+                } else if (data.statistics != null) {
                   return Column(
                     children: [
                       _buildUsageRow(
                         l10n.totalUsageTime,
-                        '${state.statistics.totalUsageMinutes}${l10n.minutes}',
+                        '${data.statistics!.totalUsageMinutes}${l10n.minutes}',
                       ),
                       const SizedBox(height: 8),
-                      if (state.statistics.usageByShot.isNotEmpty)
+                      if (data.statistics!.usageByShot.isNotEmpty)
                         _buildUsageRow(
                           l10n.mostUsedMode,
-                          _getMostUsedShot(state.statistics.usageByShot),
+                          _getMostUsedShot(data.statistics!.usageByShot),
                         ),
                     ],
-                  );
-                } else if (state is UsageStatisticsError) {
-                  return Text(
-                    l10n.cannotLoadData(state.message),
-                    style: const TextStyle(color: Colors.red),
                   );
                 }
                 return Text(l10n.noUsageData);
