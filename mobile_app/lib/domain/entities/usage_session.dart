@@ -25,6 +25,7 @@ class UsageSession extends Equatable {
   final int? endBatteryLevel;
   final List<BatterySample> batterySamples;
   final SyncStatus syncStatus;
+  final bool timeSynced; // true if timestamps are real time, false if device uptime
   final String? deviceId;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -48,6 +49,7 @@ class UsageSession extends Equatable {
     this.endBatteryLevel,
     this.batterySamples = const [],
     this.syncStatus = SyncStatus.notSynced,
+    this.timeSynced = true,
     this.deviceId,
     required this.createdAt,
     required this.updatedAt,
@@ -97,6 +99,7 @@ class UsageSession extends Equatable {
     int? endBatteryLevel,
     List<BatterySample>? batterySamples,
     SyncStatus? syncStatus,
+    bool? timeSynced,
     String? deviceId,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -122,6 +125,7 @@ class UsageSession extends Equatable {
       endBatteryLevel: endBatteryLevel ?? this.endBatteryLevel,
       batterySamples: batterySamples ?? this.batterySamples,
       syncStatus: syncStatus ?? this.syncStatus,
+      timeSynced: timeSynced ?? this.timeSynced,
       deviceId: deviceId ?? this.deviceId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -148,6 +152,7 @@ class UsageSession extends Equatable {
         endBatteryLevel,
         batterySamples,
         syncStatus,
+        timeSynced,
         deviceId,
         createdAt,
         updatedAt,

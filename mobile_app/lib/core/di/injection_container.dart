@@ -55,6 +55,7 @@ Future<void> init() async {
       getDeviceStatus: sl(),
       deviceRepository: sl(),
       usageRepository: sl(),
+      bleCommDataSource: sl(),
     ),
   );
 

@@ -27,6 +27,8 @@ abstract class UsageRepository {
     UsageSession session,
     List<BatterySample> samples,
   );
+  Future<Either<Failure, void>> updateLastDeviceSyncTimestamp(DateTime timestamp);
+  Future<Either<Failure, DateTime?>> getLastDeviceSyncTimestamp();
 
   // Statistics
   Future<Either<Failure, UsageStatistics>> getDailyStatistics(DateTime date);

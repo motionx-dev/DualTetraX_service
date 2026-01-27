@@ -973,6 +973,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sending chunk {sent} of {total}'**
   String sendingChunk(int sent, int total);
+
+  /// Legend label for usage data with confirmed time sync
+  ///
+  /// In en, this message translates to:
+  /// **'Synced'**
+  String get syncedUsage;
+
+  /// Legend label for usage data without time sync (estimated time)
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated'**
+  String get unsyncedUsage;
+
+  /// Explanation for unsynced session times
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated time: Sessions recorded while app was disconnected. Actual times may differ.'**
+  String get unsyncedTimeExplanation;
 }
 
 class _AppLocalizationsDelegate

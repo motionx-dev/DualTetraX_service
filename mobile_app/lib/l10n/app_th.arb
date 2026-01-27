@@ -163,5 +163,9 @@
   "version": "เวอร์ชัน",
   "size": "ขนาด",
   "deviceNotConnected": "อุปกรณ์ไม่ได้เชื่อมต่อ",
-  "sendingChunk": "กำลังส่งบล็อก {sent} / {total}"
+  "sendingChunk": "กำลังส่งบล็อก {sent} / {total}",
+
+  "syncedUsage": "ซิงค์แล้ว",
+  "unsyncedUsage": "เวลาโดยประมาณ",
+  "unsyncedTimeExplanation": "เวลาโดยประมาณ: เซสชันที่บันทึกขณะแอปไม่ได้เชื่อมต่อ เวลาจริงอาจแตกต่างกัน"
 }

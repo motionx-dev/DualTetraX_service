@@ -163,5 +163,9 @@
   "version": "バージョン",
   "size": "サイズ",
   "deviceNotConnected": "デバイスが接続されていません",
-  "sendingChunk": "チャンク送信中 {sent} / {total}"
+  "sendingChunk": "チャンク送信中 {sent} / {total}",
+
+  "syncedUsage": "同期済み",
+  "unsyncedUsage": "推定時間",
+  "unsyncedTimeExplanation": "推定時間：アプリ未接続時に記録されたセッションです。実際の時間と異なる場合があります。"
 }

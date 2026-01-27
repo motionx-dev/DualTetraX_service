@@ -456,4 +456,14 @@ class AppLocalizationsVi extends AppLocalizations {
   String sendingChunk(int sent, int total) {
     return 'Đang gửi khối $sent / $total';
   }
+
+  @override
+  String get syncedUsage => 'Đã đồng bộ';
+
+  @override
+  String get unsyncedUsage => 'Thời gian ước tính';
+
+  @override
+  String get unsyncedTimeExplanation =>
+      'Thời gian ước tính: Phiên được ghi khi ứng dụng bị ngắt kết nối. Thời gian thực tế có thể khác.';
 }

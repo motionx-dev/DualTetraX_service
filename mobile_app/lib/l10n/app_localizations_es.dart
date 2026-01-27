@@ -462,4 +462,14 @@ class AppLocalizationsEs extends AppLocalizations {
   String sendingChunk(int sent, int total) {
     return 'Enviando bloque $sent de $total';
   }
+
+  @override
+  String get syncedUsage => 'Sincronizado';
+
+  @override
+  String get unsyncedUsage => 'Tiempo estimado';
+
+  @override
+  String get unsyncedTimeExplanation =>
+      'Tiempo estimado: Sesiones grabadas mientras la aplicación estaba desconectada. Los tiempos reales pueden variar.';
 }

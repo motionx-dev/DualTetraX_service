@@ -459,4 +459,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String sendingChunk(int sent, int total) {
     return 'Sending chunk $sent of $total';
   }
+
+  @override
+  String get syncedUsage => 'Synced';
+
+  @override
+  String get unsyncedUsage => 'Estimated';
+
+  @override
+  String get unsyncedTimeExplanation =>
+      'Estimated time: Sessions recorded while app was disconnected. Actual times may differ.';
 }

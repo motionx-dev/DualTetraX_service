@@ -377,6 +377,9 @@ class _WeeklyStatisticsView extends StatelessWidget {
       maxY = maxUsage > 0 ? (maxUsage * 1.2).ceilToDouble() : 60.0;
     }
 
+    // Check if there are any unsynced sessions
+    final hasUnsyncedData = dailyUsages?.any((d) => d.unsyncedMinutes > 0) ?? false;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -431,20 +434,27 @@ class _WeeklyStatisticsView extends StatelessWidget {
                   ),
                   borderData: FlBorderData(show: false),
                   barGroups: List.generate(7, (index) {
-                    final usageMinutes = (dailyUsages != null && index < dailyUsages.length)
-                        ? dailyUsages[index].usageMinutes.toDouble()
-                        : 0.0;
+                    final dailyUsage = (dailyUsages != null && index < dailyUsages.length)
+                        ? dailyUsages[index]
+                        : null;
+                    final syncedMinutes = dailyUsage?.syncedMinutes.toDouble() ?? 0.0;
+                    final unsyncedMinutes = dailyUsage?.unsyncedMinutes.toDouble() ?? 0.0;
+
                     return BarChartGroupData(
                       x: index,
                       barRods: [
                         BarChartRodData(
-                          toY: usageMinutes,
-                          color: Colors.blue,
+                          toY: syncedMinutes + unsyncedMinutes,
                           width: 20,
                           borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(4),
                             topRight: Radius.circular(4),
                           ),
+                          rodStackItems: [
+                            BarChartRodStackItem(0, syncedMinutes, Colors.blue),
+                            BarChartRodStackItem(syncedMinutes, syncedMinutes + unsyncedMinutes, Colors.blue.withAlpha(100)),
+                          ],
+                          color: Colors.transparent,
                         ),
                       ],
                     );
@@ -452,9 +462,33 @@ class _WeeklyStatisticsView extends StatelessWidget {
                 ),
               ),
             ),
+            if (hasUnsyncedData) ...[
+              const SizedBox(height: 12),
+              _buildTimeSyncLegend(l10n),
+              const SizedBox(height: 8),
+              Text(
+                l10n.unsyncedTimeExplanation,
+                style: TextStyle(fontSize: 11, color: Colors.grey[600], fontStyle: FontStyle.italic),
+              ),
+            ],
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTimeSyncLegend(AppLocalizations l10n) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(width: 12, height: 12, decoration: const BoxDecoration(color: Colors.blue, shape: BoxShape.circle)),
+        const SizedBox(width: 4),
+        Text(l10n.syncedUsage, style: const TextStyle(fontSize: 11)),
+        const SizedBox(width: 16),
+        Container(width: 12, height: 12, decoration: BoxDecoration(color: Colors.blue.withAlpha(100), shape: BoxShape.circle)),
+        const SizedBox(width: 4),
+        Text(l10n.unsyncedUsage, style: const TextStyle(fontSize: 11)),
+      ],
     );
   }
 
@@ -625,6 +659,9 @@ class _MonthlyStatisticsView extends StatelessWidget {
       maxY = maxUsage > 0 ? (maxUsage * 1.2).ceilToDouble() : 60.0;
     }
 
+    // Check if there are any unsynced sessions
+    final hasUnsyncedData = dailyUsages?.any((d) => d.unsyncedMinutes > 0) ?? false;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -678,12 +715,13 @@ class _MonthlyStatisticsView extends StatelessWidget {
                   minY: 0,
                   maxY: maxY,
                   lineBarsData: [
+                    // Synced usage line
                     LineChartBarData(
                       spots: List.generate(daysInMonth, (index) {
-                        final usageMinutes = (dailyUsages != null && index < dailyUsages.length)
-                            ? dailyUsages[index].usageMinutes.toDouble()
+                        final syncedMinutes = (dailyUsages != null && index < dailyUsages.length)
+                            ? dailyUsages[index].syncedMinutes.toDouble()
                             : 0.0;
-                        return FlSpot(index.toDouble(), usageMinutes);
+                        return FlSpot(index.toDouble(), syncedMinutes);
                       }),
                       isCurved: true,
                       color: Colors.blue,
@@ -695,13 +733,57 @@ class _MonthlyStatisticsView extends StatelessWidget {
                         color: Colors.blue.withAlpha(50),
                       ),
                     ),
+                    // Unsynced usage line (if any)
+                    if (hasUnsyncedData)
+                      LineChartBarData(
+                        spots: List.generate(daysInMonth, (index) {
+                          final unsyncedMinutes = (dailyUsages != null && index < dailyUsages.length)
+                              ? dailyUsages[index].unsyncedMinutes.toDouble()
+                              : 0.0;
+                          return FlSpot(index.toDouble(), unsyncedMinutes);
+                        }),
+                        isCurved: true,
+                        color: Colors.blue.withAlpha(100),
+                        barWidth: 2,
+                        isStrokeCapRound: true,
+                        dotData: const FlDotData(show: false),
+                        dashArray: [5, 5],
+                        belowBarData: BarAreaData(
+                          show: true,
+                          color: Colors.blue.withAlpha(25),
+                        ),
+                      ),
                   ],
                 ),
               ),
             ),
+            if (hasUnsyncedData) ...[
+              const SizedBox(height: 12),
+              _buildTimeSyncLegendMonthly(l10n),
+              const SizedBox(height: 8),
+              Text(
+                l10n.unsyncedTimeExplanation,
+                style: TextStyle(fontSize: 11, color: Colors.grey[600], fontStyle: FontStyle.italic),
+              ),
+            ],
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTimeSyncLegendMonthly(AppLocalizations l10n) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(width: 20, height: 2, color: Colors.blue),
+        const SizedBox(width: 4),
+        Text(l10n.syncedUsage, style: const TextStyle(fontSize: 11)),
+        const SizedBox(width: 16),
+        Container(width: 20, height: 2, color: Colors.blue.withAlpha(100)),
+        const SizedBox(width: 4),
+        Text(l10n.unsyncedUsage, style: const TextStyle(fontSize: 11)),
+      ],
     );
   }
 

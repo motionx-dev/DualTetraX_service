@@ -13,6 +13,7 @@ import '../../../domain/entities/sync_status.dart';
 import '../../../domain/usecases/get_device_status.dart';
 import '../../../domain/repositories/device_repository.dart';
 import '../../../domain/repositories/usage_repository.dart';
+import '../../../data/datasources/ble_comm_data_source.dart';
 import '../../../core/usecases/usecase.dart';
 
 // Events
@@ -68,8 +69,10 @@ class DeviceStatusBloc extends Bloc<DeviceStatusEvent, DeviceStatusState> {
   final GetDeviceStatus getDeviceStatus;
   final DeviceRepository deviceRepository;
   final UsageRepository usageRepository;
+  final BleCommDataSource bleCommDataSource;
 
   StreamSubscription? _statusSubscription;
+  StreamSubscription? _sessionStartSubscription;
   Timer? _workingTimer;
   Timer? _timeoutDisplayTimer;
   DateTime? _workingStartTime;
@@ -85,17 +88,19 @@ class DeviceStatusBloc extends Bloc<DeviceStatusEvent, DeviceStatusState> {
   bool _hadTempWarning = false;
   bool _hadBatteryWarning = false;
   bool _isSessionActive = false;
+  String? _sessionUuid; // UUID from device (via SessionStartNotification)
 
   // Total operation time: 8 minutes = 480 seconds
   static const int totalOperationTime = 480;
   static const int timeoutDisplayDuration = 15;
   // Minimum working duration (seconds) to save a session
-  static const int minWorkingDurationSeconds = 30;
+  static const int minWorkingDurationSeconds = 3;
 
   DeviceStatusBloc({
     required this.getDeviceStatus,
     required this.deviceRepository,
     required this.usageRepository,
+    required this.bleCommDataSource,
   }) : super(DeviceStatusInitial()) {
     on<StartListeningToStatus>(_onStartListening);
     on<StopListeningToStatus>(_onStopListening);
@@ -120,6 +125,12 @@ class DeviceStatusBloc extends Bloc<DeviceStatusEvent, DeviceStatusState> {
     _statusSubscription = getDeviceStatus(NoParams()).listen((status) {
       add(DeviceStatusUpdated(status));
     });
+
+    // Subscribe to SessionStartNotification to get device UUID
+    _sessionStartSubscription = bleCommDataSource.sessionStartStream.listen((notification) {
+      print('[DeviceStatusBloc] Received SessionStartNotification: uuid=${notification.uuid}');
+      _sessionUuid = notification.uuid;
+    });
   }
 
   Future<void> _onStopListening(
@@ -129,6 +140,8 @@ class DeviceStatusBloc extends Bloc<DeviceStatusEvent, DeviceStatusState> {
     _stopWorkingTimer();
     _statusSubscription?.cancel();
     _statusSubscription = null;
+    _sessionStartSubscription?.cancel();
+    _sessionStartSubscription = null;
 
     // Save session if BLE connection is lost during an active session
     if (_isSessionActive && _elapsedSeconds >= minWorkingDurationSeconds) {
@@ -247,7 +260,9 @@ class DeviceStatusBloc extends Bloc<DeviceStatusEvent, DeviceStatusState> {
   /// Start tracking a new session
   void _startNewSession(DeviceStatus status) {
     _isSessionActive = true;
-    _sessionStartTime = DateTime.now();
+    // Calculate actual start time by subtracting elapsed time
+    // This handles case where app connects mid-session
+    _sessionStartTime = DateTime.now().subtract(Duration(seconds: _elapsedSeconds));
     _sessionShotType = status.shotType;
     _sessionMode = status.mode;
     _sessionLevel = status.level;
@@ -271,8 +286,10 @@ class DeviceStatusBloc extends Bloc<DeviceStatusEvent, DeviceStatusState> {
 
     try {
       final now = DateTime.now();
+      // Use device UUID if available, otherwise generate new one
+      final sessionUuid = _sessionUuid ?? const Uuid().v4();
       final session = UsageSession(
-        uuid: const Uuid().v4(),
+        uuid: sessionUuid,
         startTime: _sessionStartTime!,
         endTime: now,
         shotType: _sessionShotType ?? ShotType.unknown,
@@ -311,6 +328,7 @@ class DeviceStatusBloc extends Bloc<DeviceStatusEvent, DeviceStatusState> {
     _sessionStartBattery = null;
     _hadTempWarning = false;
     _hadBatteryWarning = false;
+    _sessionUuid = null;
   }
 
   void _startWorkingTimer() {
@@ -359,6 +377,7 @@ class DeviceStatusBloc extends Bloc<DeviceStatusEvent, DeviceStatusState> {
     _stopWorkingTimer();
     _timeoutDisplayTimer?.cancel();
     _statusSubscription?.cancel();
+    _sessionStartSubscription?.cancel();
     return super.close();
   }
 }

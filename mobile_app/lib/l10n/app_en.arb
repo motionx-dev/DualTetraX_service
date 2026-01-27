@@ -195,5 +195,18 @@
       "sent": {"type": "int"},
       "total": {"type": "int"}
     }
+  },
+
+  "syncedUsage": "Synced",
+  "@syncedUsage": {
+    "description": "Legend label for usage data with confirmed time sync"
+  },
+  "unsyncedUsage": "Estimated",
+  "@unsyncedUsage": {
+    "description": "Legend label for usage data without time sync (estimated time)"
+  },
+  "unsyncedTimeExplanation": "Estimated time: Sessions recorded while app was disconnected. Actual times may differ.",
+  "@unsyncedTimeExplanation": {
+    "description": "Explanation for unsynced session times"
   }
 }

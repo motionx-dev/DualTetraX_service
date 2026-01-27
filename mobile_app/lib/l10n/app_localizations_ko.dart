@@ -450,4 +450,14 @@ class AppLocalizationsKo extends AppLocalizations {
   String sendingChunk(int sent, int total) {
     return '청크 전송 중 $sent / $total';
   }
+
+  @override
+  String get syncedUsage => '동기화됨';
+
+  @override
+  String get unsyncedUsage => '추정 시간';
+
+  @override
+  String get unsyncedTimeExplanation =>
+      '추정 시간: 앱 연결 없이 기록된 세션입니다. 실제 시간과 다를 수 있습니다.';
 }

@@ -163,5 +163,9 @@
   "version": "版本",
   "size": "大小",
   "deviceNotConnected": "设备未连接",
-  "sendingChunk": "发送块 {sent} / {total}"
+  "sendingChunk": "发送块 {sent} / {total}",
+
+  "syncedUsage": "已同步",
+  "unsyncedUsage": "预估时间",
+  "unsyncedTimeExplanation": "预估时间：未连接应用时记录的会话。实际时间可能有所不同。"
 }

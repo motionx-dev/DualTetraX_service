@@ -21,6 +21,8 @@ abstract class UsageLocalDataSource {
   Future<List<BatterySampleModel>> getBatterySamples(String sessionUuid);
   Future<void> deleteAllSessions();
   Future<void> deleteSessionsByDateRange(DateTime startDate, DateTime endDate);
+  Future<void> updateLastDeviceSyncTimestamp(DateTime timestamp);
+  Future<DateTime?> getLastDeviceSyncTimestamp();
 }
 
 class UsageLocalDataSourceImpl implements UsageLocalDataSource {
@@ -199,5 +201,35 @@ class UsageLocalDataSourceImpl implements UsageLocalDataSource {
         endDate.millisecondsSinceEpoch,
       ],
     );
+  }
+
+  @override
+  Future<void> updateLastDeviceSyncTimestamp(DateTime timestamp) async {
+    final db = await databaseHelper.database;
+    await db.update(
+      'sync_metadata',
+      {
+        'value': timestamp.millisecondsSinceEpoch.toString(),
+        'updated_at': DateTime.now().millisecondsSinceEpoch,
+      },
+      where: 'key = ?',
+      whereArgs: ['last_device_sync_timestamp'],
+    );
+  }
+
+  @override
+  Future<DateTime?> getLastDeviceSyncTimestamp() async {
+    final db = await databaseHelper.database;
+    final results = await db.query(
+      'sync_metadata',
+      where: 'key = ?',
+      whereArgs: ['last_device_sync_timestamp'],
+      limit: 1,
+    );
+
+    if (results.isEmpty) return null;
+    final value = results.first['value'] as String?;
+    if (value == null || value == '0') return null;
+    return DateTime.fromMillisecondsSinceEpoch(int.parse(value));
   }
 }

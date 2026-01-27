@@ -448,4 +448,14 @@ class AppLocalizationsJa extends AppLocalizations {
   String sendingChunk(int sent, int total) {
     return 'チャンク送信中 $sent / $total';
   }
+
+  @override
+  String get syncedUsage => '同期済み';
+
+  @override
+  String get unsyncedUsage => '推定時間';
+
+  @override
+  String get unsyncedTimeExplanation =>
+      '推定時間：アプリ未接続時に記録されたセッションです。実際の時間と異なる場合があります。';
 }

@@ -448,4 +448,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String sendingChunk(int sent, int total) {
     return '发送块 $sent / $total';
   }
+
+  @override
+  String get syncedUsage => '已同步';
+
+  @override
+  String get unsyncedUsage => '预估时间';
+
+  @override
+  String get unsyncedTimeExplanation => '预估时间：未连接应用时记录的会话。实际时间可能有所不同。';
 }

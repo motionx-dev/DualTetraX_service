@@ -208,16 +208,25 @@ class UsageRepositoryImpl implements UsageRepository {
         );
 
         final usageByShot = <ShotType, int>{};
+        int syncedMinutes = 0;
+        int unsyncedMinutes = 0;
         for (final session in sessions) {
           final minutes = session.workingDurationSeconds ~/ 60;
           usageByShot[session.shotType] =
               (usageByShot[session.shotType] ?? 0) + minutes;
+          if (session.timeSynced) {
+            syncedMinutes += minutes;
+          } else {
+            unsyncedMinutes += minutes;
+          }
         }
 
         dailyUsages.add(DailyUsage(
           date: date,
           usageMinutes: totalMinutes,
           usageByShot: usageByShot,
+          syncedMinutes: syncedMinutes,
+          unsyncedMinutes: unsyncedMinutes,
         ));
       }
       return Right(dailyUsages);
@@ -244,16 +253,25 @@ class UsageRepositoryImpl implements UsageRepository {
         );
 
         final usageByShot = <ShotType, int>{};
+        int syncedMinutes = 0;
+        int unsyncedMinutes = 0;
         for (final session in sessions) {
           final minutes = session.workingDurationSeconds ~/ 60;
           usageByShot[session.shotType] =
               (usageByShot[session.shotType] ?? 0) + minutes;
+          if (session.timeSynced) {
+            syncedMinutes += minutes;
+          } else {
+            unsyncedMinutes += minutes;
+          }
         }
 
         dailyUsages.add(DailyUsage(
           date: date,
           usageMinutes: totalMinutes,
           usageByShot: usageByShot,
+          syncedMinutes: syncedMinutes,
+          unsyncedMinutes: unsyncedMinutes,
         ));
       }
       return Right(dailyUsages);
@@ -280,6 +298,26 @@ class UsageRepositoryImpl implements UsageRepository {
     try {
       await localDataSource.deleteSessionsByDateRange(startDate, endDate);
       return const Right(null);
+    } on Exception catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateLastDeviceSyncTimestamp(DateTime timestamp) async {
+    try {
+      await localDataSource.updateLastDeviceSyncTimestamp(timestamp);
+      return const Right(null);
+    } on Exception catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, DateTime?>> getLastDeviceSyncTimestamp() async {
+    try {
+      final timestamp = await localDataSource.getLastDeviceSyncTimestamp();
+      return Right(timestamp);
     } on Exception catch (e) {
       return Left(DatabaseFailure(e.toString()));
     }

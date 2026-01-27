@@ -20,7 +20,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -46,6 +46,7 @@ class DatabaseHelper {
         start_battery_level INTEGER NOT NULL,
         end_battery_level INTEGER,
         sync_status INTEGER DEFAULT 0,
+        time_synced INTEGER DEFAULT 1,
         device_id TEXT,
         created_at INTEGER NOT NULL,
         updated_at INTEGER NOT NULL
@@ -113,6 +114,15 @@ class DatabaseHelper {
     if (oldVersion < 2) {
       await _migrateToV2(db);
     }
+    if (oldVersion < 3) {
+      await _migrateToV3(db);
+    }
+  }
+
+  Future<void> _migrateToV3(Database db) async {
+    // Add time_synced column (1 = timestamps are real time, 0 = device uptime)
+    // Default to 1 for existing sessions (assume they were created with app connected)
+    await db.execute('ALTER TABLE usage_sessions ADD COLUMN time_synced INTEGER DEFAULT 1');
   }
 
   Future<void> _migrateToV2(Database db) async {

@@ -38,13 +38,19 @@ class DailyUsage extends Equatable {
   final DateTime date;
   final int usageMinutes;
   final Map<ShotType, int> usageByShot;
+  /// Minutes from sessions with real time sync (timeSynced=true)
+  final int syncedMinutes;
+  /// Minutes from sessions without time sync (timeSynced=false, estimated time)
+  final int unsyncedMinutes;
 
   const DailyUsage({
     required this.date,
     required this.usageMinutes,
     required this.usageByShot,
+    this.syncedMinutes = 0,
+    this.unsyncedMinutes = 0,
   });
 
   @override
-  List<Object?> get props => [date, usageMinutes, usageByShot];
+  List<Object?> get props => [date, usageMinutes, usageByShot, syncedMinutes, unsyncedMinutes];
 }

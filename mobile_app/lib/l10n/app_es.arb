@@ -163,5 +163,9 @@
   "version": "Versión",
   "size": "Tamaño",
   "deviceNotConnected": "Dispositivo no conectado",
-  "sendingChunk": "Enviando bloque {sent} de {total}"
+  "sendingChunk": "Enviando bloque {sent} de {total}",
+
+  "syncedUsage": "Sincronizado",
+  "unsyncedUsage": "Tiempo estimado",
+  "unsyncedTimeExplanation": "Tiempo estimado: Sesiones grabadas mientras la aplicación estaba desconectada. Los tiempos reales pueden variar."
 }

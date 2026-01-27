@@ -456,4 +456,14 @@ class AppLocalizationsTh extends AppLocalizations {
   String sendingChunk(int sent, int total) {
     return 'กำลังส่งบล็อก $sent / $total';
   }
+
+  @override
+  String get syncedUsage => 'ซิงค์แล้ว';
+
+  @override
+  String get unsyncedUsage => 'เวลาโดยประมาณ';
+
+  @override
+  String get unsyncedTimeExplanation =>
+      'เวลาโดยประมาณ: เซสชันที่บันทึกขณะแอปไม่ได้เชื่อมต่อ เวลาจริงอาจแตกต่างกัน';
 }

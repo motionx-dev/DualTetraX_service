@@ -16,7 +16,7 @@ class SyncDeviceSessionsUseCase {
   final BleCommDataSource bleCommDataSource;
 
   /// Minimum working duration (in seconds) required to save a session
-  static const int minWorkingDurationSeconds = 30;
+  static const int minWorkingDurationSeconds = 3;
 
   SyncDeviceSessionsUseCase({
     required this.usageRepository,
@@ -43,6 +43,21 @@ class SyncDeviceSessionsUseCase {
 
       int syncedCount = 0;
 
+      // Get last device sync timestamp for reassigning timestamps to unsynced sessions
+      final lastSyncResult = await usageRepository.getLastDeviceSyncTimestamp();
+      DateTime lastSyncTime = DateTime.now();
+      lastSyncResult.fold(
+        (failure) => {},
+        (timestamp) {
+          if (timestamp != null) {
+            lastSyncTime = timestamp;
+          }
+        },
+      );
+
+      // Track cumulative time offset for sessions without time sync
+      int cumulativeOffsetSeconds = 0;
+
       for (final summary in summaries) {
         // Get full session data
         final sessionData = await bleCommDataSource.getSessionDetail(summary.uuid);
@@ -51,9 +66,25 @@ class SyncDeviceSessionsUseCase {
         // Parse session data and save to local database
         final parsed = _parseSessionDetail(sessionData);
         if (parsed != null) {
-          final (session, samples) = parsed;
-          // Only save sessions with working duration >= 30 seconds
+          var (session, samples) = parsed;
+
+          // Only save sessions with working duration >= minWorkingDurationSeconds
           if (session.workingDurationSeconds >= minWorkingDurationSeconds) {
+            // For sessions without time sync, reassign timestamps
+            if (!session.timeSynced) {
+              final newStartTime = lastSyncTime.add(Duration(seconds: cumulativeOffsetSeconds));
+              final totalDuration = session.workingDurationSeconds + session.pauseDurationSeconds;
+              final newEndTime = newStartTime.add(Duration(seconds: totalDuration));
+
+              session = session.copyWith(
+                startTime: newStartTime,
+                endTime: newEndTime,
+              );
+
+              // Update cumulative offset for next session
+              cumulativeOffsetSeconds += totalDuration + 1; // +1 second gap between sessions
+            }
+
             await usageRepository.saveSessionFromDevice(session, samples);
           }
         }
@@ -63,6 +94,11 @@ class SyncDeviceSessionsUseCase {
         if (confirmed == ResponseStatus.success) {
           syncedCount++;
         }
+      }
+
+      // Update last device sync timestamp
+      if (syncedCount > 0) {
+        await usageRepository.updateLastDeviceSyncTimestamp(DateTime.now());
       }
 
       return Right(syncedCount);
@@ -115,7 +151,9 @@ class SyncDeviceSessionsUseCase {
 
     // Battery Sample Reference (4 bytes)
     final batterySampleCount = data[offset++];
-    offset += 3; // skip battery_storage_index and reserved
+    offset++; // skip battery_storage_index
+    final timeSynced = data[offset++] == 1; // time_synced: 1 = real time, 0 = uptime
+    offset++; // skip reserved2
 
     // Quick Battery Access (4 bytes)
     final startBatteryMV = byteData.getUint16(offset, Endian.little);
@@ -160,6 +198,7 @@ class SyncDeviceSessionsUseCase {
       endBatteryLevel: endBatteryMV > 0 ? _voltageToPercent(endBatteryMV) : null,
       batterySamples: samples,
       syncStatus: SyncStatus.syncedToApp,
+      timeSynced: timeSynced,
       createdAt: now,
       updatedAt: now,
     );
