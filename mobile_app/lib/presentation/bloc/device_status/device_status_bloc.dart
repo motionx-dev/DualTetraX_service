@@ -1,10 +1,18 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:uuid/uuid.dart';
 import '../../../domain/entities/device_status.dart';
 import '../../../domain/entities/working_state.dart';
+import '../../../domain/entities/usage_session.dart';
+import '../../../domain/entities/shot_type.dart';
+import '../../../domain/entities/device_mode.dart';
+import '../../../domain/entities/device_level.dart';
+import '../../../domain/entities/termination_reason.dart';
+import '../../../domain/entities/sync_status.dart';
 import '../../../domain/usecases/get_device_status.dart';
 import '../../../domain/repositories/device_repository.dart';
+import '../../../domain/repositories/usage_repository.dart';
 import '../../../core/usecases/usecase.dart';
 
 // Events
@@ -59,6 +67,7 @@ class DeviceStatusTimeoutPowerOff extends DeviceStatusState {}
 class DeviceStatusBloc extends Bloc<DeviceStatusEvent, DeviceStatusState> {
   final GetDeviceStatus getDeviceStatus;
   final DeviceRepository deviceRepository;
+  final UsageRepository usageRepository;
 
   StreamSubscription? _statusSubscription;
   Timer? _workingTimer;
@@ -67,13 +76,26 @@ class DeviceStatusBloc extends Bloc<DeviceStatusEvent, DeviceStatusState> {
   int _elapsedSeconds = 0;
   DeviceStatus? _lastStatus;
 
+  // Active session tracking for local save
+  DateTime? _sessionStartTime;
+  ShotType? _sessionShotType;
+  DeviceMode? _sessionMode;
+  DeviceLevel? _sessionLevel;
+  int? _sessionStartBattery;
+  bool _hadTempWarning = false;
+  bool _hadBatteryWarning = false;
+  bool _isSessionActive = false;
+
   // Total operation time: 8 minutes = 480 seconds
   static const int totalOperationTime = 480;
   static const int timeoutDisplayDuration = 15;
+  // Minimum working duration (seconds) to save a session
+  static const int minWorkingDurationSeconds = 30;
 
   DeviceStatusBloc({
     required this.getDeviceStatus,
     required this.deviceRepository,
+    required this.usageRepository,
   }) : super(DeviceStatusInitial()) {
     on<StartListeningToStatus>(_onStartListening);
     on<StopListeningToStatus>(_onStopListening);
@@ -107,6 +129,14 @@ class DeviceStatusBloc extends Bloc<DeviceStatusEvent, DeviceStatusState> {
     _stopWorkingTimer();
     _statusSubscription?.cancel();
     _statusSubscription = null;
+
+    // Save session if BLE connection is lost during an active session
+    if (_isSessionActive && _elapsedSeconds >= minWorkingDurationSeconds) {
+      await _saveAndResetSession(
+        TerminationReason.other, // Connection lost
+        _lastStatus?.batteryStatus.level,
+      );
+    }
 
     if (_lastStatus?.workingState == WorkingState.ota) {
       emit(DeviceStatusLoaded(_lastStatus!));
@@ -157,8 +187,22 @@ class DeviceStatusBloc extends Bloc<DeviceStatusEvent, DeviceStatusState> {
       }
     }
 
+    // Track warnings during session
+    if (_isSessionActive) {
+      if (status.warningStatus.temperatureWarning) {
+        _hadTempWarning = true;
+      }
+      if (status.warningStatus.batteryLowWarning || status.warningStatus.batteryCriticalWarning) {
+        _hadBatteryWarning = true;
+      }
+    }
+
     // Handle working state changes for time tracking
     if (status.workingState == WorkingState.working) {
+      // Start new session if not already active
+      if (!_isSessionActive) {
+        _startNewSession(status);
+      }
       if (_workingTimer == null) {
         // Start tracking time when entering working state
         _startWorkingTimer();
@@ -172,21 +216,101 @@ class DeviceStatusBloc extends Bloc<DeviceStatusEvent, DeviceStatusState> {
       // Stop timer when not in working state
       if (status.workingState == WorkingState.off ||
           status.workingState == WorkingState.standby) {
+        // Save session before resetting if we have meaningful data
+        await _saveAndResetSession(
+          status.workingState == WorkingState.standby
+              ? TerminationReason.timeout8Min
+              : TerminationReason.manualPowerOff,
+          status.batteryStatus.level,
+        );
         _stopWorkingTimer();
         _elapsedSeconds = 0;
       } else if (status.workingState == WorkingState.pause) {
         // Pause the timer but keep elapsed time
         _pauseWorkingTimer();
       } else if (status.workingState == WorkingState.timeout) {
-        // Operation completed - stop timer but keep final elapsed time
+        // Operation completed - save session with timeout reason
+        await _saveAndResetSession(
+          TerminationReason.timeout8Min,
+          status.batteryStatus.level,
+        );
         _stopWorkingTimer();
-        // Keep _elapsedSeconds as the final time (should equal totalOperationTime)
+        // Keep _elapsedSeconds as the final time for display
       }
       emit(DeviceStatusLoaded(status.copyWith(
         currentWorkingTime: _elapsedSeconds,
         totalWorkingTime: totalOperationTime,
       )));
     }
+  }
+
+  /// Start tracking a new session
+  void _startNewSession(DeviceStatus status) {
+    _isSessionActive = true;
+    _sessionStartTime = DateTime.now();
+    _sessionShotType = status.shotType;
+    _sessionMode = status.mode;
+    _sessionLevel = status.level;
+    _sessionStartBattery = status.batteryStatus.level;
+    _hadTempWarning = false;
+    _hadBatteryWarning = false;
+  }
+
+  /// Save the current session to local DB and reset tracking
+  Future<void> _saveAndResetSession(
+    TerminationReason reason,
+    int? endBatteryLevel,
+  ) async {
+    // Only save if we have an active session with meaningful duration
+    if (!_isSessionActive ||
+        _sessionStartTime == null ||
+        _elapsedSeconds < minWorkingDurationSeconds) {
+      _resetSessionTracking();
+      return;
+    }
+
+    try {
+      final now = DateTime.now();
+      final session = UsageSession(
+        uuid: const Uuid().v4(),
+        startTime: _sessionStartTime!,
+        endTime: now,
+        shotType: _sessionShotType ?? ShotType.unknown,
+        mode: _sessionMode ?? DeviceMode.unknown,
+        level: _sessionLevel ?? DeviceLevel.level1,
+        workingDurationSeconds: _elapsedSeconds,
+        pauseDurationSeconds: 0, // App doesn't track pause duration separately
+        pauseCount: 0,
+        terminationReason: reason,
+        completionPercent: (_elapsedSeconds * 100 ~/ totalOperationTime).clamp(0, 100),
+        hadTemperatureWarning: _hadTempWarning,
+        hadBatteryWarning: _hadBatteryWarning,
+        startBatteryLevel: _sessionStartBattery ?? 0,
+        endBatteryLevel: endBatteryLevel,
+        syncStatus: SyncStatus.notSynced,
+        createdAt: now,
+        updatedAt: now,
+      );
+
+      await usageRepository.startSession(session);
+    } catch (e) {
+      // Log error but don't crash - session save is best effort
+      print('[DeviceStatusBloc] Failed to save local session: $e');
+    }
+
+    _resetSessionTracking();
+  }
+
+  /// Reset session tracking fields
+  void _resetSessionTracking() {
+    _isSessionActive = false;
+    _sessionStartTime = null;
+    _sessionShotType = null;
+    _sessionMode = null;
+    _sessionLevel = null;
+    _sessionStartBattery = null;
+    _hadTempWarning = false;
+    _hadBatteryWarning = false;
   }
 
   void _startWorkingTimer() {

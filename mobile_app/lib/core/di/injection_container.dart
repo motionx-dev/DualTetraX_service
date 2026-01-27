@@ -54,6 +54,7 @@ Future<void> init() async {
     () => DeviceStatusBloc(
       getDeviceStatus: sl(),
       deviceRepository: sl(),
+      usageRepository: sl(),
     ),
   );
 
