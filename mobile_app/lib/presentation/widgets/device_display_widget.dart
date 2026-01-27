@@ -420,7 +420,7 @@ class _DeviceDisplayWidgetState extends State<DeviceDisplayWidget>
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildModeIndicator('RN', shotType == ShotType.uShot && mode == DeviceMode.renew),
+            _buildModeIndicator('RE', shotType == ShotType.uShot && mode == DeviceMode.renew),
             SizedBox(width: width * 0.20),
             _buildModeIndicator('LN', shotType == ShotType.eShot && mode == DeviceMode.line),
           ],
@@ -429,7 +429,7 @@ class _DeviceDisplayWidgetState extends State<DeviceDisplayWidget>
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildModeIndicator('VL', shotType == ShotType.uShot && mode == DeviceMode.volume),
+            _buildModeIndicator('VO', shotType == ShotType.uShot && mode == DeviceMode.volume),
             SizedBox(width: width * 0.20),
             _buildModeIndicator('LF', shotType == ShotType.eShot && mode == DeviceMode.lift),
           ],

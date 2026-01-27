@@ -6,8 +6,8 @@ enum DeviceMode {
   // U-Shot modes (firmware: UShotType)
   glow(0x01, 'Glow', 'GL'),
   toneup(0x02, 'Toneup', 'TN'),
-  renew(0x03, 'Renew', 'RN'),
-  volume(0x04, 'Volume', 'VL'),
+  renew(0x03, 'Renew', 'RE'),
+  volume(0x04, 'Volume', 'VO'),
   // E-Shot modes (firmware: EShotType)
   clean(0x11, 'Clean', 'CL'),
   firm(0x12, 'Firm', 'FM'),
