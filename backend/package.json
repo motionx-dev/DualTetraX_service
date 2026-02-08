@@ -1,0 +1,35 @@
+{
+  "name": "qp-dualtetrax-api",
+  "version": "1.0.0",
+  "description": "DualTetraX Backend API - Vercel Serverless Functions",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx --env-file=.env.local dev-server.js",
+    "dev:vercel": "vercel dev",
+    "build": "echo 'No build required for serverless functions'",
+    "lint": "eslint . --ext .ts",
+    "type-check": "tsc --noEmit",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.3",
+    "@upstash/redis": "^1.28.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.1",
+    "express": "^4.18.2",
+    "tsx": "^4.7.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "@vercel/node": "^5.5.33",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3",
+    "vercel": "^33.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

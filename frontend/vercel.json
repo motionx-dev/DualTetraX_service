@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "name": "qp-dualtetrax-web",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "outputDirectory": ".next"
+}
