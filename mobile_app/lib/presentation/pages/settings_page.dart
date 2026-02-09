@@ -1,7 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../l10n/app_localizations.dart';
 import '../../core/di/injection_container.dart' as di;
+import '../../core/config/demo_mode_service.dart';
+import '../../data/datasources/demo_session_generator.dart';
 import '../bloc/usage_statistics/usage_statistics_bloc.dart';
 import '../bloc/device_connection/device_connection_bloc.dart';
 import '../bloc/device_connection/device_connection_event.dart';
@@ -18,8 +22,90 @@ import '../bloc/profile/profile_bloc.dart';
 import 'ota_page.dart';
 import 'profile/profile_page.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  int _versionTapCount = 0;
+  DateTime? _lastTapTime;
+  late bool _isDeveloperMode;
+  late bool _isDemoModeEnabled;
+
+  @override
+  void initState() {
+    super.initState();
+    final demoService = di.sl<DemoModeService>();
+    _isDeveloperMode = demoService.isDeveloperOptionsEnabled;
+    _isDemoModeEnabled = demoService.isEnabled;
+  }
+
+  void _onVersionTap() {
+    if (!kDebugMode) return;
+
+    final now = DateTime.now();
+    if (_lastTapTime != null && now.difference(_lastTapTime!).inSeconds > 3) {
+      _versionTapCount = 0;
+    }
+    _lastTapTime = now;
+    _versionTapCount++;
+
+    if (_versionTapCount >= 7) {
+      _versionTapCount = 0;
+      if (!_isDeveloperMode) {
+        setState(() => _isDeveloperMode = true);
+        di.sl<DemoModeService>().setDeveloperOptionsEnabled(true);
+        final l10n = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.developerOptionsEnabled)),
+        );
+      }
+    }
+  }
+
+  Future<void> _onDemoModeToggle(bool value) async {
+    final l10n = AppLocalizations.of(context)!;
+    await di.sl<DemoModeService>().setEnabled(value);
+    setState(() => _isDemoModeEnabled = value);
+
+    if (!mounted) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.restartRequired),
+        content: Text(l10n.restartRequiredMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.later),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.restartNow),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      SystemNavigator.pop();
+    }
+  }
+
+  Future<void> _onGenerateDemoData() async {
+    final l10n = AppLocalizations.of(context)!;
+    final generator = di.sl<DemoSessionGenerator>();
+    final count = await generator.generateDemoData();
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.demoDataGenerated(count))),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -171,6 +257,7 @@ class SettingsPage extends StatelessWidget {
             leading: const Icon(Icons.info_outline),
             title: Text(l10n.appVersion),
             trailing: const Text('1.0.0'),
+            onTap: _onVersionTap,
           ),
           ListTile(
             leading: const Icon(Icons.description),
@@ -188,6 +275,31 @@ class SettingsPage extends StatelessWidget {
               // TODO: Show privacy policy
             },
           ),
+          // Developer Options (debug builds only, after 7-tap activation)
+          if (kDebugMode && _isDeveloperMode) ...[
+            const Divider(),
+            _SectionHeader(title: l10n.developer),
+            SwitchListTile(
+              secondary: Icon(
+                Icons.developer_mode,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              title: Text(l10n.deviceSimulator),
+              subtitle: Text(l10n.deviceSimulatorSubtitle),
+              value: _isDemoModeEnabled,
+              onChanged: _onDemoModeToggle,
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.auto_fix_high,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              title: Text(l10n.generateDemoData),
+              subtitle: Text(l10n.generateDemoDataSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: _onGenerateDemoData,
+            ),
+          ],
         ],
       ),
     );

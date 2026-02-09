@@ -569,4 +569,39 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get logoutConfirmMessage => '로그아웃 하시겠습니까?';
+
+  @override
+  String get developer => '개발자';
+
+  @override
+  String get developerOptionsEnabled => '개발자 옵션이 활성화되었습니다';
+
+  @override
+  String get deviceSimulator => '디바이스 시뮬레이터';
+
+  @override
+  String get deviceSimulatorSubtitle => '하드웨어 없이 디바이스 시뮬레이션';
+
+  @override
+  String get generateDemoData => '데모 데이터 생성';
+
+  @override
+  String get generateDemoDataSubtitle => '샘플 사용 세션 생성';
+
+  @override
+  String demoDataGenerated(int count) {
+    return '데모 세션 $count개가 생성되었습니다';
+  }
+
+  @override
+  String get restartRequired => '재시작 필요';
+
+  @override
+  String get restartRequiredMessage => '변경 사항을 적용하려면 앱을 재시작해야 합니다.';
+
+  @override
+  String get restartNow => '지금 재시작';
+
+  @override
+  String get later => '나중에';
 }

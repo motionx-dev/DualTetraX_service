@@ -578,4 +578,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logoutConfirmMessage => 'Are you sure you want to logout?';
+
+  @override
+  String get developer => 'Developer';
+
+  @override
+  String get developerOptionsEnabled => 'Developer options enabled';
+
+  @override
+  String get deviceSimulator => 'Device Simulator';
+
+  @override
+  String get deviceSimulatorSubtitle => 'Simulate device without hardware';
+
+  @override
+  String get generateDemoData => 'Generate Demo Data';
+
+  @override
+  String get generateDemoDataSubtitle => 'Create sample usage sessions';
+
+  @override
+  String demoDataGenerated(int count) {
+    return '$count demo sessions created';
+  }
+
+  @override
+  String get restartRequired => 'Restart Required';
+
+  @override
+  String get restartRequiredMessage =>
+      'The app needs to restart for changes to take effect.';
+
+  @override
+  String get restartNow => 'Restart Now';
+
+  @override
+  String get later => 'Later';
 }

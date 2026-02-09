@@ -200,5 +200,17 @@
   "deviceNotRegistered": "Thiết bị chưa được đăng ký trên máy chủ",
   "skinProfile": "Hồ sơ da",
   "logoutConfirmTitle": "Đăng xuất",
-  "logoutConfirmMessage": "Bạn có chắc chắn muốn đăng xuất?"
+  "logoutConfirmMessage": "Bạn có chắc chắn muốn đăng xuất?",
+
+  "developer": "Nhà phát triển",
+  "developerOptionsEnabled": "Tùy chọn nhà phát triển đã được bật",
+  "deviceSimulator": "Trình mô phỏng thiết bị",
+  "deviceSimulatorSubtitle": "Mô phỏng thiết bị không cần phần cứng",
+  "generateDemoData": "Tạo dữ liệu demo",
+  "generateDemoDataSubtitle": "Tạo các phiên sử dụng mẫu",
+  "demoDataGenerated": "Đã tạo {count} phiên demo",
+  "restartRequired": "Cần khởi động lại",
+  "restartRequiredMessage": "Ứng dụng cần khởi động lại để áp dụng thay đổi.",
+  "restartNow": "Khởi động lại ngay",
+  "later": "Để sau"
 }

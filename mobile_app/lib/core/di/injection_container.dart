@@ -1,15 +1,21 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+// Core - Config
+import '../../core/config/demo_mode_service.dart';
 
 // Data Sources - Local/BLE
 import '../../data/datasources/database_helper.dart';
 import '../../data/datasources/usage_local_data_source.dart';
 import '../../data/datasources/device_local_data_source.dart';
 import '../../data/datasources/ble_remote_data_source.dart';
+import '../../data/datasources/ble_mock_data_source.dart';
 import '../../data/datasources/ble_ota_data_source.dart';
 import '../../data/datasources/local_firmware_data_source.dart';
 import '../../data/datasources/ble_comm_data_source.dart';
+import '../../data/datasources/demo_session_generator.dart';
 
 // Data Sources - Server
 import '../../data/datasources/auth_remote_data_source.dart';
@@ -96,6 +102,175 @@ import '../../presentation/bloc/goal/goal_bloc.dart';
 final sl = GetIt.instance;
 
 Future<void> init() async {
+  //! External (must be first - other registrations depend on these)
+  final sharedPreferences = await SharedPreferences.getInstance();
+  sl.registerLazySingleton(() => sharedPreferences);
+
+  //! Core
+  sl.registerLazySingleton(() => DatabaseHelper.instance);
+  sl.registerLazySingleton(() => ApiClient());
+  sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(Connectivity()));
+  sl.registerLazySingleton(() => DemoModeService(sharedPreferences));
+
+  final isDemoMode = sl<DemoModeService>().isEnabled;
+
+  //! Data Sources - Local
+  sl.registerLazySingleton<DeviceLocalDataSource>(
+    () => DeviceLocalDataSourceImpl(sl()),
+  );
+
+  sl.registerLazySingleton<UsageLocalDataSource>(
+    () => UsageLocalDataSourceImpl(sl()),
+  );
+
+  sl.registerLazySingleton<BleOtaDataSource>(
+    () => BleOtaDataSourceImpl(),
+  );
+
+  sl.registerLazySingleton<LocalFirmwareDataSource>(
+    () => LocalFirmwareDataSourceImpl(),
+  );
+
+  //! Data Sources - BLE (conditional on demo mode)
+  if (isDemoMode) {
+    final mockDataSource = BleMockDataSource(usageLocalDataSource: sl());
+    sl.registerLazySingleton<BleRemoteDataSource>(() => mockDataSource);
+    sl.registerLazySingleton<BleCommDataSource>(() => mockDataSource);
+  } else {
+    sl.registerLazySingleton<BleRemoteDataSource>(
+      () => BleRemoteDataSourceImpl(),
+    );
+    sl.registerLazySingleton<BleCommDataSource>(
+      () => BleCommDataSourceImpl(),
+    );
+  }
+
+  //! Data Sources - Server
+  sl.registerLazySingleton<AuthRemoteDataSource>(
+    () => AuthRemoteDataSourceImpl(apiClient: sl()),
+  );
+
+  sl.registerLazySingleton<DeviceRemoteDataSource>(
+    () => DeviceRemoteDataSourceImpl(apiClient: sl()),
+  );
+
+  sl.registerLazySingleton<SessionRemoteDataSource>(
+    () => SessionRemoteDataSourceImpl(apiClient: sl()),
+  );
+
+  sl.registerLazySingleton<ProfileRemoteDataSource>(
+    () => ProfileRemoteDataSourceImpl(apiClient: sl()),
+  );
+
+  sl.registerLazySingleton<GoalRemoteDataSource>(
+    () => GoalRemoteDataSourceImpl(apiClient: sl()),
+  );
+
+  sl.registerLazySingleton<StatsRemoteDataSource>(
+    () => StatsRemoteDataSourceImpl(apiClient: sl()),
+  );
+
+  sl.registerLazySingleton<FirmwareRemoteDataSource>(
+    () => FirmwareRemoteDataSourceImpl(apiClient: sl()),
+  );
+
+  //! Demo Session Generator
+  sl.registerLazySingleton(() => DemoSessionGenerator(sl()));
+
+  //! Repositories - Local
+  sl.registerLazySingleton<DeviceRepository>(
+    () => DeviceRepositoryImpl(
+      remoteDataSource: sl(),
+      localDataSource: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton<UsageRepository>(
+    () => UsageRepositoryImpl(sl()),
+  );
+
+  sl.registerLazySingleton<OtaRepository>(
+    () {
+      final bleDataSource = sl<BleRemoteDataSource>();
+      return OtaRepositoryImpl(
+        bleOtaDataSource: sl(),
+        localFirmwareDataSource: sl(),
+        getConnectedDevice: () {
+          if (bleDataSource is BleRemoteDataSourceImpl) {
+            return bleDataSource.connectedDevice;
+          }
+          // Mock mode: create a dummy BluetoothDevice
+          return BluetoothDevice.fromId('00:11:22:33:44:55');
+        },
+      );
+    },
+  );
+
+  //! Repositories - Server
+  sl.registerLazySingleton<AuthRepository>(
+    () => AuthRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerLazySingleton<ServerDeviceRepository>(
+    () => ServerDeviceRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerLazySingleton<SessionSyncRepository>(
+    () => SessionSyncRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerLazySingleton<GoalRepository>(
+    () => GoalRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerLazySingleton<ServerStatsRepository>(
+    () => ServerStatsRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  sl.registerLazySingleton<ServerFirmwareRepository>(
+    () => ServerFirmwareRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  //! Use Cases - Local
+  sl.registerLazySingleton(() => ConnectToDevice(sl()));
+  sl.registerLazySingleton(() => GetDeviceStatus(sl()));
+  sl.registerLazySingleton(() => GetDailyStatistics(sl()));
+  sl.registerLazySingleton(() => GetWeeklyStatistics(sl()));
+  sl.registerLazySingleton(() => GetMonthlyStatistics(sl()));
+  sl.registerLazySingleton(() => GetDailyUsageForWeek(sl()));
+  sl.registerLazySingleton(() => GetDailyUsageForMonth(sl()));
+  sl.registerLazySingleton(() => DeleteAllData(sl()));
+  sl.registerLazySingleton(() => SyncDeviceSessionsUseCase(
+    usageRepository: sl(),
+    bleCommDataSource: sl(),
+  ));
+
+  //! Use Cases - Server
+  sl.registerLazySingleton(() => LoginWithEmail(sl()));
+  sl.registerLazySingleton(() => SignupWithEmail(sl()));
+  sl.registerLazySingleton(() => Logout(sl()));
+  sl.registerLazySingleton(() => AutoLogin(sl()));
+  sl.registerLazySingleton(() => LoginWithGoogle(sl()));
+  sl.registerLazySingleton(() => LoginWithApple(sl()));
+  sl.registerLazySingleton(() => RegisterServerDevice(sl()));
+  sl.registerLazySingleton(() => GetServerDevices(sl()));
+  sl.registerLazySingleton(() => UploadSessionsToServer(
+    sessionSyncRepository: sl(),
+    usageRepository: sl(),
+    usageLocalDataSource: sl(),
+  ));
+  sl.registerLazySingleton(() => GetProfile(sl()));
+  sl.registerLazySingleton(() => UpdateProfile(sl()));
+  sl.registerLazySingleton(() => GetGoals(sl()));
+  sl.registerLazySingleton(() => CreateGoal(sl()));
+  sl.registerLazySingleton(() => UpdateGoal(sl()));
+  sl.registerLazySingleton(() => DeleteGoal(sl()));
+  sl.registerLazySingleton(() => CheckFirmwareUpdate(sl()));
+
   //! Features - Presentation (BLoC) - Local
   sl.registerFactory(
     () => DeviceConnectionBloc(
@@ -142,12 +317,18 @@ Future<void> init() async {
 
   sl.registerFactory(
     () {
-      final bleDataSource = sl<BleRemoteDataSource>() as BleRemoteDataSourceImpl;
+      final bleDataSource = sl<BleRemoteDataSource>();
       return DeviceSyncBloc(
         syncDeviceSessionsUseCase: sl(),
         bleCommDataSource: sl(),
         connectionStateStream: sl<DeviceRepository>().connectionStateStream,
-        getConnectedDevice: () => bleDataSource.connectedDevice,
+        getConnectedDevice: () {
+          if (bleDataSource is BleRemoteDataSourceImpl) {
+            return bleDataSource.connectedDevice;
+          }
+          // Mock mode: return a dummy BluetoothDevice for DeviceSyncBloc
+          return BluetoothDevice.fromId('00:11:22:33:44:55');
+        },
       );
     },
   );
@@ -196,168 +377,4 @@ Future<void> init() async {
       deleteGoalUseCase: sl(),
     ),
   );
-
-  //! Use Cases - Local
-  sl.registerLazySingleton(() => ConnectToDevice(sl()));
-  sl.registerLazySingleton(() => GetDeviceStatus(sl()));
-  sl.registerLazySingleton(() => GetDailyStatistics(sl()));
-  sl.registerLazySingleton(() => GetWeeklyStatistics(sl()));
-  sl.registerLazySingleton(() => GetMonthlyStatistics(sl()));
-  sl.registerLazySingleton(() => GetDailyUsageForWeek(sl()));
-  sl.registerLazySingleton(() => GetDailyUsageForMonth(sl()));
-  sl.registerLazySingleton(() => DeleteAllData(sl()));
-  sl.registerLazySingleton(() => SyncDeviceSessionsUseCase(
-    usageRepository: sl(),
-    bleCommDataSource: sl(),
-  ));
-
-  //! Use Cases - Server
-  sl.registerLazySingleton(() => LoginWithEmail(sl()));
-  sl.registerLazySingleton(() => SignupWithEmail(sl()));
-  sl.registerLazySingleton(() => Logout(sl()));
-  sl.registerLazySingleton(() => AutoLogin(sl()));
-  sl.registerLazySingleton(() => LoginWithGoogle(sl()));
-  sl.registerLazySingleton(() => LoginWithApple(sl()));
-  sl.registerLazySingleton(() => RegisterServerDevice(sl()));
-  sl.registerLazySingleton(() => GetServerDevices(sl()));
-  sl.registerLazySingleton(() => UploadSessionsToServer(
-    sessionSyncRepository: sl(),
-    usageRepository: sl(),
-    usageLocalDataSource: sl(),
-  ));
-  sl.registerLazySingleton(() => GetProfile(sl()));
-  sl.registerLazySingleton(() => UpdateProfile(sl()));
-  sl.registerLazySingleton(() => GetGoals(sl()));
-  sl.registerLazySingleton(() => CreateGoal(sl()));
-  sl.registerLazySingleton(() => UpdateGoal(sl()));
-  sl.registerLazySingleton(() => DeleteGoal(sl()));
-  sl.registerLazySingleton(() => CheckFirmwareUpdate(sl()));
-
-  //! Repositories - Local
-  sl.registerLazySingleton<DeviceRepository>(
-    () {
-      final bleDataSource = sl<BleRemoteDataSource>();
-      print('[DI] DeviceRepository using BleRemoteDataSource: $bleDataSource');
-      return DeviceRepositoryImpl(
-        remoteDataSource: bleDataSource,
-        localDataSource: sl(),
-      );
-    },
-  );
-
-  sl.registerLazySingleton<UsageRepository>(
-    () => UsageRepositoryImpl(sl()),
-  );
-
-  sl.registerLazySingleton<OtaRepository>(
-    () {
-      final bleDataSource = sl<BleRemoteDataSource>() as BleRemoteDataSourceImpl;
-      print('[DI] OtaRepository using BleRemoteDataSource hash=${bleDataSource.hashCode}');
-      return OtaRepositoryImpl(
-        bleOtaDataSource: sl(),
-        localFirmwareDataSource: sl(),
-        getConnectedDevice: () {
-          final device = bleDataSource.connectedDevice;
-          print('[DI] getConnectedDevice: hash=${bleDataSource.hashCode}, device: $device');
-          return device;
-        },
-      );
-    },
-  );
-
-  //! Repositories - Server
-  sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(remoteDataSource: sl()),
-  );
-
-  sl.registerLazySingleton<ServerDeviceRepository>(
-    () => ServerDeviceRepositoryImpl(remoteDataSource: sl()),
-  );
-
-  sl.registerLazySingleton<SessionSyncRepository>(
-    () => SessionSyncRepositoryImpl(remoteDataSource: sl()),
-  );
-
-  sl.registerLazySingleton<ProfileRepository>(
-    () => ProfileRepositoryImpl(remoteDataSource: sl()),
-  );
-
-  sl.registerLazySingleton<GoalRepository>(
-    () => GoalRepositoryImpl(remoteDataSource: sl()),
-  );
-
-  sl.registerLazySingleton<ServerStatsRepository>(
-    () => ServerStatsRepositoryImpl(remoteDataSource: sl()),
-  );
-
-  sl.registerLazySingleton<ServerFirmwareRepository>(
-    () => ServerFirmwareRepositoryImpl(remoteDataSource: sl()),
-  );
-
-  //! Data Sources - Local/BLE
-  sl.registerLazySingleton<BleRemoteDataSource>(
-    () {
-      final instance = BleRemoteDataSourceImpl();
-      print('[DI] BleRemoteDataSource created hash=${instance.hashCode}');
-      return instance;
-    },
-  );
-
-  sl.registerLazySingleton<DeviceLocalDataSource>(
-    () => DeviceLocalDataSourceImpl(sl()),
-  );
-
-  sl.registerLazySingleton<UsageLocalDataSource>(
-    () => UsageLocalDataSourceImpl(sl()),
-  );
-
-  sl.registerLazySingleton<BleOtaDataSource>(
-    () => BleOtaDataSourceImpl(),
-  );
-
-  sl.registerLazySingleton<LocalFirmwareDataSource>(
-    () => LocalFirmwareDataSourceImpl(),
-  );
-
-  sl.registerLazySingleton<BleCommDataSource>(
-    () => BleCommDataSourceImpl(),
-  );
-
-  //! Data Sources - Server
-  sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(apiClient: sl()),
-  );
-
-  sl.registerLazySingleton<DeviceRemoteDataSource>(
-    () => DeviceRemoteDataSourceImpl(apiClient: sl()),
-  );
-
-  sl.registerLazySingleton<SessionRemoteDataSource>(
-    () => SessionRemoteDataSourceImpl(apiClient: sl()),
-  );
-
-  sl.registerLazySingleton<ProfileRemoteDataSource>(
-    () => ProfileRemoteDataSourceImpl(apiClient: sl()),
-  );
-
-  sl.registerLazySingleton<GoalRemoteDataSource>(
-    () => GoalRemoteDataSourceImpl(apiClient: sl()),
-  );
-
-  sl.registerLazySingleton<StatsRemoteDataSource>(
-    () => StatsRemoteDataSourceImpl(apiClient: sl()),
-  );
-
-  sl.registerLazySingleton<FirmwareRemoteDataSource>(
-    () => FirmwareRemoteDataSourceImpl(apiClient: sl()),
-  );
-
-  //! Core
-  sl.registerLazySingleton(() => DatabaseHelper.instance);
-  sl.registerLazySingleton(() => ApiClient());
-  sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(Connectivity()));
-
-  //! External
-  final sharedPreferences = await SharedPreferences.getInstance();
-  sl.registerLazySingleton(() => sharedPreferences);
 }

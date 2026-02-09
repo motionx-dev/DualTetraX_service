@@ -580,4 +580,40 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get logoutConfirmMessage => 'Tem certeza de que deseja sair?';
+
+  @override
+  String get developer => 'Desenvolvedor';
+
+  @override
+  String get developerOptionsEnabled => 'Opções de desenvolvedor ativadas';
+
+  @override
+  String get deviceSimulator => 'Simulador de Dispositivo';
+
+  @override
+  String get deviceSimulatorSubtitle => 'Simular dispositivo sem hardware';
+
+  @override
+  String get generateDemoData => 'Gerar Dados de Demonstração';
+
+  @override
+  String get generateDemoDataSubtitle => 'Criar sessões de uso de exemplo';
+
+  @override
+  String demoDataGenerated(int count) {
+    return '$count sessões de demonstração criadas';
+  }
+
+  @override
+  String get restartRequired => 'Reinicialização Necessária';
+
+  @override
+  String get restartRequiredMessage =>
+      'O aplicativo precisa ser reiniciado para aplicar as alterações.';
+
+  @override
+  String get restartNow => 'Reiniciar Agora';
+
+  @override
+  String get later => 'Depois';
 }

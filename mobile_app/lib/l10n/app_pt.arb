@@ -200,5 +200,17 @@
   "deviceNotRegistered": "Dispositivo não registrado no servidor",
   "skinProfile": "Perfil de Pele",
   "logoutConfirmTitle": "Sair",
-  "logoutConfirmMessage": "Tem certeza de que deseja sair?"
+  "logoutConfirmMessage": "Tem certeza de que deseja sair?",
+
+  "developer": "Desenvolvedor",
+  "developerOptionsEnabled": "Opções de desenvolvedor ativadas",
+  "deviceSimulator": "Simulador de Dispositivo",
+  "deviceSimulatorSubtitle": "Simular dispositivo sem hardware",
+  "generateDemoData": "Gerar Dados de Demonstração",
+  "generateDemoDataSubtitle": "Criar sessões de uso de exemplo",
+  "demoDataGenerated": "{count} sessões de demonstração criadas",
+  "restartRequired": "Reinicialização Necessária",
+  "restartRequiredMessage": "O aplicativo precisa ser reiniciado para aplicar as alterações.",
+  "restartNow": "Reiniciar Agora",
+  "later": "Depois"
 }

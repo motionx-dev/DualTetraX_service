@@ -200,5 +200,17 @@
   "deviceNotRegistered": "设备未在服务器注册",
   "skinProfile": "肤质档案",
   "logoutConfirmTitle": "退出登录",
-  "logoutConfirmMessage": "确定要退出登录吗？"
+  "logoutConfirmMessage": "确定要退出登录吗？",
+
+  "developer": "开发者",
+  "developerOptionsEnabled": "开发者选项已启用",
+  "deviceSimulator": "设备模拟器",
+  "deviceSimulatorSubtitle": "无需硬件模拟设备",
+  "generateDemoData": "生成演示数据",
+  "generateDemoDataSubtitle": "创建示例使用记录",
+  "demoDataGenerated": "已创建{count}个演示会话",
+  "restartRequired": "需要重启",
+  "restartRequiredMessage": "需要重启应用以使更改生效。",
+  "restartNow": "立即重启",
+  "later": "稍后"
 }

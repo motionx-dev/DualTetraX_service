@@ -245,5 +245,22 @@
   "deviceNotRegistered": "Device not registered on server",
   "skinProfile": "Skin Profile",
   "logoutConfirmTitle": "Logout",
-  "logoutConfirmMessage": "Are you sure you want to logout?"
+  "logoutConfirmMessage": "Are you sure you want to logout?",
+
+  "developer": "Developer",
+  "developerOptionsEnabled": "Developer options enabled",
+  "deviceSimulator": "Device Simulator",
+  "deviceSimulatorSubtitle": "Simulate device without hardware",
+  "generateDemoData": "Generate Demo Data",
+  "generateDemoDataSubtitle": "Create sample usage sessions",
+  "demoDataGenerated": "{count} demo sessions created",
+  "@demoDataGenerated": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "restartRequired": "Restart Required",
+  "restartRequiredMessage": "The app needs to restart for changes to take effect.",
+  "restartNow": "Restart Now",
+  "later": "Later"
 }

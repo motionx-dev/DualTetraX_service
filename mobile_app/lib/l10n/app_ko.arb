@@ -205,5 +205,17 @@
   "deviceNotRegistered": "서버에 기기가 등록되지 않았습니다",
   "skinProfile": "피부 프로필",
   "logoutConfirmTitle": "로그아웃",
-  "logoutConfirmMessage": "로그아웃 하시겠습니까?"
+  "logoutConfirmMessage": "로그아웃 하시겠습니까?",
+
+  "developer": "개발자",
+  "developerOptionsEnabled": "개발자 옵션이 활성화되었습니다",
+  "deviceSimulator": "디바이스 시뮬레이터",
+  "deviceSimulatorSubtitle": "하드웨어 없이 디바이스 시뮬레이션",
+  "generateDemoData": "데모 데이터 생성",
+  "generateDemoDataSubtitle": "샘플 사용 세션 생성",
+  "demoDataGenerated": "데모 세션 {count}개가 생성되었습니다",
+  "restartRequired": "재시작 필요",
+  "restartRequiredMessage": "변경 사항을 적용하려면 앱을 재시작해야 합니다.",
+  "restartNow": "지금 재시작",
+  "later": "나중에"
 }

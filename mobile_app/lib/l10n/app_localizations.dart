@@ -1207,6 +1207,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are you sure you want to logout?'**
   String get logoutConfirmMessage;
+
+  /// No description provided for @developer.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer'**
+  String get developer;
+
+  /// No description provided for @developerOptionsEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer options enabled'**
+  String get developerOptionsEnabled;
+
+  /// No description provided for @deviceSimulator.
+  ///
+  /// In en, this message translates to:
+  /// **'Device Simulator'**
+  String get deviceSimulator;
+
+  /// No description provided for @deviceSimulatorSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulate device without hardware'**
+  String get deviceSimulatorSubtitle;
+
+  /// No description provided for @generateDemoData.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate Demo Data'**
+  String get generateDemoData;
+
+  /// No description provided for @generateDemoDataSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create sample usage sessions'**
+  String get generateDemoDataSubtitle;
+
+  /// No description provided for @demoDataGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} demo sessions created'**
+  String demoDataGenerated(int count);
+
+  /// No description provided for @restartRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart Required'**
+  String get restartRequired;
+
+  /// No description provided for @restartRequiredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The app needs to restart for changes to take effect.'**
+  String get restartRequiredMessage;
+
+  /// No description provided for @restartNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart Now'**
+  String get restartNow;
+
+  /// No description provided for @later.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get later;
 }
 
 class _AppLocalizationsDelegate

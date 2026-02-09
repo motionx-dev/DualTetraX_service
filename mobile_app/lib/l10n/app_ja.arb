@@ -200,5 +200,17 @@
   "deviceNotRegistered": "デバイスがサーバーに登録されていません",
   "skinProfile": "肌プロフィール",
   "logoutConfirmTitle": "ログアウト",
-  "logoutConfirmMessage": "ログアウトしてもよろしいですか？"
+  "logoutConfirmMessage": "ログアウトしてもよろしいですか？",
+
+  "developer": "開発者",
+  "developerOptionsEnabled": "開発者オプションが有効になりました",
+  "deviceSimulator": "デバイスシミュレーター",
+  "deviceSimulatorSubtitle": "ハードウェアなしでデバイスをシミュレーション",
+  "generateDemoData": "デモデータを生成",
+  "generateDemoDataSubtitle": "サンプル使用セッションを作成",
+  "demoDataGenerated": "デモセッション{count}件が作成されました",
+  "restartRequired": "再起動が必要",
+  "restartRequiredMessage": "変更を適用するにはアプリを再起動する必要があります。",
+  "restartNow": "今すぐ再起動",
+  "later": "後で"
 }

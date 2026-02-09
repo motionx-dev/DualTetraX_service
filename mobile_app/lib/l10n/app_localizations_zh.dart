@@ -565,4 +565,39 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get logoutConfirmMessage => '确定要退出登录吗？';
+
+  @override
+  String get developer => '开发者';
+
+  @override
+  String get developerOptionsEnabled => '开发者选项已启用';
+
+  @override
+  String get deviceSimulator => '设备模拟器';
+
+  @override
+  String get deviceSimulatorSubtitle => '无需硬件模拟设备';
+
+  @override
+  String get generateDemoData => '生成演示数据';
+
+  @override
+  String get generateDemoDataSubtitle => '创建示例使用记录';
+
+  @override
+  String demoDataGenerated(int count) {
+    return '已创建$count个演示会话';
+  }
+
+  @override
+  String get restartRequired => '需要重启';
+
+  @override
+  String get restartRequiredMessage => '需要重启应用以使更改生效。';
+
+  @override
+  String get restartNow => '立即重启';
+
+  @override
+  String get later => '稍后';
 }

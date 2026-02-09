@@ -575,4 +575,40 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get logoutConfirmMessage => 'Bạn có chắc chắn muốn đăng xuất?';
+
+  @override
+  String get developer => 'Nhà phát triển';
+
+  @override
+  String get developerOptionsEnabled => 'Tùy chọn nhà phát triển đã được bật';
+
+  @override
+  String get deviceSimulator => 'Trình mô phỏng thiết bị';
+
+  @override
+  String get deviceSimulatorSubtitle => 'Mô phỏng thiết bị không cần phần cứng';
+
+  @override
+  String get generateDemoData => 'Tạo dữ liệu demo';
+
+  @override
+  String get generateDemoDataSubtitle => 'Tạo các phiên sử dụng mẫu';
+
+  @override
+  String demoDataGenerated(int count) {
+    return 'Đã tạo $count phiên demo';
+  }
+
+  @override
+  String get restartRequired => 'Cần khởi động lại';
+
+  @override
+  String get restartRequiredMessage =>
+      'Ứng dụng cần khởi động lại để áp dụng thay đổi.';
+
+  @override
+  String get restartNow => 'Khởi động lại ngay';
+
+  @override
+  String get later => 'Để sau';
 }

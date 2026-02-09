@@ -575,4 +575,40 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get logoutConfirmMessage => 'คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ?';
+
+  @override
+  String get developer => 'นักพัฒนา';
+
+  @override
+  String get developerOptionsEnabled => 'เปิดใช้งานตัวเลือกนักพัฒนาแล้ว';
+
+  @override
+  String get deviceSimulator => 'ตัวจำลองอุปกรณ์';
+
+  @override
+  String get deviceSimulatorSubtitle => 'จำลองอุปกรณ์โดยไม่ต้องใช้ฮาร์ดแวร์';
+
+  @override
+  String get generateDemoData => 'สร้างข้อมูลสาธิต';
+
+  @override
+  String get generateDemoDataSubtitle => 'สร้างเซสชันการใช้งานตัวอย่าง';
+
+  @override
+  String demoDataGenerated(int count) {
+    return 'สร้างเซสชันสาธิต $count รายการแล้ว';
+  }
+
+  @override
+  String get restartRequired => 'ต้องรีสตาร์ท';
+
+  @override
+  String get restartRequiredMessage =>
+      'แอปต้องรีสตาร์ทเพื่อให้การเปลี่ยนแปลงมีผล';
+
+  @override
+  String get restartNow => 'รีสตาร์ทเลย';
+
+  @override
+  String get later => 'ภายหลัง';
 }

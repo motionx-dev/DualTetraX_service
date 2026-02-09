@@ -200,5 +200,17 @@
   "deviceNotRegistered": "อุปกรณ์ยังไม่ได้ลงทะเบียนบนเซิร์ฟเวอร์",
   "skinProfile": "โปรไฟล์ผิว",
   "logoutConfirmTitle": "ออกจากระบบ",
-  "logoutConfirmMessage": "คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ?"
+  "logoutConfirmMessage": "คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ?",
+
+  "developer": "นักพัฒนา",
+  "developerOptionsEnabled": "เปิดใช้งานตัวเลือกนักพัฒนาแล้ว",
+  "deviceSimulator": "ตัวจำลองอุปกรณ์",
+  "deviceSimulatorSubtitle": "จำลองอุปกรณ์โดยไม่ต้องใช้ฮาร์ดแวร์",
+  "generateDemoData": "สร้างข้อมูลสาธิต",
+  "generateDemoDataSubtitle": "สร้างเซสชันการใช้งานตัวอย่าง",
+  "demoDataGenerated": "สร้างเซสชันสาธิต {count} รายการแล้ว",
+  "restartRequired": "ต้องรีสตาร์ท",
+  "restartRequiredMessage": "แอปต้องรีสตาร์ทเพื่อให้การเปลี่ยนแปลงมีผล",
+  "restartNow": "รีสตาร์ทเลย",
+  "later": "ภายหลัง"
 }

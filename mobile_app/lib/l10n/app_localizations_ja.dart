@@ -567,4 +567,39 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get logoutConfirmMessage => 'ログアウトしてもよろしいですか？';
+
+  @override
+  String get developer => '開発者';
+
+  @override
+  String get developerOptionsEnabled => '開発者オプションが有効になりました';
+
+  @override
+  String get deviceSimulator => 'デバイスシミュレーター';
+
+  @override
+  String get deviceSimulatorSubtitle => 'ハードウェアなしでデバイスをシミュレーション';
+
+  @override
+  String get generateDemoData => 'デモデータを生成';
+
+  @override
+  String get generateDemoDataSubtitle => 'サンプル使用セッションを作成';
+
+  @override
+  String demoDataGenerated(int count) {
+    return 'デモセッション$count件が作成されました';
+  }
+
+  @override
+  String get restartRequired => '再起動が必要';
+
+  @override
+  String get restartRequiredMessage => '変更を適用するにはアプリを再起動する必要があります。';
+
+  @override
+  String get restartNow => '今すぐ再起動';
+
+  @override
+  String get later => '後で';
 }
