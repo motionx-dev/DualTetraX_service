@@ -36,3 +36,22 @@ class UnknownFailure extends Failure {
 class DeviceFailure extends Failure {
   const DeviceFailure(super.message);
 }
+
+class ServerFailure extends Failure {
+  final int? statusCode;
+  const ServerFailure(super.message, {this.statusCode});
+  @override
+  List<Object?> get props => [message, statusCode];
+}
+
+class AuthFailure extends Failure {
+  const AuthFailure(super.message);
+}
+
+class NetworkFailure extends Failure {
+  const NetworkFailure(super.message);
+}
+
+class ConflictFailure extends Failure {
+  const ConflictFailure(super.message);
+}

@@ -475,4 +475,104 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get unsyncedTimeExplanation =>
       'Thời gian ước tính: Phiên được ghi khi ứng dụng bị ngắt kết nối. Thời gian thực tế có thể khác.';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get emailRequired => 'Vui lòng nhập email';
+
+  @override
+  String get invalidEmail => 'Vui lòng nhập email hợp lệ';
+
+  @override
+  String get password => 'Mật khẩu';
+
+  @override
+  String get passwordRequired => 'Vui lòng nhập mật khẩu';
+
+  @override
+  String get passwordTooShort => 'Mật khẩu phải có ít nhất 6 ký tự';
+
+  @override
+  String get passwordMismatch => 'Mật khẩu không khớp';
+
+  @override
+  String get confirmPassword => 'Xác nhận mật khẩu';
+
+  @override
+  String get forgotPassword => 'Quên mật khẩu?';
+
+  @override
+  String get login => 'Đăng nhập';
+
+  @override
+  String get signup => 'Đăng ký';
+
+  @override
+  String get or => 'hoặc';
+
+  @override
+  String get continueWithGoogle => 'Tiếp tục với Google';
+
+  @override
+  String get continueWithApple => 'Tiếp tục với Apple';
+
+  @override
+  String get noAccount => 'Chưa có tài khoản?';
+
+  @override
+  String get resetPassword => 'Đặt lại mật khẩu';
+
+  @override
+  String get resetPasswordSent => 'Email đặt lại mật khẩu đã được gửi';
+
+  @override
+  String get resetPasswordDescription =>
+      'Nhập địa chỉ email của bạn và chúng tôi sẽ gửi cho bạn liên kết để đặt lại mật khẩu.';
+
+  @override
+  String get profile => 'Hồ sơ';
+
+  @override
+  String get name => 'Tên';
+
+  @override
+  String get gender => 'Giới tính';
+
+  @override
+  String get male => 'Nam';
+
+  @override
+  String get female => 'Nữ';
+
+  @override
+  String get other => 'Khác';
+
+  @override
+  String get save => 'Lưu';
+
+  @override
+  String get account => 'Tài khoản';
+
+  @override
+  String get logout => 'Đăng xuất';
+
+  @override
+  String get cloudSync => 'Đồng bộ đám mây';
+
+  @override
+  String get syncToCloud => 'Đồng bộ lên đám mây';
+
+  @override
+  String get deviceNotRegistered => 'Thiết bị chưa được đăng ký trên máy chủ';
+
+  @override
+  String get skinProfile => 'Hồ sơ da';
+
+  @override
+  String get logoutConfirmTitle => 'Đăng xuất';
+
+  @override
+  String get logoutConfirmMessage => 'Bạn có chắc chắn muốn đăng xuất?';
 }

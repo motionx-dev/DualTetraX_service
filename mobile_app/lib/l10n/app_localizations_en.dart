@@ -478,4 +478,104 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get unsyncedTimeExplanation =>
       'Estimated time: Sessions recorded while app was disconnected. Actual times may differ.';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get emailRequired => 'Email is required';
+
+  @override
+  String get invalidEmail => 'Please enter a valid email';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get passwordRequired => 'Password is required';
+
+  @override
+  String get passwordTooShort => 'Password must be at least 6 characters';
+
+  @override
+  String get passwordMismatch => 'Passwords do not match';
+
+  @override
+  String get confirmPassword => 'Confirm Password';
+
+  @override
+  String get forgotPassword => 'Forgot Password?';
+
+  @override
+  String get login => 'Log In';
+
+  @override
+  String get signup => 'Sign Up';
+
+  @override
+  String get or => 'or';
+
+  @override
+  String get continueWithGoogle => 'Continue with Google';
+
+  @override
+  String get continueWithApple => 'Continue with Apple';
+
+  @override
+  String get noAccount => 'Don\'t have an account?';
+
+  @override
+  String get resetPassword => 'Reset Password';
+
+  @override
+  String get resetPasswordSent => 'Password reset email has been sent';
+
+  @override
+  String get resetPasswordDescription =>
+      'Enter your email address and we\'ll send you a link to reset your password.';
+
+  @override
+  String get profile => 'Profile';
+
+  @override
+  String get name => 'Name';
+
+  @override
+  String get gender => 'Gender';
+
+  @override
+  String get male => 'Male';
+
+  @override
+  String get female => 'Female';
+
+  @override
+  String get other => 'Other';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get account => 'Account';
+
+  @override
+  String get logout => 'Logout';
+
+  @override
+  String get cloudSync => 'Cloud Sync';
+
+  @override
+  String get syncToCloud => 'Sync to Cloud';
+
+  @override
+  String get deviceNotRegistered => 'Device not registered on server';
+
+  @override
+  String get skinProfile => 'Skin Profile';
+
+  @override
+  String get logoutConfirmTitle => 'Logout';
+
+  @override
+  String get logoutConfirmMessage => 'Are you sure you want to logout?';
 }

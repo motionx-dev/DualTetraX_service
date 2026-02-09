@@ -467,4 +467,104 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get unsyncedTimeExplanation =>
       '推定時間：アプリ未接続時に記録されたセッションです。実際の時間と異なる場合があります。';
+
+  @override
+  String get email => 'メール';
+
+  @override
+  String get emailRequired => 'メールアドレスを入力してください';
+
+  @override
+  String get invalidEmail => '有効なメールアドレスを入力してください';
+
+  @override
+  String get password => 'パスワード';
+
+  @override
+  String get passwordRequired => 'パスワードを入力してください';
+
+  @override
+  String get passwordTooShort => 'パスワードは6文字以上である必要があります';
+
+  @override
+  String get passwordMismatch => 'パスワードが一致しません';
+
+  @override
+  String get confirmPassword => 'パスワード確認';
+
+  @override
+  String get forgotPassword => 'パスワードをお忘れですか？';
+
+  @override
+  String get login => 'ログイン';
+
+  @override
+  String get signup => '新規登録';
+
+  @override
+  String get or => 'または';
+
+  @override
+  String get continueWithGoogle => 'Googleで続ける';
+
+  @override
+  String get continueWithApple => 'Appleで続ける';
+
+  @override
+  String get noAccount => 'アカウントをお持ちでないですか？';
+
+  @override
+  String get resetPassword => 'パスワードをリセット';
+
+  @override
+  String get resetPasswordSent => 'パスワードリセットメールが送信されました';
+
+  @override
+  String get resetPasswordDescription =>
+      'メールアドレスを入力してください。パスワードリセットのリンクをお送りします。';
+
+  @override
+  String get profile => 'プロフィール';
+
+  @override
+  String get name => '名前';
+
+  @override
+  String get gender => '性別';
+
+  @override
+  String get male => '男性';
+
+  @override
+  String get female => '女性';
+
+  @override
+  String get other => 'その他';
+
+  @override
+  String get save => '保存';
+
+  @override
+  String get account => 'アカウント';
+
+  @override
+  String get logout => 'ログアウト';
+
+  @override
+  String get cloudSync => 'クラウド同期';
+
+  @override
+  String get syncToCloud => 'クラウドに同期';
+
+  @override
+  String get deviceNotRegistered => 'デバイスがサーバーに登録されていません';
+
+  @override
+  String get skinProfile => '肌プロフィール';
+
+  @override
+  String get logoutConfirmTitle => 'ログアウト';
+
+  @override
+  String get logoutConfirmMessage => 'ログアウトしてもよろしいですか？';
 }

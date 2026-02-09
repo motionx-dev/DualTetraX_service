@@ -9,7 +9,14 @@ import '../bloc/device_connection/device_connection_state.dart';
 import '../bloc/theme/theme_bloc.dart';
 import '../bloc/locale/locale_bloc.dart';
 import '../bloc/ota/ota_bloc.dart';
+import '../bloc/auth/auth_bloc.dart';
+import '../bloc/auth/auth_event.dart';
+import '../bloc/cloud_sync/cloud_sync_bloc.dart';
+import '../bloc/cloud_sync/cloud_sync_event.dart';
+import '../bloc/cloud_sync/cloud_sync_state.dart';
+import '../bloc/profile/profile_bloc.dart';
 import 'ota_page.dart';
+import 'profile/profile_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -25,6 +32,67 @@ class SettingsPage extends StatelessWidget {
       ),
       body: ListView(
         children: [
+          _SectionHeader(title: l10n.account),
+          ListTile(
+            leading: Icon(
+              Icons.person_outline,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            title: Text(l10n.profile),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => BlocProvider(
+                    create: (_) => di.sl<ProfileBloc>(),
+                    child: const ProfilePage(),
+                  ),
+                ),
+              );
+            },
+          ),
+          BlocBuilder<CloudSyncBloc, CloudSyncState>(
+            builder: (context, state) {
+              String? subtitle;
+              if (state is CloudSyncing) {
+                subtitle = '...';
+              } else if (state is CloudSyncSuccess) {
+                subtitle = '${state.uploaded} uploaded';
+              } else if (state is CloudSyncError) {
+                subtitle = state.message;
+              } else if (state is CloudSyncNoData) {
+                subtitle = 'Up to date';
+              }
+              return ListTile(
+                leading: Icon(
+                  Icons.cloud_sync_outlined,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: Text(l10n.cloudSync),
+                subtitle: subtitle != null ? Text(subtitle) : null,
+                trailing: state is CloudSyncing
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Icon(Icons.chevron_right),
+                onTap: state is CloudSyncing
+                    ? null
+                    : () {
+                        context.read<CloudSyncBloc>().add(const SyncToServerRequested());
+                      },
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.logout,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            title: Text(
+              l10n.logout,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+            onTap: () => _showLogoutConfirmation(context),
+          ),
+          const Divider(),
           _SectionHeader(title: l10n.appearance),
           _ThemeSelectorTile(),
           _LanguageSelectorTile(),
@@ -123,6 +191,35 @@ class SettingsPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _showLogoutConfirmation(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.logoutConfirmTitle),
+        content: Text(l10n.logoutConfirmMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: Text(l10n.logout),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      context.read<AuthBloc>().add(const LogoutRequested());
+    }
   }
 
   Future<void> _showDeleteConfirmation(BuildContext context) async {

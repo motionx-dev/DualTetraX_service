@@ -469,4 +469,104 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get unsyncedTimeExplanation =>
       '추정 시간: 앱 연결 없이 기록된 세션입니다. 실제 시간과 다를 수 있습니다.';
+
+  @override
+  String get email => '이메일';
+
+  @override
+  String get emailRequired => '이메일을 입력해주세요';
+
+  @override
+  String get invalidEmail => '올바른 이메일을 입력해주세요';
+
+  @override
+  String get password => '비밀번호';
+
+  @override
+  String get passwordRequired => '비밀번호를 입력해주세요';
+
+  @override
+  String get passwordTooShort => '비밀번호는 6자 이상이어야 합니다';
+
+  @override
+  String get passwordMismatch => '비밀번호가 일치하지 않습니다';
+
+  @override
+  String get confirmPassword => '비밀번호 확인';
+
+  @override
+  String get forgotPassword => '비밀번호를 잊으셨나요?';
+
+  @override
+  String get login => '로그인';
+
+  @override
+  String get signup => '회원가입';
+
+  @override
+  String get or => '또는';
+
+  @override
+  String get continueWithGoogle => 'Google로 계속하기';
+
+  @override
+  String get continueWithApple => 'Apple로 계속하기';
+
+  @override
+  String get noAccount => '계정이 없으신가요?';
+
+  @override
+  String get resetPassword => '비밀번호 재설정';
+
+  @override
+  String get resetPasswordSent => '비밀번호 재설정 이메일이 발송되었습니다';
+
+  @override
+  String get resetPasswordDescription =>
+      '이메일 주소를 입력하면 비밀번호를 재설정할 수 있는 링크를 보내드립니다.';
+
+  @override
+  String get profile => '프로필';
+
+  @override
+  String get name => '이름';
+
+  @override
+  String get gender => '성별';
+
+  @override
+  String get male => '남성';
+
+  @override
+  String get female => '여성';
+
+  @override
+  String get other => '기타';
+
+  @override
+  String get save => '저장';
+
+  @override
+  String get account => '계정';
+
+  @override
+  String get logout => '로그아웃';
+
+  @override
+  String get cloudSync => '클라우드 동기화';
+
+  @override
+  String get syncToCloud => '클라우드로 동기화';
+
+  @override
+  String get deviceNotRegistered => '서버에 기기가 등록되지 않았습니다';
+
+  @override
+  String get skinProfile => '피부 프로필';
+
+  @override
+  String get logoutConfirmTitle => '로그아웃';
+
+  @override
+  String get logoutConfirmMessage => '로그아웃 하시겠습니까?';
 }

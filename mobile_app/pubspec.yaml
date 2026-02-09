@@ -41,6 +41,14 @@ dependencies:
   # Functional Programming
   dartz: ^0.10.1
 
+  # Server Integration
+  dio: ^5.4.0
+  supabase_flutter: ^2.3.0
+  flutter_secure_storage: ^9.0.0
+  connectivity_plus: ^5.0.2
+  google_sign_in: ^6.2.1
+  sign_in_with_apple: ^5.0.0
+
   # UI
   cupertino_icons: ^1.0.6
   google_fonts: ^6.1.0

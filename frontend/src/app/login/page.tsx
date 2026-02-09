@@ -1,105 +1,115 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { createClient } from '@/lib/supabase/client';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
+import { getProfile } from "@/lib/api";
+import { useT } from "@/i18n/context";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import SocialLoginButtons from "@/components/SocialLoginButtons";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
+  const t = useT();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+    const supabase = createClient();
+    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
 
-      if (error) {
-        setError(error.message);
-        return;
-      }
-
-      if (data.session) {
-        router.push('/dashboard');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Login failed');
-    } finally {
+    if (authError) {
+      setError(authError.message);
       setLoading(false);
+      return;
     }
-  };
+
+    // Check role and redirect accordingly
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        const res = await getProfile(session.access_token);
+        if (res.profile.role === "admin") {
+          router.push("/admin");
+          return;
+        }
+      }
+    } catch {}
+    router.push("/dashboard");
+  }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold">DualTetraX</h2>
-          <p className="mt-2 text-gray-600">로그인</p>
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gray-50 dark:bg-gray-950">
+      <div className="w-full max-w-sm">
+        <div className="flex justify-end mb-2">
+          <LanguageSwitcher />
+        </div>
+        <div className="text-center mb-8">
+          <Link href="/" className="text-2xl font-bold text-gray-900 dark:text-white">DualTetraX</Link>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">{t("auth.signInTitle")}</p>
         </div>
 
-        <form onSubmit={handleLogin} className="mt-8 space-y-6">
+        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 space-y-4">
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded text-red-600 text-sm">
+            <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm">
               {error}
             </div>
           )}
 
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium mb-2">
-                이메일
-              </label>
-              <input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                placeholder="user@example.com"
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t("auth.email")}</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              placeholder={t("auth.emailPlaceholder")}
+            />
+          </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium mb-2">
-                비밀번호
-              </label>
-              <input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                placeholder="••••••••"
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t("auth.password")}</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              placeholder={t("auth.passwordPlaceholder")}
+            />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-4 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition disabled:opacity-50"
+            className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
           >
-            {loading ? '로그인 중...' : '로그인'}
+            {loading ? t("auth.signingIn") : t("auth.signIn")}
           </button>
 
-          <div className="text-center text-sm">
-            <span className="text-gray-600">계정이 없으신가요? </span>
-            <Link href="/signup" className="text-primary-600 hover:text-primary-700 font-medium">
-              회원가입
+          <div className="flex justify-between text-sm">
+            <Link href="/reset-password" className="text-blue-600 dark:text-blue-400 hover:underline">
+              {t("auth.forgotPassword")}
+            </Link>
+            <Link href="/signup" className="text-blue-600 dark:text-blue-400 hover:underline">
+              {t("auth.createAccount")}
             </Link>
           </div>
+
+          <div className="relative my-2">
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200 dark:border-gray-700" /></div>
+            <div className="relative flex justify-center text-xs"><span className="bg-white dark:bg-gray-900 px-2 text-gray-400">OR</span></div>
+          </div>
+
+          <SocialLoginButtons />
         </form>
       </div>
     </div>

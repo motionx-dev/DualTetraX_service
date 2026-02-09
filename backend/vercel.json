@@ -1,12 +1,55 @@
 {
+  "version": 2,
+  "rewrites": [
+    { "source": "/api/devices/:id/transfer", "destination": "/api/devices?__id=:id&__sub=transfer" },
+    { "source": "/api/devices/:id", "destination": "/api/devices?__id=:id" },
+
+    { "source": "/api/sessions/upload", "destination": "/api/sessions?__sub=upload" },
+    { "source": "/api/sessions/export", "destination": "/api/sessions?__sub=export" },
+    { "source": "/api/sessions/:id", "destination": "/api/sessions?__id=:id" },
+
+    { "source": "/api/stats/daily", "destination": "/api/stats?__sub=daily" },
+    { "source": "/api/stats/range", "destination": "/api/stats?__sub=range" },
+
+    { "source": "/api/profile", "destination": "/api/user?__sub=profile" },
+    { "source": "/api/notifications", "destination": "/api/user?__sub=notifications" },
+    { "source": "/api/skin-profile", "destination": "/api/user?__sub=skin-profile" },
+    { "source": "/api/consent", "destination": "/api/user?__sub=consent" },
+
+    { "source": "/api/goals/:id", "destination": "/api/goals?__id=:id" },
+
+    { "source": "/api/firmware/latest", "destination": "/api/firmware?__sub=latest" },
+    { "source": "/api/firmware/check", "destination": "/api/firmware?__sub=check" },
+
+    { "source": "/api/admin/analytics/overview", "destination": "/api/admin?__route=analytics-overview" },
+    { "source": "/api/admin/analytics/usage-trends", "destination": "/api/admin?__route=analytics-usage-trends" },
+    { "source": "/api/admin/analytics/feature-usage", "destination": "/api/admin?__route=analytics-feature-usage" },
+    { "source": "/api/admin/analytics/demographics", "destination": "/api/admin?__route=analytics-demographics" },
+    { "source": "/api/admin/analytics/heatmap", "destination": "/api/admin?__route=analytics-heatmap" },
+    { "source": "/api/admin/analytics/termination", "destination": "/api/admin?__route=analytics-termination" },
+    { "source": "/api/admin/analytics/firmware-dist", "destination": "/api/admin?__route=analytics-firmware-dist" },
+
+    { "source": "/api/admin/setup", "destination": "/api/admin?__route=setup" },
+    { "source": "/api/admin/promote", "destination": "/api/admin?__route=promote" },
+    { "source": "/api/admin/users/:id", "destination": "/api/admin?__route=users&__id=:id" },
+    { "source": "/api/admin/users", "destination": "/api/admin?__route=users" },
+    { "source": "/api/admin/devices", "destination": "/api/admin?__route=devices" },
+    { "source": "/api/admin/stats", "destination": "/api/admin?__route=stats" },
+    { "source": "/api/admin/logs", "destination": "/api/admin?__route=logs" },
+    { "source": "/api/admin/announcements/:id", "destination": "/api/admin?__route=announcements&__id=:id" },
+    { "source": "/api/admin/announcements", "destination": "/api/admin?__route=announcements" },
+    { "source": "/api/admin/firmware/upload", "destination": "/api/admin?__route=firmware-upload" },
+    { "source": "/api/admin/firmware/rollouts/:id", "destination": "/api/admin?__route=firmware-rollouts&__id=:id" },
+    { "source": "/api/admin/firmware/rollouts", "destination": "/api/admin?__route=firmware-rollouts" },
+    { "source": "/api/admin/firmware", "destination": "/api/admin?__route=firmware" }
+  ],
   "headers": [
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Access-Control-Allow-Credentials", "value": "true" },
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
-        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization" }
+        { "key": "Access-Control-Allow-Origin", "value": "https://frontend-seven-gamma-56.vercel.app" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, PUT, PATCH, DELETE, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
       ]
     }
   ]

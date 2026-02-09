@@ -475,4 +475,104 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get unsyncedTimeExplanation =>
       'เวลาโดยประมาณ: เซสชันที่บันทึกขณะแอปไม่ได้เชื่อมต่อ เวลาจริงอาจแตกต่างกัน';
+
+  @override
+  String get email => 'อีเมล';
+
+  @override
+  String get emailRequired => 'กรุณาระบุอีเมล';
+
+  @override
+  String get invalidEmail => 'กรุณาระบุอีเมลที่ถูกต้อง';
+
+  @override
+  String get password => 'รหัสผ่าน';
+
+  @override
+  String get passwordRequired => 'กรุณาระบุรหัสผ่าน';
+
+  @override
+  String get passwordTooShort => 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
+
+  @override
+  String get passwordMismatch => 'รหัสผ่านไม่ตรงกัน';
+
+  @override
+  String get confirmPassword => 'ยืนยันรหัสผ่าน';
+
+  @override
+  String get forgotPassword => 'ลืมรหัสผ่าน?';
+
+  @override
+  String get login => 'เข้าสู่ระบบ';
+
+  @override
+  String get signup => 'สมัครสมาชิก';
+
+  @override
+  String get or => 'หรือ';
+
+  @override
+  String get continueWithGoogle => 'ดำเนินการต่อด้วย Google';
+
+  @override
+  String get continueWithApple => 'ดำเนินการต่อด้วย Apple';
+
+  @override
+  String get noAccount => 'ยังไม่มีบัญชี?';
+
+  @override
+  String get resetPassword => 'รีเซ็ตรหัสผ่าน';
+
+  @override
+  String get resetPasswordSent => 'ส่งอีเมลรีเซ็ตรหัสผ่านแล้ว';
+
+  @override
+  String get resetPasswordDescription =>
+      'ระบุที่อยู่อีเมลของคุณ แล้วเราจะส่งลิงก์สำหรับรีเซ็ตรหัสผ่านให้คุณ';
+
+  @override
+  String get profile => 'โปรไฟล์';
+
+  @override
+  String get name => 'ชื่อ';
+
+  @override
+  String get gender => 'เพศ';
+
+  @override
+  String get male => 'ชาย';
+
+  @override
+  String get female => 'หญิง';
+
+  @override
+  String get other => 'อื่นๆ';
+
+  @override
+  String get save => 'บันทึก';
+
+  @override
+  String get account => 'บัญชี';
+
+  @override
+  String get logout => 'ออกจากระบบ';
+
+  @override
+  String get cloudSync => 'ซิงค์คลาวด์';
+
+  @override
+  String get syncToCloud => 'ซิงค์ไปยังคลาวด์';
+
+  @override
+  String get deviceNotRegistered => 'อุปกรณ์ยังไม่ได้ลงทะเบียนบนเซิร์ฟเวอร์';
+
+  @override
+  String get skinProfile => 'โปรไฟล์ผิว';
+
+  @override
+  String get logoutConfirmTitle => 'ออกจากระบบ';
+
+  @override
+  String get logoutConfirmMessage => 'คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบ?';
 }

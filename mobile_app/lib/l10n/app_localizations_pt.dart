@@ -480,4 +480,104 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get unsyncedTimeExplanation =>
       'Tempo estimado: Sessões gravadas enquanto o aplicativo estava desconectado. Os horários reais podem variar.';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get emailRequired => 'O email é obrigatório';
+
+  @override
+  String get invalidEmail => 'Por favor, insira um email válido';
+
+  @override
+  String get password => 'Senha';
+
+  @override
+  String get passwordRequired => 'A senha é obrigatória';
+
+  @override
+  String get passwordTooShort => 'A senha deve ter pelo menos 6 caracteres';
+
+  @override
+  String get passwordMismatch => 'As senhas não coincidem';
+
+  @override
+  String get confirmPassword => 'Confirmar Senha';
+
+  @override
+  String get forgotPassword => 'Esqueceu a senha?';
+
+  @override
+  String get login => 'Entrar';
+
+  @override
+  String get signup => 'Cadastrar';
+
+  @override
+  String get or => 'ou';
+
+  @override
+  String get continueWithGoogle => 'Continuar com Google';
+
+  @override
+  String get continueWithApple => 'Continuar com Apple';
+
+  @override
+  String get noAccount => 'Não tem uma conta?';
+
+  @override
+  String get resetPassword => 'Redefinir Senha';
+
+  @override
+  String get resetPasswordSent => 'Email de redefinição de senha enviado';
+
+  @override
+  String get resetPasswordDescription =>
+      'Insira seu endereço de email e enviaremos um link para redefinir sua senha.';
+
+  @override
+  String get profile => 'Perfil';
+
+  @override
+  String get name => 'Nome';
+
+  @override
+  String get gender => 'Gênero';
+
+  @override
+  String get male => 'Masculino';
+
+  @override
+  String get female => 'Feminino';
+
+  @override
+  String get other => 'Outro';
+
+  @override
+  String get save => 'Salvar';
+
+  @override
+  String get account => 'Conta';
+
+  @override
+  String get logout => 'Sair';
+
+  @override
+  String get cloudSync => 'Sincronização na Nuvem';
+
+  @override
+  String get syncToCloud => 'Sincronizar com a Nuvem';
+
+  @override
+  String get deviceNotRegistered => 'Dispositivo não registrado no servidor';
+
+  @override
+  String get skinProfile => 'Perfil de Pele';
+
+  @override
+  String get logoutConfirmTitle => 'Sair';
+
+  @override
+  String get logoutConfirmMessage => 'Tem certeza de que deseja sair?';
 }

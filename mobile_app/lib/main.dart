@@ -3,16 +3,23 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 import 'l10n/app_localizations.dart';
+import 'core/config/app_config.dart';
 import 'core/di/injection_container.dart' as di;
 import 'core/theme/app_theme.dart';
+import 'presentation/bloc/auth/auth_bloc.dart';
+import 'presentation/bloc/auth/auth_event.dart';
+import 'presentation/bloc/auth/auth_state.dart';
 import 'presentation/bloc/device_connection/device_connection_bloc.dart';
 import 'presentation/bloc/device_status/device_status_bloc.dart';
 import 'presentation/bloc/usage_statistics/usage_statistics_bloc.dart';
 import 'presentation/bloc/theme/theme_bloc.dart';
 import 'presentation/bloc/locale/locale_bloc.dart';
 import 'presentation/bloc/device_sync/device_sync_bloc.dart';
+import 'presentation/bloc/cloud_sync/cloud_sync_bloc.dart';
 import 'presentation/pages/home_page.dart';
+import 'presentation/pages/auth/login_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +32,12 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
+  // Initialize Supabase
+  await Supabase.initialize(
+    url: AppConfig.supabaseUrl,
+    anonKey: AppConfig.supabaseAnonKey,
+  );
 
   // Initialize dependencies
   await di.init();
@@ -45,6 +58,9 @@ class DualTetraXApp extends StatelessWidget {
         BlocProvider<LocaleBloc>(
           create: (_) => di.sl<LocaleBloc>()..add(LoadLocale()),
         ),
+        BlocProvider<AuthBloc>(
+          create: (_) => di.sl<AuthBloc>()..add(const AutoLoginRequested()),
+        ),
         BlocProvider<DeviceConnectionBloc>(
           create: (_) => di.sl<DeviceConnectionBloc>(),
         ),
@@ -56,6 +72,9 @@ class DualTetraXApp extends StatelessWidget {
         ),
         BlocProvider<DeviceSyncBloc>(
           create: (_) => di.sl<DeviceSyncBloc>(),
+        ),
+        BlocProvider<CloudSyncBloc>(
+          create: (_) => di.sl<CloudSyncBloc>(),
         ),
       ],
       child: BlocBuilder<LocaleBloc, LocaleState>(
@@ -84,7 +103,19 @@ class DualTetraXApp extends StatelessWidget {
               Locale('vi'), // Vietnamese
               Locale('th'), // Thai
             ],
-            home: const HomePage(),
+            home: BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, authState) {
+                if (authState is AuthInitial || authState is AuthLoading) {
+                  return const Scaffold(
+                    body: Center(child: CircularProgressIndicator()),
+                  );
+                }
+                if (authState is Authenticated) {
+                  return const HomePage();
+                }
+                return const LoginPage();
+              },
+            ),
             debugShowCheckedModeBanner: false,
               );
             },

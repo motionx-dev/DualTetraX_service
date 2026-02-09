@@ -466,4 +466,103 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get unsyncedTimeExplanation => '预估时间：未连接应用时记录的会话。实际时间可能有所不同。';
+
+  @override
+  String get email => '电子邮件';
+
+  @override
+  String get emailRequired => '请输入电子邮件';
+
+  @override
+  String get invalidEmail => '请输入有效的电子邮件';
+
+  @override
+  String get password => '密码';
+
+  @override
+  String get passwordRequired => '请输入密码';
+
+  @override
+  String get passwordTooShort => '密码至少需要6个字符';
+
+  @override
+  String get passwordMismatch => '密码不匹配';
+
+  @override
+  String get confirmPassword => '确认密码';
+
+  @override
+  String get forgotPassword => '忘记密码？';
+
+  @override
+  String get login => '登录';
+
+  @override
+  String get signup => '注册';
+
+  @override
+  String get or => '或';
+
+  @override
+  String get continueWithGoogle => '使用Google继续';
+
+  @override
+  String get continueWithApple => '使用Apple继续';
+
+  @override
+  String get noAccount => '没有账号？';
+
+  @override
+  String get resetPassword => '重置密码';
+
+  @override
+  String get resetPasswordSent => '密码重置邮件已发送';
+
+  @override
+  String get resetPasswordDescription => '请输入您的电子邮件地址，我们将向您发送重置密码的链接。';
+
+  @override
+  String get profile => '个人资料';
+
+  @override
+  String get name => '姓名';
+
+  @override
+  String get gender => '性别';
+
+  @override
+  String get male => '男';
+
+  @override
+  String get female => '女';
+
+  @override
+  String get other => '其他';
+
+  @override
+  String get save => '保存';
+
+  @override
+  String get account => '账号';
+
+  @override
+  String get logout => '退出登录';
+
+  @override
+  String get cloudSync => '云同步';
+
+  @override
+  String get syncToCloud => '同步到云端';
+
+  @override
+  String get deviceNotRegistered => '设备未在服务器注册';
+
+  @override
+  String get skinProfile => '肤质档案';
+
+  @override
+  String get logoutConfirmTitle => '退出登录';
+
+  @override
+  String get logoutConfirmMessage => '确定要退出登录吗？';
 }

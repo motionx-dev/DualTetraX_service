@@ -1,136 +1,145 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { createClient } from '@/lib/supabase/client';
+import { useState } from "react";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
+import { useT } from "@/i18n/context";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import SocialLoginButtons from "@/components/SocialLoginButtons";
 
 export default function SignupPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const t = useT();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
-  const supabase = createClient();
 
-  const handleSignup = async (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (password !== confirmPassword) {
-      setError('비밀번호가 일치하지 않습니다');
+      setError("Passwords do not match");
       return;
     }
 
-    if (password.length < 8) {
-      setError('비밀번호는 최소 8자 이상이어야 합니다');
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
       return;
     }
 
     setLoading(true);
+    const supabase = createClient();
+    const { error: authError } = await supabase.auth.signUp({ email, password });
 
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-
-      if (error) {
-        setError(error.message);
-        return;
-      }
-
-      if (data.user) {
-        alert('회원가입이 완료되었습니다! 이메일을 확인해주세요.');
-        router.push('/login');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Signup failed');
-    } finally {
+    if (authError) {
+      setError(authError.message);
       setLoading(false);
+      return;
     }
-  };
+
+    setSuccess(true);
+    setLoading(false);
+  }
+
+  if (success) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4 bg-gray-50 dark:bg-gray-950">
+        <div className="w-full max-w-sm text-center">
+          <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-8">
+            <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t("auth.resetSent")}</h2>
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+              We sent a confirmation link to <strong>{email}</strong>. Please check your inbox.
+            </p>
+            <Link href="/login" className="mt-4 inline-block text-sm text-blue-600 dark:text-blue-400 hover:underline">
+              {t("auth.backToLogin")}
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold">DualTetraX</h2>
-          <p className="mt-2 text-gray-600">회원가입</p>
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gray-50 dark:bg-gray-950">
+      <div className="w-full max-w-sm">
+        <div className="flex justify-end mb-2">
+          <LanguageSwitcher />
+        </div>
+        <div className="text-center mb-8">
+          <Link href="/" className="text-2xl font-bold text-gray-900 dark:text-white">DualTetraX</Link>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">{t("auth.signUpTitle")}</p>
         </div>
 
-        <form onSubmit={handleSignup} className="mt-8 space-y-6">
+        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 space-y-4">
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded text-red-600 text-sm">
+            <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm">
               {error}
             </div>
           )}
 
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium mb-2">
-                이메일
-              </label>
-              <input
-                id="email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                placeholder="user@example.com"
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t("auth.email")}</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              placeholder={t("auth.emailPlaceholder")}
+            />
+          </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium mb-2">
-                비밀번호
-              </label>
-              <input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                placeholder="최소 8자 이상"
-              />
-              <p className="mt-1 text-xs text-gray-500">
-                영문, 숫자, 특수문자 조합 8자 이상
-              </p>
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t("auth.password")}</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              placeholder={t("auth.passwordPlaceholder")}
+            />
+          </div>
 
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium mb-2">
-                비밀번호 확인
-              </label>
-              <input
-                id="confirmPassword"
-                type="password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                placeholder="비밀번호 재입력"
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t("auth.confirmPassword")}</label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              placeholder={t("auth.passwordPlaceholder")}
+            />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-4 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition disabled:opacity-50"
+            className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
           >
-            {loading ? '가입 중...' : '회원가입'}
+            {loading ? t("auth.signingUp") : t("auth.signUp")}
           </button>
 
-          <div className="text-center text-sm">
-            <span className="text-gray-600">이미 계정이 있으신가요? </span>
-            <Link href="/login" className="text-primary-600 hover:text-primary-700 font-medium">
-              로그인
-            </Link>
+          <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+            {t("auth.alreadyHaveAccount")}{" "}
+            <Link href="/login" className="text-blue-600 dark:text-blue-400 hover:underline">{t("auth.signIn")}</Link>
+          </p>
+
+          <div className="relative my-2">
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200 dark:border-gray-700" /></div>
+            <div className="relative flex justify-center text-xs"><span className="bg-white dark:bg-gray-900 px-2 text-gray-400">OR</span></div>
           </div>
+
+          <SocialLoginButtons />
         </form>
       </div>
     </div>

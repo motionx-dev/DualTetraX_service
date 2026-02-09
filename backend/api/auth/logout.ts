@@ -1,49 +1,20 @@
-import { Redis } from '@upstash/redis';
-import { extractToken } from '../../lib/supabase';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { authenticate, extractToken, hashToken, decodeJwtPayload } from '../../lib/auth';
+import { blacklistToken } from '../../lib/redis';
 
-export const config = {
-  runtime: 'edge',
-};
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-const redis = Redis.fromEnv();
+  const user = await authenticate(req, res);
+  if (!user) return;
 
-export default async function handler(req: Request) {
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
+  const token = extractToken(req)!;
+  const tokenHash = hashToken(token);
+  const payload = decodeJwtPayload(token);
+  const exp = typeof payload?.exp === 'number' ? payload.exp : Math.floor(Date.now() / 1000) + 3600;
 
-  try {
-    const authHeader = req.headers.get('authorization');
-    const token = extractToken(authHeader);
+  await blacklistToken(tokenHash, exp);
 
-    if (!token) {
-      return new Response(JSON.stringify({
-        error: 'Unauthorized',
-        message: 'No token provided',
-      }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    await redis.set(`blacklist:${token}`, '1', { ex: 3600 });
-
-    return new Response(JSON.stringify({
-      message: 'Logged out successfully',
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  } catch (err: any) {
-    return new Response(JSON.stringify({
-      error: 'Internal server error',
-      message: err.message,
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
+  return res.status(200).json({ message: 'Logged out successfully' });
 }
