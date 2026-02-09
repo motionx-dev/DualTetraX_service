@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { getProfile, updateProfile } from "@/lib/api";
 import type { Profile } from "@/lib/api";
@@ -18,6 +19,7 @@ const TIMEZONE_OPTIONS = [
 ];
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState("");
@@ -69,7 +71,7 @@ export default function ProfilePage() {
       });
       setProfile(res.profile);
       setToast(t("profile.saved"));
-      setTimeout(() => setToast(""), 3000);
+      setTimeout(() => router.push("/dashboard"), 1000);
     } catch {
       setToast(t("profile.failed"));
       setTimeout(() => setToast(""), 3000);

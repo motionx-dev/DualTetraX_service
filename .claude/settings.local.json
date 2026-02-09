@@ -56,7 +56,11 @@
       "Bash(/Users/oz/motionx/qp_prjs/DualTetraX/services/mobile_app/lib/domain/usecases/goals/delete_goal.dart << 'DART_EOF'\nimport 'package:dartz/dartz.dart';\nimport '../../../core/errors/failures.dart';\nimport '../../../core/usecases/usecase.dart';\nimport '../../repositories/goal_repository.dart';\n\nclass DeleteGoal extends UseCase<void, String> {\n  final GoalRepository repository;\n  DeleteGoal\\(this.repository\\);\n\n  @override\n  Future<Either<Failure, void>> call\\(String params\\) {\n    return repository.deleteGoal\\(params\\);\n  }\n}\nDART_EOF)",
       "Bash(/Users/oz/motionx/qp_prjs/DualTetraX/services/mobile_app/lib/domain/usecases/stats/get_server_daily_stats.dart << 'DART_EOF'\nimport 'package:dartz/dartz.dart';\nimport '../../../core/errors/failures.dart';\nimport '../../../core/usecases/usecase.dart';\nimport '../../entities/server_statistics.dart';\nimport '../../repositories/server_stats_repository.dart';\n\nclass GetServerDailyStats extends UseCase<ServerDailyStats, DailyStatsParams> {\n  final ServerStatsRepository repository;\n  GetServerDailyStats\\(this.repository\\);\n\n  @override\n  Future<Either<Failure, ServerDailyStats>> call\\(DailyStatsParams params\\) {\n    return repository.getDailyStats\\(date: params.date, deviceId: params.deviceId\\);\n  }\n}\n\nclass DailyStatsParams {\n  final String? date;\n  final String? deviceId;\n  const DailyStatsParams\\({this.date, this.deviceId}\\);\n}\nDART_EOF)",
       "Bash(/Users/oz/motionx/qp_prjs/DualTetraX/services/mobile_app/lib/domain/usecases/firmware/check_firmware_update.dart << 'DART_EOF'\nimport 'package:dartz/dartz.dart';\nimport '../../../core/errors/failures.dart';\nimport '../../../core/usecases/usecase.dart';\nimport '../../entities/firmware_update.dart';\nimport '../../repositories/server_firmware_repository.dart';\n\nclass CheckFirmwareUpdate extends UseCase<FirmwareUpdate, int> {\n  final ServerFirmwareRepository repository;\n  CheckFirmwareUpdate\\(this.repository\\);\n\n  @override\n  Future<Either<Failure, FirmwareUpdate>> call\\(int currentVersionCode\\) {\n    return repository.checkForUpdate\\(currentVersionCode: currentVersionCode\\);\n  }\n}\nDART_EOF)",
-      "Bash(flutter analyze:*)"
+      "Bash(flutter analyze:*)",
+      "WebFetch(domain:supabase.com)",
+      "WebFetch(domain:developers.kakao.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(flutter gen-l10n:*)"
     ]
   }
 }
